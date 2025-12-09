@@ -47,6 +47,7 @@ fun ErrorScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(start = Dimens.Space125, bottom = Dimens.Space125, top = Dimens.Space150)
         ) {
             Image(
                 painter = painterResource(id = R.drawable.arrow_left),
@@ -54,7 +55,6 @@ fun ErrorScreen(
                 modifier = Modifier
                     .align(Alignment.CenterStart)
                     .clickable { onArrowClick() }
-                    .padding(Dimens.Space125)
             )
         }
 
