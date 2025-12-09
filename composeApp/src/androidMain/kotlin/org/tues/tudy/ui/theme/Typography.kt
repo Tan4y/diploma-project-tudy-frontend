@@ -75,7 +75,7 @@ object AppTypography {
         fontFamily = SecondaryFont,
         fontSize = 24.sp,
         lineHeight = 28.sp,
-        fontWeight = FontWeight.ExtraBold,
+        fontWeight = FontWeight.Black,
     )
 
     val Body2 = TextStyle(
@@ -96,14 +96,14 @@ object AppTypography {
         fontFamily = SecondaryFont,
         fontSize = 12.sp,
         lineHeight = 16.sp,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.Normal,
     )
 
     val Caption2 = TextStyle(
         fontFamily = SecondaryFont,
         fontSize = 10.sp,
         lineHeight = 12.sp,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.Normal,
     )
 
     val UnderlinedParagraph1 = TextStyle(
@@ -118,7 +118,7 @@ object AppTypography {
         fontFamily = SecondaryFont,
         fontSize = 12.sp,
         lineHeight = 16.sp,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.Normal,
         textDecoration = TextDecoration.Underline
     )
 }
