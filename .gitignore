@@ -1,0 +1,39 @@
+# Gradle
+.gradle/
+gradle/**/executionHistory/
+gradle/**/fileHashes/
+gradle/**/buildOutputCleanup/
+gradle/**/*.lock
+gradle.lockfile
+
+# Android / Compose build
+**/build/
+composeApp/build/
+
+# Local configuration
+local.properties
+*.iml
+.idea/
+
+# Captures / outputs
+captures/
+output.json
+
+# Kotlin / KMP
+*.kotlin_module
+*.bin
+
+# Logs / temporary
+*.log
+.DS_Store
+*.html
+*.lock
+
+/.cxx/
+.externalNativeBuild/
+out/
+
+*.apk
+*.ap_
+*.keystore
+*.hprof
