@@ -28,7 +28,7 @@ class AuthRepository {
         val response = api.login(LogInRequest(username, password))
 
         if (response.isSuccessful) {
-            return "Check your email to verify your account"
+            return "Successful log in"
         } else {
             val error = response.errorBody()?.string()
             return error ?: "Unknown error"
