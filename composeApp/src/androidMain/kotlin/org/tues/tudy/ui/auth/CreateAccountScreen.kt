@@ -15,19 +15,18 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.tues.tudy.ui.components.CustomButton
 import org.tues.tudy.ui.components.LinkButton
 import org.tues.tudy.viewmodel.CreateAccountState
 import org.tues.tudy.viewmodel.CreateAccountViewModel
 import androidx.navigation.NavController
-import org.tues.tudy.data.model.CreateAccountRequest
 import org.tues.tudy.ui.components.CustomTextField
 import org.tues.tudy.ui.components.LogoPlusTitle
 import org.tues.tudy.ui.theme.AppTypography
 import org.tues.tudy.ui.theme.BaseColor100
 import org.tues.tudy.ui.theme.Dimens
+import org.tues.tudy.ui.theme.ErrorColor
 
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 @Composable
@@ -98,7 +97,7 @@ fun CreateAccountScreen(
                 error = usernameError
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(Dimens.Space125))
 
             CustomTextField(
                 value = email,
@@ -110,7 +109,7 @@ fun CreateAccountScreen(
                 error = emailError
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(Dimens.Space125))
 
             var passwordVisible by remember { mutableStateOf(false) }
 
@@ -135,9 +134,8 @@ fun CreateAccountScreen(
             if (state.error != null) {
                 Text(
                     text = state.error,
-                    color = MaterialTheme.colorScheme.error,
+                    color = ErrorColor,
                     style = AppTypography.Caption1,
-                    modifier = Modifier.padding(top = 8.dp)
                 )
             }
         }
@@ -147,7 +145,7 @@ fun CreateAccountScreen(
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 12.dp)
+                .padding(bottom = Dimens.Space75)
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(Dimens.Space75)
@@ -166,8 +164,6 @@ fun CreateAccountScreen(
                 value = "Create Account",
                 enabled = isButtonEnabled,
                 onClick = {
-                    val valid = true
-
                     if (username.isEmpty()) {
                         usernameError = "Username is required"
                     } else if (!username.matches(Regex("^[a-zA-Z0-9_]+$"))) {

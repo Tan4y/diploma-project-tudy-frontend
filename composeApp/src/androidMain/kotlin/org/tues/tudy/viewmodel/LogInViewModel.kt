@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import android.util.Log
+import org.json.JSONObject
 
 class LoginViewModel : ViewModel() {
 
@@ -37,17 +38,28 @@ class LoginViewModel : ViewModel() {
                 val errorBody = e.response()?.errorBody()?.string()
                 Log.e("LoginVM", "HTTP Error: ${e.code()}, Body: $errorBody")
 
-                val errorMessage = when {
-                    errorBody?.contains("credentials", ignoreCase = true) == true ->
+                // Parse JSON error message
+                val errorMessage = try {
+                    errorBody?.let {
+                        val json = JSONObject(it)
+                        json.optString("message", it)
+                    } ?: "Login failed"
+                } catch (jsonError: Exception) {
+                    errorBody ?: "Login failed"
+                }
+
+                // Customize error messages
+                val finalMessage = when {
+                    errorMessage.contains("credentials", ignoreCase = true) ->
                         "Invalid username or password"
-                    errorBody?.contains("not verified", ignoreCase = true) == true ->
+                    errorMessage.contains("not verified", ignoreCase = true) ->
                         "Please verify your email first"
-                    else -> errorBody ?: "Login failed"
+                    else -> errorMessage
                 }
 
                 _state.value = LoginState(
                     loading = false,
-                    error = errorMessage
+                    error = finalMessage
                 )
 
             } catch (e: Exception) {

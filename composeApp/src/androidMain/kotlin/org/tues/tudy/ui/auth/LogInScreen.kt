@@ -64,14 +64,15 @@ fun LogInScreen(
 
     LaunchedEffect(state.error) {
         state.error?.let { errorMsg ->
-            when {
+            passwordError = when {
                 errorMsg.contains("username", ignoreCase = true) ||
                         errorMsg.contains("password", ignoreCase = true) ||
                         errorMsg.contains("credentials", ignoreCase = true) -> {
-                    passwordError = errorMsg
+                    errorMsg
                 }
+
                 else -> {
-                    passwordError = errorMsg
+                    errorMsg
                 }
             }
         }
@@ -108,7 +109,7 @@ fun LogInScreen(
                 error = usernameError
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(Dimens.Space125))
 
             var passwordVisible by remember { mutableStateOf(false) }
 
@@ -141,7 +142,7 @@ fun LogInScreen(
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 12.dp)
+                .padding(bottom = Dimens.Space75)
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(Dimens.Space75)
