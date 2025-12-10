@@ -26,14 +26,16 @@ import org.tues.tudy.ui.theme.AppTypography
 import org.tues.tudy.ui.theme.BaseColor80
 import org.tues.tudy.ui.theme.Dimens
 import org.tues.tudy.ui.theme.ErrorColor
+import org.tues.tudy.ui.theme.SuccessColor
 
 @Composable
-fun ErrorScreen(
+fun SuccessErrorScreen(
     title: String,
     subtitle: String,
     description: String,
     buttonText: String = "Continue",
     arrow: Boolean = false,
+    success: Boolean,
     onButtonClick: () -> Unit,
     onArrowClick: () -> Unit
 ) {
@@ -44,6 +46,9 @@ fun ErrorScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
+        val giraffe = if (success) R.drawable.giraffe_happy else R.drawable.giraffe_sad
+        val subtitleColor = if (success) SuccessColor else ErrorColor
+        val describeImage = if (success) R.drawable.success_tick else R.drawable.error_cross
 
         if (arrow) {
             Box(
@@ -75,12 +80,13 @@ fun ErrorScreen(
         // GROUP 2
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Image(
-                painter = painterResource(id = R.drawable.error_cross),
+                painter = painterResource(id = describeImage),
                 contentDescription = "Cross"
             )
             Spacer(Modifier.height(Dimens.Space75))
 
-            Text(subtitle, style = AppTypography.Heading4, color = ErrorColor)
+            Text(subtitle, style = AppTypography.Heading4, color = subtitleColor)
+
             Spacer(Modifier.height(Dimens.Space125))
 
             Text(
@@ -97,7 +103,7 @@ fun ErrorScreen(
             verticalArrangement = Arrangement.spacedBy(Dimens.Space75)
         ) {
             Image(
-                painter = painterResource(id = R.drawable.giraffe_sad),
+                painter = painterResource(id = giraffe),
                 contentDescription = "Sad Giraffe",
                 modifier = Modifier
                     .size(150.dp)
