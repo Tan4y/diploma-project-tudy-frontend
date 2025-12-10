@@ -26,14 +26,16 @@ import org.tues.tudy.ui.theme.AppTypography
 import org.tues.tudy.ui.theme.BaseColor80
 import org.tues.tudy.ui.theme.Dimens
 import org.tues.tudy.ui.theme.ErrorColor
+import org.tues.tudy.ui.theme.SuccessColor
 
 @Composable
-fun ErrorScreen(
+fun SuccessErrorScreen(
     title: String,
     subtitle: String,
     description: String,
     buttonText: String = "Continue",
     arrow: Boolean = false,
+    success: Boolean,
     onButtonClick: () -> Unit,
     onArrowClick: () -> Unit
 ) {
@@ -74,13 +76,24 @@ fun ErrorScreen(
 
         // GROUP 2
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Image(
-                painter = painterResource(id = R.drawable.error_cross),
-                contentDescription = "Cross"
-            )
-            Spacer(Modifier.height(Dimens.Space75))
+            if (success) {
+                Image(
+                    painter = painterResource(id = R.drawable.success_tick),
+                    contentDescription = "Tick"
+                )
+                Spacer(Modifier.height(Dimens.Space75))
 
-            Text(subtitle, style = AppTypography.Heading4, color = ErrorColor)
+                Text(subtitle, style = AppTypography.Heading4, color = SuccessColor)
+            } else {
+                Image(
+                    painter = painterResource(id = R.drawable.error_cross),
+                    contentDescription = "Cross"
+                )
+                Spacer(Modifier.height(Dimens.Space75))
+
+                Text(subtitle, style = AppTypography.Heading4, color = ErrorColor)
+            }
+
             Spacer(Modifier.height(Dimens.Space125))
 
             Text(
@@ -96,14 +109,25 @@ fun ErrorScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(Dimens.Space75)
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.giraffe_sad),
-                contentDescription = "Sad Giraffe",
-                modifier = Modifier
-                    .size(150.dp)
-                    .align(Alignment.End),
-                contentScale = ContentScale.Fit
-            )
+            if (success) {
+                Image(
+                    painter = painterResource(id = R.drawable.giraffe_happy),
+                    contentDescription = "Happy Giraffe",
+                    modifier = Modifier
+                        .size(150.dp)
+                        .align(Alignment.End),
+                    contentScale = ContentScale.Fit
+                )
+            } else {
+                Image(
+                    painter = painterResource(id = R.drawable.giraffe_sad),
+                    contentDescription = "Sad Giraffe",
+                    modifier = Modifier
+                        .size(150.dp)
+                        .align(Alignment.End),
+                    contentScale = ContentScale.Fit
+                )
+            }
 
             CustomButton(value = buttonText, enabled = true, onClick = onButtonClick)
             Spacer(Modifier.height(Dimens.Space175))
