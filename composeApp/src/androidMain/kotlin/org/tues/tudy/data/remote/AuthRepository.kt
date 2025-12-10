@@ -1,0 +1,25 @@
+package org.tues.tudy.data.remote
+
+import org.tues.tudy.data.model.CreateAccountRequest
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+
+class AuthRepository {
+
+    private val api = Retrofit.Builder()
+        .baseUrl("http://10.0.2.2:5050/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+        .create(ApiService::class.java)
+
+    suspend fun register(username: String, email: String, password: String): String {
+        val response = api.register(CreateAccountRequest(username, email, password))
+
+        if (response.isSuccessful) {
+            return "Check your email to verify your account"
+        } else {
+            val error = response.errorBody()?.string()
+            return error ?: "Unknown error"
+        }
+    }
+}
