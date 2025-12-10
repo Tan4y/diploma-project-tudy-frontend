@@ -213,7 +213,7 @@ fun CreateAccountScreen(
                     showSuccessDialog = false
                     viewModel.resetEmailSent()
                 },
-                title = { Text("Account Created") },
+                title = { Text("Verify Email") },
                 text = { Text("An email has been sent to your inbox.") },
                 confirmButton = {
                     TextButton(
