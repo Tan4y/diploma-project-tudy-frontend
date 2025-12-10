@@ -16,9 +16,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             ErrorScreen(
                 "Create Account",
-                "Password change unsuccessful",
+                "Password Change Unsuccessful",
                 "There was an error while trying to change your password.",
                 onButtonClick = {},
+                arrow = true
             ) { }
         }
     }

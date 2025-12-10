@@ -33,6 +33,7 @@ fun ErrorScreen(
     subtitle: String,
     description: String,
     buttonText: String = "Continue",
+    arrow: Boolean = false,
     onButtonClick: () -> Unit,
     onArrowClick: () -> Unit
 ) {
@@ -44,18 +45,26 @@ fun ErrorScreen(
         verticalArrangement = Arrangement.SpaceBetween
     ) {
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = Dimens.Space125, bottom = Dimens.Space125, top = Dimens.Space150)
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.arrow_left),
-                contentDescription = "Arrow Left",
+        if (arrow) {
+            Box(
                 modifier = Modifier
-                    .align(Alignment.CenterStart)
-                    .clickable { onArrowClick() }
-            )
+                    .fillMaxWidth()
+                    .padding(
+                        start = Dimens.Space125,
+                        bottom = Dimens.Space125,
+                        top = Dimens.Space150
+                    )
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.arrow_left),
+                    contentDescription = "Arrow Left",
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .clickable { onArrowClick() }
+                )
+            }
+        } else {
+            Spacer(modifier = Modifier.height(Dimens.Space150 + Dimens.Space125 + Dimens.Space150))
         }
 
         // GROUP 1
