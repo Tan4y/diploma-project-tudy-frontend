@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -52,6 +53,29 @@ fun LogInScreen(
 
     var usernameError by remember { mutableStateOf<String?>(null) }
     var passwordError by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(state.success) {
+        if (state.success) {
+            navController.navigate("success") {
+                popUpTo("login") { inclusive = true }
+            }
+        }
+    }
+
+    LaunchedEffect(state.error) {
+        state.error?.let { errorMsg ->
+            when {
+                errorMsg.contains("username", ignoreCase = true) ||
+                        errorMsg.contains("password", ignoreCase = true) ||
+                        errorMsg.contains("credentials", ignoreCase = true) -> {
+                    passwordError = errorMsg
+                }
+                else -> {
+                    passwordError = errorMsg
+                }
+            }
+        }
+    }
 
     val focusManager = LocalFocusManager.current
 
@@ -97,6 +121,9 @@ fun LogInScreen(
                 label = "Password",
                 error = passwordError,
                 forgotPassword = true,
+                onForgotPassword = {
+                    navController.navigate("forgotPassword")
+                },
                 trailingIcon = {
                     Icon(
                         painter = painterResource(
@@ -135,28 +162,25 @@ fun LogInScreen(
                     if (username.isEmpty()) {
                         usernameError = "Username is required"
                         valid = false
-                    }
-                    val usernameRegex = Regex("^[a-zA-Z0-9_]+$")
-                    if (!username.matches(usernameRegex)) {
-                        usernameError =
-                            "Username can only contain letters, numbers, and underscores"
+                    } else if (!username.matches(Regex("^[a-zA-Z0-9_]+$"))) {
+                        usernameError = "Username can only contain letters, numbers, and underscores"
                         valid = false
                     }
+
                     if (password.isEmpty()) {
                         passwordError = "Password is required"
                         valid = false
-                    }
-                    if (password.length < 8) {
+                    } else if (password.length < 8) {
                         passwordError = "Password must be at least 8 characters long"
                         valid = false
                     }
 
                     if (valid) {
                         viewModel.login(username, password)
-
                     }
                 }
             )
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -172,21 +196,10 @@ fun LogInScreen(
                     style = AppTypography.Caption1,
                     color = BaseColor100
                 )
-                LinkButton(value = "Create Account", onClick = { navController.navigate("createAccount") })
-            }
-        }
-
-        when {
-            state.success != null -> {
-                navController.navigate("success") {
-                    popUpTo("login") { inclusive = true }
-                }
-                return
-            }
-
-            state.error != null -> {
-                navController.navigate("error")
-                return
+                LinkButton(
+                    value = "Create Account",
+                    onClick = { navController.navigate("createAccount") }
+                )
             }
         }
     }
