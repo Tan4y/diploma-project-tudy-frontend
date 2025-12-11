@@ -51,7 +51,7 @@ fun CustomTextField(
     val isFocused = remember { mutableStateOf(false) }
 
     val stateColor = when {
-        error != null -> ErrorColor
+        !error.isNullOrEmpty() -> ErrorColor
         isFocused.value -> PrimaryColor1
         value.isNotEmpty() -> BaseColor100
         else -> BaseColor80
@@ -108,7 +108,7 @@ fun CustomTextField(
                 .padding(start = Dimens.Space75, end = Dimens.Space25),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            if (error != null) {
+            if (!error.isNullOrEmpty()) {
                 Text(
                     text = error,
                     color = ErrorColor,

@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import android.util.Log
+import org.tues.tudy.R
 
 class CreateAccountViewModel : ViewModel() {
 
@@ -49,7 +50,7 @@ class CreateAccountViewModel : ViewModel() {
 
                 _state.value = CreateAccountState(
                     loading = false,
-                    error = errorMessage
+                    error = R.string.email_already_taken
                 )
 
                 _emailSent.value = false
@@ -57,7 +58,7 @@ class CreateAccountViewModel : ViewModel() {
             } catch (e: Exception) {
                 _state.value = CreateAccountState(
                     loading = false,
-                    error = e.message ?: "Unexpected error"
+                    error = R.string.unexpected_error
                 )
                 _emailSent.value = false
             }
@@ -72,5 +73,5 @@ class CreateAccountViewModel : ViewModel() {
 data class CreateAccountState(
     val loading: Boolean = false,
     val success: Boolean = false,
-    val error: String? = null
+    val error: Int? = null
 )

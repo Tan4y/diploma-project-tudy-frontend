@@ -23,9 +23,9 @@ fun NavController.navigateToSuccessError(
         URLEncoder.encode(it, StandardCharsets.UTF_8.toString())
     } ?: ""
 
-    navigate("successError/$encodedTitle/$encodedSubtitle/$encodedDescription/" +
+    navigate("${Routes.SUCCESS_ERROR}/$encodedTitle/$encodedSubtitle/$encodedDescription/" +
             "$encodedButtonText/$encodedButtonDest/$arrow/$encodedArrowDest/$success") {
         // Clear back stack to prevent going back
-        popUpTo(0) { inclusive = false }
+        popUpTo(graph.startDestinationId) { inclusive = false }
     }
 }

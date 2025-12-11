@@ -22,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -33,6 +34,7 @@ import org.tues.tudy.ui.components.CustomButton
 import org.tues.tudy.ui.components.CustomTextField
 import org.tues.tudy.ui.components.LinkButton
 import org.tues.tudy.ui.components.LogoPlusTitle
+import org.tues.tudy.ui.navigation.Routes
 import org.tues.tudy.ui.navigation.navigateToSuccessError
 import org.tues.tudy.ui.theme.AppTypography
 import org.tues.tudy.ui.theme.BaseColor100
@@ -51,8 +53,8 @@ fun LogInScreen(
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    var usernameError by remember { mutableStateOf<String?>(null) }
-    var passwordError by remember { mutableStateOf<String?>(null) }
+    var usernameError by remember { mutableStateOf("") }
+    var passwordError by remember { mutableStateOf("") }
 
     LaunchedEffect(state.success) {
         if (state.success) {
@@ -68,8 +70,11 @@ fun LogInScreen(
         }
     }
 
+    val context = LocalContext.current
+
     LaunchedEffect(state.error) {
-        state.error?.let { errorMsg ->
+        state.error?.let { errorResId ->
+            val errorMsg = context.getString(errorResId)
             passwordError = when {
                 errorMsg.contains("username", ignoreCase = true) ||
                         errorMsg.contains("password", ignoreCase = true) ||
@@ -109,7 +114,7 @@ fun LogInScreen(
                 value = username,
                 onValueChange = {
                     username = it
-                    usernameError = null
+                    usernameError = ""
                 },
                 label = "Username",
                 error = usernameError
@@ -123,13 +128,13 @@ fun LogInScreen(
                 value = password,
                 onValueChange = {
                     password = it
-                    passwordError = null
+                    passwordError = ""
                 },
                 label = "Password",
                 error = passwordError,
                 forgotPassword = true,
                 onForgotPassword = {
-                    navController.navigate("forgotPassword")
+                    navController.navigate(Routes.FORGOT_PASSWORD)
                 },
                 trailingIcon = {
                     Icon(
@@ -156,8 +161,8 @@ fun LogInScreen(
             val isButtonEnabled =
                 username.isNotEmpty() &&
                         password.isNotEmpty() &&
-                        usernameError == null &&
-                        passwordError == null &&
+                        usernameError.isEmpty() &&
+                        passwordError.isEmpty() &&
                         !state.loading
 
             CustomButton(
@@ -206,7 +211,7 @@ fun LogInScreen(
                 )
                 LinkButton(
                     value = "Create Account",
-                    onClick = { navController.navigate("createAccount") }
+                    onClick = { navController.navigate(Routes.CREATE_ACCOUNT) }
                 )
             }
         }

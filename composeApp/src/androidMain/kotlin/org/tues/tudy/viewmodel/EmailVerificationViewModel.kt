@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import android.util.Log
 import org.json.JSONObject
+import org.tues.tudy.R
 
 class EmailVerificationViewModel : ViewModel() {
 
@@ -44,20 +45,20 @@ class EmailVerificationViewModel : ViewModel() {
 
                 _state.value = EmailVerificationState(
                     loading = false,
-                    error = errorMessage
+                    error = R.string.verification_failed
                 )
 
             } catch (e: Exception) {
                 Log.e("EmailVerificationVM", "Unexpected error: ${e.message}")
                 _state.value = EmailVerificationState(
                     loading = false,
-                    error = e.message ?: "Unexpected error"
+                    error = R.string.unexpected_error
                 )
             }
         }
     }
 
-    fun setError(message: String) {
+    fun setError(message: Int) {
         _state.value = EmailVerificationState(error = message)
     }
 }
@@ -65,5 +66,5 @@ class EmailVerificationViewModel : ViewModel() {
 data class EmailVerificationState(
     val loading: Boolean = false,
     val success: Boolean = false,
-    val error: String? = null
+    val error: Int? = null
 )

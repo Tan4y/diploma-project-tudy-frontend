@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -23,10 +24,10 @@ import org.tues.tudy.viewmodel.CreateAccountViewModel
 import androidx.navigation.NavController
 import org.tues.tudy.ui.components.CustomTextField
 import org.tues.tudy.ui.components.LogoPlusTitle
+import org.tues.tudy.ui.navigation.Routes
 import org.tues.tudy.ui.theme.AppTypography
 import org.tues.tudy.ui.theme.BaseColor100
 import org.tues.tudy.ui.theme.Dimens
-import org.tues.tudy.ui.theme.ErrorColor
 
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 @Composable
@@ -49,12 +50,15 @@ fun CreateAccountScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    var usernameError by remember { mutableStateOf<String?>(null) }
-    var emailError by remember { mutableStateOf<String?>(null) }
-    var passwordError by remember { mutableStateOf<String?>(null) }
+    var usernameError by remember { mutableStateOf("") }
+    var emailError by remember { mutableStateOf("") }
+    var passwordError by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
 
     LaunchedEffect(state.error) {
-        state.error?.let { errorMsg ->
+        state.error?.let { errorResId ->
+            val errorMsg = context.getString(errorResId)
             when {
                 errorMsg.contains("Email", ignoreCase = true) -> emailError = errorMsg
                 errorMsg.contains("Username", ignoreCase = true) -> usernameError = errorMsg
@@ -91,7 +95,7 @@ fun CreateAccountScreen(
                 value = username,
                 onValueChange = {
                     username = it
-                    usernameError = null
+                    usernameError = ""
                 },
                 label = "Username",
                 error = usernameError
@@ -103,7 +107,7 @@ fun CreateAccountScreen(
                 value = email,
                 onValueChange = {
                     email = it
-                    emailError = null
+                    emailError = ""
                 },
                 label = "Email",
                 error = emailError
@@ -115,7 +119,7 @@ fun CreateAccountScreen(
 
             CustomTextField(
                 value = password,
-                onValueChange = { password = it; passwordError = null },
+                onValueChange = { password = it; passwordError = "" },
                 label = "Password",
                 error = passwordError,
                 trailingIcon = {
@@ -133,14 +137,6 @@ fun CreateAccountScreen(
                 visualTransformation = if (passwordVisible) VisualTransformation.None
                 else PasswordVisualTransformation()
             )
-
-            if (state.error != null) {
-                Text(
-                    text = state.error,
-                    color = ErrorColor,
-                    style = AppTypography.Caption1,
-                )
-            }
         }
 
 
@@ -158,9 +154,9 @@ fun CreateAccountScreen(
                 username.isNotEmpty() &&
                         email.isNotEmpty() &&
                         password.isNotEmpty() &&
-                        usernameError == null &&
-                        emailError == null &&
-                        passwordError == null &&
+                        usernameError.isEmpty() &&
+                        emailError.isEmpty() &&
+                        passwordError.isEmpty() &&
                         !state.loading
 
             CustomButton(
@@ -186,7 +182,7 @@ fun CreateAccountScreen(
                         passwordError = "Password must be at least 8 characters long"
                     }
 
-                    if (usernameError == null && emailError == null && passwordError == null) {
+                    if (usernameError.isEmpty() && emailError.isEmpty() && passwordError.isEmpty()) {
                         viewModel.createAccount(username, email, password)
                     }
                 }
@@ -207,7 +203,7 @@ fun CreateAccountScreen(
                     style = AppTypography.Caption1,
                     color = BaseColor100
                 )
-                LinkButton(value = "Log In", onClick = { navController.navigate("login") })
+                LinkButton(value = "Log In", onClick = { navController.navigate(Routes.LOGIN) })
             }
         }
 
@@ -224,8 +220,8 @@ fun CreateAccountScreen(
                         onClick = {
                             showSuccessDialog = false
                             viewModel.resetEmailSent()
-                            navController.navigate("login") {
-                                popUpTo("createAccount") { inclusive = true }
+                            navController.navigate(Routes.LOGIN) {
+                                popUpTo(Routes.CREATE_ACCOUNT) { inclusive = true }
                             }
                         }
                     ) {

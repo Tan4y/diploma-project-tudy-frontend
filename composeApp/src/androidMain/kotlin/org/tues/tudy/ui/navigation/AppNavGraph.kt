@@ -19,18 +19,18 @@ import org.tues.tudy.ui.common.SuccessErrorScreen
 fun AppNavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = "createAccount"
+        startDestination = Routes.CREATE_ACCOUNT
     ) {
-        composable("createAccount") {
+        composable(Routes.CREATE_ACCOUNT) {
             CreateAccountScreen(navController)
         }
 
-        composable("login") {
+        composable(Routes.LOGIN) {
             LogInScreen(navController)
         }
 
         composable(
-            route = "verifyEmail?token={token}",
+            route = "${Routes.EMAIL_VERIFICATION}?token={token}",
             arguments = listOf(
                 navArgument("token") {
                     type = NavType.StringType
@@ -51,7 +51,7 @@ fun AppNavGraph(navController: NavHostController) {
         }
 
         composable(
-            route = "successError/{title}/{subtitle}/{description}/{buttonText}/{arrow}/{success}",
+            route = "${Routes.SUCCESS_ERROR}/{title}/{subtitle}/{description}/{buttonText}/{arrow}/{success}",
             arguments = listOf(
                 navArgument("title") { type = NavType.StringType },
                 navArgument("subtitle") { type = NavType.StringType },

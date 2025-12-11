@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import android.util.Log
 import org.json.JSONObject
+import org.tues.tudy.R
 
 class LoginViewModel : ViewModel() {
 
@@ -19,7 +20,7 @@ class LoginViewModel : ViewModel() {
 
     fun login(username: String, password: String) {
         if (username.isBlank() || password.isBlank()) {
-            _state.value = LoginState(error = "All fields are required")
+            _state.value = LoginState(error = R.string.all_fields_are_required)
             return
         }
 
@@ -45,7 +46,7 @@ class LoginViewModel : ViewModel() {
                         json.optString("message", it)
                     } ?: "Login failed"
                 } catch (jsonError: Exception) {
-                    errorBody ?: "Login failed"
+                    errorBody ?: "Log in failed"
                 }
 
                 // Customize error messages
@@ -59,14 +60,14 @@ class LoginViewModel : ViewModel() {
 
                 _state.value = LoginState(
                     loading = false,
-                    error = finalMessage
+                    error = R.string.log_in_failed
                 )
 
             } catch (e: Exception) {
                 Log.e("LoginVM", "Unexpected error: ${e.message}")
                 _state.value = LoginState(
                     loading = false,
-                    error = e.message ?: "Unexpected error"
+                    error = R.string.unexpected_error
                 )
             }
         }
@@ -76,5 +77,5 @@ class LoginViewModel : ViewModel() {
 data class LoginState(
     val loading: Boolean = false,
     val success: Boolean = false,
-    val error: String? = null
+    val error: Int? = null
 )
