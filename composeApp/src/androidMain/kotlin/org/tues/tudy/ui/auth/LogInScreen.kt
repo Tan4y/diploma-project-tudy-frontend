@@ -69,9 +69,7 @@ fun LogInScreen(
             )
         }
     }
-
-    val context = LocalContext.current
-
+    
     LaunchedEffect(state.error) {
         if (!state.success) {
             navController.navigateToSuccessError(
