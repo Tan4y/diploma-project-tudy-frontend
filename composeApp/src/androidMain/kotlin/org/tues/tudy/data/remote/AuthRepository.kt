@@ -29,4 +29,12 @@ class AuthRepository {
             throw HttpException(response)
         }
     }
+
+    suspend fun verifyEmail(token: String) {
+        val response = api.verifyEmail(token)
+
+        if (!response.isSuccessful) {
+            throw HttpException(response)
+        }
+    }
 }
