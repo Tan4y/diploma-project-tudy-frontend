@@ -44,23 +44,23 @@ class LoginViewModel : ViewModel() {
                     errorBody?.let {
                         val json = JSONObject(it)
                         json.optString("message", it)
-                    } ?: "Login failed"
+                    } ?: R.string.log_in_failed
                 } catch (jsonError: Exception) {
-                    errorBody ?: "Log in failed"
+                    errorBody ?: R.string.log_in_failed
                 }
 
                 // Customize error messages
                 val finalMessage = when {
-                    errorMessage.contains("credentials", ignoreCase = true) ->
-                        "Invalid username or password"
-                    errorMessage.contains("not verified", ignoreCase = true) ->
-                        "Please verify your email first"
+                    errorBody?.contains("credentials", ignoreCase = true) == true ->
+                        R.string.invalid_username_or_password
+                    errorBody?.contains("not verified", ignoreCase = true) == true ->
+                        R.string.verify_your_email_first
                     else -> errorMessage
                 }
 
                 _state.value = LoginState(
                     loading = false,
-                    error = R.string.log_in_failed
+                    error = R.string.invalid_username_or_password
                 )
 
             } catch (e: Exception) {

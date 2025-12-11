@@ -42,15 +42,15 @@ class CreateAccountViewModel : ViewModel() {
                 // Parse error message
                 val errorMessage = when {
                     errorBody?.contains("email", ignoreCase = true) == true ->
-                        "Email already exists"
+                        R.string.email_already_exist
                     errorBody?.contains("username", ignoreCase = true) == true ->
-                        "Username already exists"
-                    else -> errorBody ?: "Registration failed"
+                        R.string.username_already_exist
+                    else -> errorBody ?: R.string.registration_failed
                 }
 
                 _state.value = CreateAccountState(
                     loading = false,
-                    error = R.string.email_already_taken
+                    error = R.string.email_already_exist
                 )
 
                 _emailSent.value = false

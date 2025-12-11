@@ -38,9 +38,9 @@ class EmailVerificationViewModel : ViewModel() {
                     errorBody?.let {
                         val json = JSONObject(it)
                         json.optString("message", it)
-                    } ?: "Verification failed"
+                    } ?: R.string.verification_failed
                 } catch (jsonError: Exception) {
-                    errorBody ?: "Verification failed"
+                    errorBody ?: R.string.verification_failed
                 }
 
                 _state.value = EmailVerificationState(
