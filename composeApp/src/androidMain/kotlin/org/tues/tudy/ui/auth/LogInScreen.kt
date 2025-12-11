@@ -33,6 +33,7 @@ import org.tues.tudy.ui.components.CustomButton
 import org.tues.tudy.ui.components.CustomTextField
 import org.tues.tudy.ui.components.LinkButton
 import org.tues.tudy.ui.components.LogoPlusTitle
+import org.tues.tudy.ui.navigation.navigateToSuccessError
 import org.tues.tudy.ui.theme.AppTypography
 import org.tues.tudy.ui.theme.BaseColor100
 import org.tues.tudy.ui.theme.Dimens
@@ -55,9 +56,15 @@ fun LogInScreen(
 
     LaunchedEffect(state.success) {
         if (state.success) {
-            navController.navigate("success") {
-                popUpTo("login") { inclusive = true }
-            }
+            navController.navigateToSuccessError(
+                title = "Log In",
+                subtitle = "Welcome Back!",
+                description = "You have successfully logged in.",
+                buttonText = "Continue",
+                buttonDestination = "home",
+                arrow = false,
+                success = true,
+            )
         }
     }
 
@@ -163,7 +170,8 @@ fun LogInScreen(
                         usernameError = "Username is required"
                         valid = false
                     } else if (!username.matches(Regex("^[a-zA-Z0-9_]+$"))) {
-                        usernameError = "Username can only contain letters, numbers, and underscores"
+                        usernameError =
+                            "Username can only contain letters, numbers, and underscores"
                         valid = false
                     }
 

@@ -50,27 +50,31 @@ fun AppNavGraph(navController: NavHostController) {
             EmailVerificationScreen(navController, token)
         }
 
-        composable("success") {
-            SuccessErrorScreen(
-                title = "Create Account",
-                subtitle = "Account Created!",
-                description = "Your account has been successfully registered.",
-                buttonText = "Log in",
-                arrow = false,
-                success = true,
-                onButtonClick = {},
-                onArrowClick = {}
+        composable(
+            route = "successError/{title}/{subtitle}/{description}/{buttonText}/{arrow}/{success}",
+            arguments = listOf(
+                navArgument("title") { type = NavType.StringType },
+                navArgument("subtitle") { type = NavType.StringType },
+                navArgument("description") { type = NavType.StringType },
+                navArgument("buttonText") { type = NavType.StringType },
+                navArgument("arrow") { type = NavType.BoolType },
+                navArgument("success") { type = NavType.BoolType }
             )
-        }
+        ) { backStackEntry ->
+            val title = backStackEntry.arguments?.getString("title") ?: ""
+            val subtitle = backStackEntry.arguments?.getString("subtitle") ?: ""
+            val description = backStackEntry.arguments?.getString("description") ?: ""
+            val buttonText = backStackEntry.arguments?.getString("buttonText") ?: ""
+            val arrow = backStackEntry.arguments?.getBoolean("arrow") ?: false
+            val success = backStackEntry.arguments?.getBoolean("success") ?: false
 
-        composable("error") {
             SuccessErrorScreen(
-                title = "Create Account",
-                subtitle = "Create Account Unsuccessful!",
-                description = "There was an error while trying create account.",
-                buttonText = "Try Again",
-                arrow = false,
-                success = false,
+                title = title,
+                subtitle = subtitle,
+                description = description,
+                buttonText = buttonText,
+                arrow = arrow,
+                success = success,
                 onButtonClick = {},
                 onArrowClick = {}
             )

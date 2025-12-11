@@ -124,7 +124,10 @@ fun CreateAccountScreen(
                             id = if (passwordVisible) R.drawable.eye_open else R.drawable.eye_closed
                         ),
                         contentDescription = if (passwordVisible) "Hide password" else "Show password",
-                        modifier = Modifier.clickable { passwordVisible = !passwordVisible }
+                        modifier = Modifier.clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) { passwordVisible = !passwordVisible }
                     )
                 },
                 visualTransformation = if (passwordVisible) VisualTransformation.None
@@ -167,7 +170,8 @@ fun CreateAccountScreen(
                     if (username.isEmpty()) {
                         usernameError = "Username is required"
                     } else if (!username.matches(Regex("^[a-zA-Z0-9_]+$"))) {
-                        usernameError = "Username can only contain letters, numbers, and underscores"
+                        usernameError =
+                            "Username can only contain letters, numbers, and underscores"
                     }
 
                     if (email.isEmpty()) {
