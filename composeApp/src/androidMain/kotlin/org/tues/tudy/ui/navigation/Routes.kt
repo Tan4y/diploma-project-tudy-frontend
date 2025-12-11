@@ -6,4 +6,6 @@ object Routes {
     const val EMAIL_VERIFICATION = "emailVerification"
     const val SUCCESS_ERROR = "successError"
     const val FORGOT_PASSWORD = "forgotPassword"
+
+    const val HOME = "home"
 }

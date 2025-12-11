@@ -63,7 +63,7 @@ fun LogInScreen(
                 subtitle = "Welcome Back!",
                 description = "You have successfully logged in.",
                 buttonText = "Continue",
-                buttonDestination = "home",
+                buttonDestination = Routes.HOME,
                 arrow = false,
                 success = true,
             )
@@ -73,19 +73,16 @@ fun LogInScreen(
     val context = LocalContext.current
 
     LaunchedEffect(state.error) {
-        state.error?.let { errorResId ->
-            val errorMsg = context.getString(errorResId)
-            passwordError = when {
-                errorMsg.contains("username", ignoreCase = true) ||
-                        errorMsg.contains("password", ignoreCase = true) ||
-                        errorMsg.contains("credentials", ignoreCase = true) -> {
-                    errorMsg
-                }
-
-                else -> {
-                    errorMsg
-                }
-            }
+        if (!state.success) {
+            navController.navigateToSuccessError(
+                title = "Log In",
+                subtitle = "Log in unsuccessful",
+                description = "There was an error while trying to log in.",
+                buttonText = "Try Again",
+                buttonDestination = Routes.LOGIN,
+                arrow = false,
+                success = false,
+            )
         }
     }
 
