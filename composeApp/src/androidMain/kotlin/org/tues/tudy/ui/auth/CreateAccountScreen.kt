@@ -164,22 +164,22 @@ fun CreateAccountScreen(
                 enabled = isButtonEnabled,
                 onClick = {
                     if (username.isEmpty()) {
-                        usernameError = "Username is required"
+                        usernameError = R.string.username_is_required.toString()
                     } else if (!username.matches(Regex("^[a-zA-Z0-9_]+$"))) {
                         usernameError =
-                            "Username can only contain letters, numbers, and underscores"
+                            R.string.username_can_only_contain.toString()
                     }
 
                     if (email.isEmpty()) {
-                        emailError = "Email is required"
+                        emailError = R.string.email_is_required.toString()
                     } else if (!email.matches(Regex("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+\$"))) {
-                        emailError = "Invalid email address"
+                        emailError = R.string.invalid_email.toString()
                     }
 
                     if (password.isEmpty()) {
-                        passwordError = "Password is required"
+                        passwordError = R.string.password_is_required.toString()
                     } else if (password.length < 8) {
-                        passwordError = "Password must be at least 8 characters long"
+                        passwordError = R.string.password_length.toString()
                     }
 
                     if (usernameError.isEmpty() && emailError.isEmpty() && passwordError.isEmpty()) {

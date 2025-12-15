@@ -69,7 +69,7 @@ fun LogInScreen(
             )
         }
     }
-    
+
     LaunchedEffect(state.error) {
         if (!state.success) {
             navController.navigateToSuccessError(
@@ -167,19 +167,18 @@ fun LogInScreen(
                     var valid = true
 
                     if (username.isEmpty()) {
-                        usernameError = "Username is required"
+                        usernameError = R.string.username_is_required.toString()
                         valid = false
                     } else if (!username.matches(Regex("^[a-zA-Z0-9_]+$"))) {
-                        usernameError =
-                            "Username can only contain letters, numbers, and underscores"
+                        usernameError = R.string.username_can_only_contain.toString()
                         valid = false
                     }
 
                     if (password.isEmpty()) {
-                        passwordError = "Password is required"
+                        passwordError = R.string.password_is_required.toString()
                         valid = false
                     } else if (password.length < 8) {
-                        passwordError = "Password must be at least 8 characters long"
+                        passwordError = R.string.password_length.toString()
                         valid = false
                     }
 
