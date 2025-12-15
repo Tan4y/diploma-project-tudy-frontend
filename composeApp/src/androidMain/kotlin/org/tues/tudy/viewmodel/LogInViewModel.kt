@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import android.util.Log
+import org.json.JSONObject
+import org.tues.tudy.R
 
 class LoginViewModel : ViewModel() {
 
@@ -18,7 +20,7 @@ class LoginViewModel : ViewModel() {
 
     fun login(username: String, password: String) {
         if (username.isBlank() || password.isBlank()) {
-            _state.value = LoginState(error = "All fields are required")
+            _state.value = LoginState(error = R.string.all_fields_are_required)
             return
         }
 
@@ -37,24 +39,35 @@ class LoginViewModel : ViewModel() {
                 val errorBody = e.response()?.errorBody()?.string()
                 Log.e("LoginVM", "HTTP Error: ${e.code()}, Body: $errorBody")
 
-                val errorMessage = when {
+                // Parse JSON error message
+                val errorMessage = try {
+                    errorBody?.let {
+                        val json = JSONObject(it)
+                        json.optString("message", it)
+                    } ?: R.string.log_in_failed
+                } catch (jsonError: Exception) {
+                    errorBody ?: R.string.log_in_failed
+                }
+
+                // Customize error messages
+                val finalMessage = when {
                     errorBody?.contains("credentials", ignoreCase = true) == true ->
-                        "Invalid username or password"
+                        R.string.invalid_username_or_password
                     errorBody?.contains("not verified", ignoreCase = true) == true ->
-                        "Please verify your email first"
-                    else -> errorBody ?: "Login failed"
+                        R.string.verify_your_email_first
+                    else -> errorMessage
                 }
 
                 _state.value = LoginState(
                     loading = false,
-                    error = errorMessage
+                    error = R.string.invalid_username_or_password
                 )
 
             } catch (e: Exception) {
                 Log.e("LoginVM", "Unexpected error: ${e.message}")
                 _state.value = LoginState(
                     loading = false,
-                    error = e.message ?: "Unexpected error"
+                    error = R.string.unexpected_error
                 )
             }
         }
@@ -64,5 +77,5 @@ class LoginViewModel : ViewModel() {
 data class LoginState(
     val loading: Boolean = false,
     val success: Boolean = false,
-    val error: String? = null
+    val error: Int? = null
 )

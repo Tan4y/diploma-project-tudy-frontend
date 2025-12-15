@@ -22,11 +22,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import org.tues.tudy.R
@@ -34,6 +34,8 @@ import org.tues.tudy.ui.components.CustomButton
 import org.tues.tudy.ui.components.CustomTextField
 import org.tues.tudy.ui.components.LinkButton
 import org.tues.tudy.ui.components.LogoPlusTitle
+import org.tues.tudy.ui.navigation.Routes
+import org.tues.tudy.ui.navigation.navigateToSuccessError
 import org.tues.tudy.ui.theme.AppTypography
 import org.tues.tudy.ui.theme.BaseColor100
 import org.tues.tudy.ui.theme.Dimens
@@ -51,29 +53,34 @@ fun LogInScreen(
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    var usernameError by remember { mutableStateOf<String?>(null) }
-    var passwordError by remember { mutableStateOf<String?>(null) }
+    var usernameError by remember { mutableStateOf("") }
+    var passwordError by remember { mutableStateOf("") }
 
     LaunchedEffect(state.success) {
         if (state.success) {
-            navController.navigate("success") {
-                popUpTo("login") { inclusive = true }
-            }
+            navController.navigateToSuccessError(
+                title = "Log In",
+                subtitle = "Welcome Back!",
+                description = "You have successfully logged in.",
+                buttonText = "Continue",
+                buttonDestination = Routes.HOME,
+                arrow = false,
+                success = true,
+            )
         }
     }
 
     LaunchedEffect(state.error) {
-        state.error?.let { errorMsg ->
-            when {
-                errorMsg.contains("username", ignoreCase = true) ||
-                        errorMsg.contains("password", ignoreCase = true) ||
-                        errorMsg.contains("credentials", ignoreCase = true) -> {
-                    passwordError = errorMsg
-                }
-                else -> {
-                    passwordError = errorMsg
-                }
-            }
+        if (!state.success) {
+            navController.navigateToSuccessError(
+                title = "Log In",
+                subtitle = "Log in unsuccessful",
+                description = "There was an error while trying to log in.",
+                buttonText = "Try Again",
+                buttonDestination = Routes.LOGIN,
+                arrow = false,
+                success = false,
+            )
         }
     }
 
@@ -102,13 +109,13 @@ fun LogInScreen(
                 value = username,
                 onValueChange = {
                     username = it
-                    usernameError = null
+                    usernameError = ""
                 },
                 label = "Username",
                 error = usernameError
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(Dimens.Space125))
 
             var passwordVisible by remember { mutableStateOf(false) }
 
@@ -116,13 +123,13 @@ fun LogInScreen(
                 value = password,
                 onValueChange = {
                     password = it
-                    passwordError = null
+                    passwordError = ""
                 },
                 label = "Password",
                 error = passwordError,
                 forgotPassword = true,
                 onForgotPassword = {
-                    navController.navigate("forgotPassword")
+                    navController.navigate(Routes.FORGOT_PASSWORD)
                 },
                 trailingIcon = {
                     Icon(
@@ -141,7 +148,7 @@ fun LogInScreen(
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 12.dp)
+                .padding(bottom = Dimens.Space75)
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(Dimens.Space75)
@@ -149,8 +156,8 @@ fun LogInScreen(
             val isButtonEnabled =
                 username.isNotEmpty() &&
                         password.isNotEmpty() &&
-                        usernameError == null &&
-                        passwordError == null &&
+                        usernameError.isEmpty() &&
+                        passwordError.isEmpty() &&
                         !state.loading
 
             CustomButton(
@@ -160,18 +167,18 @@ fun LogInScreen(
                     var valid = true
 
                     if (username.isEmpty()) {
-                        usernameError = "Username is required"
+                        usernameError = R.string.username_is_required.toString()
                         valid = false
                     } else if (!username.matches(Regex("^[a-zA-Z0-9_]+$"))) {
-                        usernameError = "Username can only contain letters, numbers, and underscores"
+                        usernameError = R.string.username_can_only_contain.toString()
                         valid = false
                     }
 
                     if (password.isEmpty()) {
-                        passwordError = "Password is required"
+                        passwordError = R.string.password_is_required.toString()
                         valid = false
                     } else if (password.length < 8) {
-                        passwordError = "Password must be at least 8 characters long"
+                        passwordError = R.string.password_length.toString()
                         valid = false
                     }
 
@@ -198,7 +205,7 @@ fun LogInScreen(
                 )
                 LinkButton(
                     value = "Create Account",
-                    onClick = { navController.navigate("createAccount") }
+                    onClick = { navController.navigate(Routes.CREATE_ACCOUNT) }
                 )
             }
         }

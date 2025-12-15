@@ -3,6 +3,7 @@ package org.tues.tudy.ui.components
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.VisualTransformation
@@ -28,6 +30,7 @@ import org.tues.tudy.ui.theme.AppTypography
 import org.tues.tudy.ui.theme.BaseColor100
 import org.tues.tudy.ui.theme.BaseColor80
 import org.tues.tudy.ui.theme.Dimens
+import org.tues.tudy.ui.theme.Dimens.BorderRadius150
 import org.tues.tudy.ui.theme.Dimens.BorderRadius200
 import org.tues.tudy.ui.theme.ErrorColor
 import org.tues.tudy.ui.theme.PrimaryColor1
@@ -41,14 +44,14 @@ fun CustomTextField(
     modifier: Modifier = Modifier,
     error: String? = null,
     forgotPassword: Boolean = false,
-    onForgotPassword: () -> Unit = {"forgotPassword"},
+    onForgotPassword: () -> Unit = { "forgotPassword" },
     trailingIcon: (@Composable (() -> Unit))? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None
 ) {
     val isFocused = remember { mutableStateOf(false) }
 
     val stateColor = when {
-        error != null -> ErrorColor
+        !error.isNullOrEmpty() -> ErrorColor
         isFocused.value -> PrimaryColor1
         value.isNotEmpty() -> BaseColor100
         else -> BaseColor80
@@ -99,13 +102,13 @@ fun CustomTextField(
 
         Spacer(modifier = Modifier.height(Dimens.Space25))
 
-        Row (
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = Dimens.Space75, end = Dimens.Space25),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            if (error != null) {
+            if (!error.isNullOrEmpty()) {
                 Text(
                     text = error,
                     color = ErrorColor,
@@ -120,7 +123,12 @@ fun CustomTextField(
                     text = "Forgot Password",
                     color = PrimaryColor1,
                     style = AppTypography.UnderlinedCaption1,
-                    modifier = Modifier.clickable { onForgotPassword() }
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(BorderRadius150))
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) { onForgotPassword() }
                 )
             }
         }

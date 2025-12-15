@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import android.util.Log
+import org.tues.tudy.R
 
 class CreateAccountViewModel : ViewModel() {
 
@@ -41,15 +42,15 @@ class CreateAccountViewModel : ViewModel() {
                 // Parse error message
                 val errorMessage = when {
                     errorBody?.contains("email", ignoreCase = true) == true ->
-                        "Email already exists"
+                        R.string.email_already_exist
                     errorBody?.contains("username", ignoreCase = true) == true ->
-                        "Username already exists"
-                    else -> errorBody ?: "Registration failed"
+                        R.string.username_already_exist
+                    else -> errorBody ?: R.string.registration_failed
                 }
 
                 _state.value = CreateAccountState(
                     loading = false,
-                    error = errorMessage
+                    error = R.string.email_already_exist
                 )
 
                 _emailSent.value = false
@@ -57,7 +58,7 @@ class CreateAccountViewModel : ViewModel() {
             } catch (e: Exception) {
                 _state.value = CreateAccountState(
                     loading = false,
-                    error = e.message ?: "Unexpected error"
+                    error = R.string.unexpected_error
                 )
                 _emailSent.value = false
             }
@@ -72,5 +73,5 @@ class CreateAccountViewModel : ViewModel() {
 data class CreateAccountState(
     val loading: Boolean = false,
     val success: Boolean = false,
-    val error: String? = null
+    val error: Int? = null
 )
