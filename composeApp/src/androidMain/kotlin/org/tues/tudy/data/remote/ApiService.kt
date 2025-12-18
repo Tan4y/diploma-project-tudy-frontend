@@ -3,6 +3,8 @@ package org.tues.tudy.data.remote
 import okhttp3.ResponseBody
 import org.tues.tudy.data.model.CreateAccountRequest
 import org.tues.tudy.data.model.LogInRequest
+import org.tues.tudy.data.model.RequestResetPasswordRequest
+import org.tues.tudy.data.model.ResetPasswordRequest
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -25,4 +27,14 @@ interface ApiService {
     suspend fun verifyEmail(
         @Query("token") token: String
     ): Response<Unit>
+
+    @POST("api/auth/request-reset")
+    suspend fun requestResetPassword(
+        @Body request: RequestResetPasswordRequest
+    ): Response<ResponseBody>
+
+    @POST("api/auth/reset-password")
+    suspend fun resetPassword(
+        @Body request: ResetPasswordRequest
+    ): Response<ResponseBody>
 }
