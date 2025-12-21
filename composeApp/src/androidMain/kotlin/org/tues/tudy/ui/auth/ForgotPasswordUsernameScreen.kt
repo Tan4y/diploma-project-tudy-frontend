@@ -1,11 +1,14 @@
 package org.tues.tudy.ui.auth
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import org.tues.tudy.ui.components.CustomButton
@@ -26,27 +29,25 @@ fun ForgotPasswordUsernameScreen(
     val state by viewModel.state.collectAsState()
     var username by remember { mutableStateOf("") }
     var usernameError by remember { mutableStateOf("") }
+    var showSuccessDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(state.emailSent) {
         if (state.emailSent) {
-            navController.navigateToSuccessError(
-                title = "Email Sent",
-                subtitle = "Check Your Inbox",
-                description = "A password reset link has been sent to your email.",
-                buttonText = "Continue",
-                buttonDestination = Routes.LOGIN,
-                arrow = false,
-                success = true
-            ) {
-                popUpTo(Routes.FORGOT_PASSWORD) { inclusive = true }
-            }
+            showSuccessDialog = true
         }
     }
 
+    val focusManager = LocalFocusManager.current
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(Dimens.Space100),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(Dimens.Space100)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) { focusManager.clearFocus() },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -58,7 +59,7 @@ fun ForgotPasswordUsernameScreen(
             Spacer(modifier = Modifier.height(Dimens.Space400))
         }
 
-        Column(modifier = Modifier.weight(1f,)) {
+        Column(modifier = Modifier.weight(1f)) {
             LogoPlusTitle("Forgot Password")
         }
 
@@ -80,7 +81,7 @@ fun ForgotPasswordUsernameScreen(
             modifier = Modifier,
             verticalArrangement = Arrangement.Bottom
         ) {
-            ProgressBar(2,1)
+            ProgressBar(2, 1)
 
             Spacer(modifier = Modifier.height(Dimens.Space125))
 
@@ -102,5 +103,26 @@ fun ForgotPasswordUsernameScreen(
                 color = MaterialTheme.colorScheme.error
             )
         }
+
+        if (showSuccessDialog) {
+            AlertDialog(
+                onDismissRequest = {},
+                title = { Text("Email sent") },
+                text = { Text("Check your inbox for the password reset link.") },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            showSuccessDialog = false
+                            navController.navigate(Routes.LOGIN) {
+                                popUpTo(Routes.FORGOT_PASSWORD) { inclusive = true }
+                            }
+                        }
+                    ) {
+                        Text("OK")
+                    }
+                }
+            )
+        }
+
     }
 }
