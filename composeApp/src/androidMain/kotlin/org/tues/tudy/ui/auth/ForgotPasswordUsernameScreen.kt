@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -18,6 +19,7 @@ import org.tues.tudy.ui.components.ProgressBar
 import org.tues.tudy.ui.navigation.Routes
 import org.tues.tudy.viewmodel.ForgotPasswordViewModel
 import androidx.compose.ui.res.stringResource
+import org.tues.tudy.ui.components.TopBar
 import org.tues.tudy.ui.navigation.navigateToSuccessError
 import org.tues.tudy.ui.theme.Dimens
 
@@ -51,14 +53,15 @@ fun ForgotPasswordUsernameScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Safe space for the top bar
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.Top
-        ) {
-            Spacer(modifier = Modifier.height(Dimens.Space400))
-        }
 
+        Column(modifier = Modifier.weight(1f)) {
+            TopBar(
+                modifier = Modifier,
+                navController = navController,
+                primary = false,
+                heading = ""
+            )
+        }
         Column(modifier = Modifier.weight(1f)) {
             LogoPlusTitle("Forgot Password")
         }
