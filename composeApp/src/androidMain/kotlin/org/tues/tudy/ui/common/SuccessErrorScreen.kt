@@ -19,9 +19,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import org.tues.tudy.R
 import org.tues.tudy.ui.components.CustomButton
 import org.tues.tudy.ui.components.LogoPlusTitle
+import org.tues.tudy.ui.navigation.Routes
 import org.tues.tudy.ui.theme.AppTypography
 import org.tues.tudy.ui.theme.BaseColor80
 import org.tues.tudy.ui.theme.Dimens
@@ -30,14 +32,15 @@ import org.tues.tudy.ui.theme.SuccessColor
 
 @Composable
 fun SuccessErrorScreen(
+    navController: NavController,
     title: String,
     subtitle: String,
     description: String,
     buttonText: String = "Continue",
     arrow: Boolean = false,
     success: Boolean,
-    onButtonClick: () -> Unit,
-    onArrowClick: () -> Unit
+    buttonDestination: String,
+    arrowDestination: String?
 ) {
     Column(
         modifier = Modifier
@@ -65,7 +68,11 @@ fun SuccessErrorScreen(
                     contentDescription = "Arrow Left",
                     modifier = Modifier
                         .align(Alignment.CenterStart)
-                        .clickable { onArrowClick() }
+                        .clickable {
+                            navController.navigate(arrowDestination ?: Routes.HOME) {
+                                popUpTo(arrowDestination ?: Routes.HOME) { inclusive = false }
+                            }
+                        }
                 )
             }
         } else {
@@ -111,7 +118,15 @@ fun SuccessErrorScreen(
                 contentScale = ContentScale.Fit
             )
 
-            CustomButton(value = buttonText, enabled = true, onClick = onButtonClick)
+            CustomButton(
+                value = buttonText,
+                enabled = true,
+                onClick = {
+                    navController.navigate(buttonDestination) {
+                        popUpTo(buttonDestination) { inclusive = false }
+                    }
+                }
+            )
             Spacer(Modifier.height(Dimens.Space175))
         }
     }

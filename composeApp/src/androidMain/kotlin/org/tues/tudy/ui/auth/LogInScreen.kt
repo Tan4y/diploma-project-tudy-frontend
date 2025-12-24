@@ -56,33 +56,36 @@ fun LogInScreen(
     var usernameError by remember { mutableStateOf("") }
     var passwordError by remember { mutableStateOf("") }
 
-    LaunchedEffect(state.success) {
-        if (state.success) {
-            navController.navigateToSuccessError(
-                title = "Log In",
-                subtitle = "Welcome Back!",
-                description = "You have successfully logged in.",
-                buttonText = "Continue",
-                buttonDestination = Routes.HOME,
-                arrow = false,
-                success = true,
-            )
+    LaunchedEffect(state.success, state.error) {
+        when {
+            state.success -> {
+                navController.navigateToSuccessError(
+                    title = "Log In",
+                    subtitle = "Welcome Back!",
+                    description = "You have successfully logged in.",
+                    buttonText = "Continue",
+                    buttonDestination = Routes.HOME,
+                    arrow = false,
+                    success = true
+                ) {
+                    popUpTo(Routes.LOGIN) { inclusive = true }
+                }
+            }
+
+            state.error != null -> {
+                navController.navigateToSuccessError(
+                    title = "Log In",
+                    subtitle = "Log in unsuccessful",
+                    description = "There was an error while trying to log in.",
+                    buttonText = "Try Again",
+                    buttonDestination = Routes.LOGIN,
+                    arrow = false,
+                    success = false
+                )
+            }
         }
     }
 
-    LaunchedEffect(state.error) {
-        if (!state.success) {
-            navController.navigateToSuccessError(
-                title = "Log In",
-                subtitle = "Log in unsuccessful",
-                description = "There was an error while trying to log in.",
-                buttonText = "Try Again",
-                buttonDestination = Routes.LOGIN,
-                arrow = false,
-                success = false,
-            )
-        }
-    }
 
     val focusManager = LocalFocusManager.current
 
@@ -128,9 +131,7 @@ fun LogInScreen(
                 label = "Password",
                 error = passwordError,
                 forgotPassword = true,
-                onForgotPassword = {
-                    navController.navigate(Routes.FORGOT_PASSWORD)
-                },
+                navController = navController,
                 trailingIcon = {
                     Icon(
                         painter = painterResource(

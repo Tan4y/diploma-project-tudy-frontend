@@ -26,6 +26,8 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import org.tues.tudy.ui.navigation.Routes
 import org.tues.tudy.ui.theme.AppTypography
 import org.tues.tudy.ui.theme.BaseColor100
 import org.tues.tudy.ui.theme.BaseColor80
@@ -44,7 +46,7 @@ fun CustomTextField(
     modifier: Modifier = Modifier,
     error: String? = null,
     forgotPassword: Boolean = false,
-    onForgotPassword: () -> Unit = { "forgotPassword" },
+    navController: NavController? = null,
     trailingIcon: (@Composable (() -> Unit))? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None
 ) {
@@ -118,17 +120,14 @@ fun CustomTextField(
                 Spacer(modifier = Modifier.height(Dimens.Space100))
             }
 
-            if (forgotPassword) {
+            if (forgotPassword && navController != null) {
                 Text(
                     text = "Forgot Password",
                     color = PrimaryColor1,
                     style = AppTypography.UnderlinedCaption1,
                     modifier = Modifier
                         .clip(RoundedCornerShape(BorderRadius150))
-                        .clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null
-                        ) { onForgotPassword() }
+                        .clickable() { navController.navigate( Routes.FORGOT_PASSWORD) }
                 )
             }
         }

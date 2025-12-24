@@ -7,13 +7,26 @@
     <string name="log_in_failed">Log in failed</string>
     <string name="all_fields_are_required">All fields are required</string>
     <string name="email_already_exist">Email already exist</string>
+    <string name="username_not_found">Username not found</string>
     <string name="username_already_exist">Username already exist</string>
     <string name="username_is_required">Username is required</string>
     <string name="username_can_only_contain">Username can only contain letters, numbers, and underscores</string>
     <string name="email_is_required">Email is required</string>
     <string name="password_is_required">Password is required</string>
+    <string name="code_is_required">Code is required</string>
+    <string name="code_expired">Code expired</string>
+    <string name="invalid_verification_code">Invalid verification code</string>
+    <string name="invalid_code_format">Invalid code format</string>
     <string name="password_length">Password must be t leat 8 characters long</string>
+    <string name="password_do_not_match">Password do not match</string>
     <string name="invalid_username_or_password">Invalid username or password</string>
     <string name="invalid_email">Invalid email</string>
+    <string name="invalid_username">Invalid username</string>
     <string name="verify_your_email_first">Please verify your email first</string>
+    <string name="reset_link_already_sent">Reset link already sent</string>
+    <string name="reset_password_failed">Reset password failed</string>
+    <string name="invalid_or_expired_token">Invalid or expired token</string>
+    <string name="invalid_request">Invalid request</string>
+    <string name="unauthorized">Unauthorized</string>
+    <string name="token_is_required">Token is required</string>
 </resources>

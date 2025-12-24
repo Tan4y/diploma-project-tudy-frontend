@@ -209,12 +209,9 @@ fun CreateAccountScreen(
 
         if (showSuccessDialog) {
             AlertDialog(
-                onDismissRequest = {
-                    showSuccessDialog = false
-                    viewModel.resetEmailSent()
-                },
-                title = { Text("Verify Email") },
-                text = { Text("An email has been sent to your inbox.") },
+                onDismissRequest = {},
+                title = { Text("Verify your email") },
+                text = { Text("Check your inbox and confirm your email to finish registration.") },
                 confirmButton = {
                     TextButton(
                         onClick = {

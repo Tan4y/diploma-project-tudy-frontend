@@ -1,8 +1,10 @@
 package org.tues.tudy.ui.navigation
 
 import androidx.navigation.NavController
+import androidx.navigation.NavOptionsBuilder
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+
 
 fun NavController.navigateToSuccessError(
     title: String,
@@ -12,7 +14,8 @@ fun NavController.navigateToSuccessError(
     buttonDestination: String,
     arrow: Boolean,
     arrowDestination: String? = null,
-    success: Boolean
+    success: Boolean,
+    builder: NavOptionsBuilder.() -> Unit = {}
 ) {
     val encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString())
     val encodedSubtitle = URLEncoder.encode(subtitle, StandardCharsets.UTF_8.toString())
@@ -23,9 +26,8 @@ fun NavController.navigateToSuccessError(
         URLEncoder.encode(it, StandardCharsets.UTF_8.toString())
     } ?: ""
 
-    navigate("${Routes.SUCCESS_ERROR}/$encodedTitle/$encodedSubtitle/$encodedDescription/" +
-            "$encodedButtonText/$encodedButtonDest/$arrow/$encodedArrowDest/$success") {
-        // Clear back stack to prevent going back
-        popUpTo(graph.startDestinationId) { inclusive = false }
-    }
+    navigate(
+        "${Routes.SUCCESS_ERROR}/$encodedTitle/$encodedSubtitle/$encodedDescription/$encodedButtonText/$encodedButtonDest/$arrow/$encodedArrowDest/$success",
+        builder
+    )
 }
