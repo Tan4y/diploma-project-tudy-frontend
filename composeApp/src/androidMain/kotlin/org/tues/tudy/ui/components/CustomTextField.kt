@@ -107,7 +107,7 @@ fun CustomTextField(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = Dimens.Space75, end = Dimens.Space25),
+                .padding(horizontal = Dimens.Space125, vertical = Dimens.Space100),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             if (!error.isNullOrEmpty()) {

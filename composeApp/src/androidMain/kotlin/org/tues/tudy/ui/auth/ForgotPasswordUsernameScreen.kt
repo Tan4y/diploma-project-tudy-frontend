@@ -18,6 +18,7 @@ import org.tues.tudy.ui.components.ProgressBar
 import org.tues.tudy.ui.navigation.Routes
 import org.tues.tudy.viewmodel.ForgotPasswordViewModel
 import androidx.compose.ui.res.stringResource
+import org.tues.tudy.ui.components.TopBar
 import org.tues.tudy.ui.navigation.navigateToSuccessError
 import org.tues.tudy.ui.theme.Dimens
 
@@ -51,7 +52,9 @@ fun ForgotPasswordUsernameScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Safe space for the top bar
+
+        TopBar(modifier = Modifier, navController = navController, primary = false, heading = "")
+
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.Top
