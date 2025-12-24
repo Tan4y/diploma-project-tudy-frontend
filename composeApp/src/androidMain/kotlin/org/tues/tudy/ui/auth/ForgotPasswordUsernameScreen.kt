@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -53,15 +54,14 @@ fun ForgotPasswordUsernameScreen(
         verticalArrangement = Arrangement.Center
     ) {
 
-        TopBar(modifier = Modifier, navController = navController, primary = false, heading = "")
-
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.Top
-        ) {
-            Spacer(modifier = Modifier.height(Dimens.Space400))
+        Column(modifier = Modifier.weight(1f)) {
+            TopBar(
+                modifier = Modifier,
+                navController = navController,
+                primary = false,
+                heading = ""
+            )
         }
-
         Column(modifier = Modifier.weight(1f)) {
             LogoPlusTitle("Forgot Password")
         }
