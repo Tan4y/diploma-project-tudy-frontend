@@ -8,5 +8,9 @@ object Routes {
     const val FORGOT_PASSWORD = "forgotPassword"
     const val RESET_PASSWORD = "resetPassword"
 
+    const val STUDY = "study"
+    const val CALENDAR = "calendar"
+    const val ADD = "add"
+    const val PROFILE = "profile"
     const val HOME = "home"
 }
