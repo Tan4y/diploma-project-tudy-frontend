@@ -1,4 +1,4 @@
-package org.tues.tudy.ui.auth
+package org.tues.tudy.ui.screens.auth
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*

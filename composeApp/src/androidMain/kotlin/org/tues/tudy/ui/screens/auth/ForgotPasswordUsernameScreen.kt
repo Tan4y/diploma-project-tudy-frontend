@@ -1,4 +1,4 @@
-package org.tues.tudy.ui.auth
+package org.tues.tudy.ui.screens.auth
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
