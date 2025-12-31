@@ -30,18 +30,26 @@ import org.tues.tudy.ui.theme.PrimaryColor1
 @Composable
 fun BottomBar(
     modifier: Modifier = Modifier,
+    selectedRoute: String,
     navController: NavController,
 ) {
-    val selected = false
-    val animatedColor by animateColorAsState(
-        targetValue = if (selected) PrimaryColor1 else BaseColor80
-    )
+    val studySelected = selectedRoute == Routes.STUDY
+    val calendarSelected = selectedRoute == Routes.CALENDAR
+    val plusSelected = selectedRoute == Routes.ADD
+    val homeSelected = selectedRoute == Routes.HOME
+    val profileSelected = selectedRoute == Routes.PROFILE
 
-    val studyIcon = if (selected) R.drawable.study_filled else R.drawable.study_outlined
-    val calendarIcon = if (selected) R.drawable.calendar_filled else R.drawable.calendar_outlined
-    val plusIcon = if (selected) R.drawable.plus_filled else R.drawable.plus_outlined
-    val homeIcon = if (selected) R.drawable.home_filled else R.drawable.home_outlined
-    val profileIcon = if (selected) R.drawable.profile_filled else R.drawable.profile_outlined
+    val studyIcon = if (studySelected) R.drawable.study_filled else R.drawable.study_outlined
+    val calendarIcon = if (calendarSelected) R.drawable.calendar_filled else R.drawable.calendar_outlined
+    val plusIcon = if (plusSelected) R.drawable.plus_filled else R.drawable.plus_outlined
+    val homeIcon = if (homeSelected) R.drawable.home_filled else R.drawable.home_outlined
+    val profileIcon = if (profileSelected) R.drawable.profile_filled else R.drawable.profile_outlined
+
+    val studyColor by animateColorAsState(targetValue = if (studySelected) PrimaryColor1 else BaseColor80)
+    val calendarColor by animateColorAsState(targetValue = if (calendarSelected) PrimaryColor1 else BaseColor80)
+    val homeColor by animateColorAsState(targetValue = if (homeSelected) PrimaryColor1 else BaseColor80)
+    val profileColor by animateColorAsState(targetValue = if (profileSelected) PrimaryColor1 else BaseColor80)
+
 
     Box(
         modifier = Modifier
@@ -86,7 +94,7 @@ fun BottomBar(
                     Icon(
                         painter = painterResource(studyIcon),
                         contentDescription = "Study",
-                        tint = animatedColor,
+                        tint = studyColor,
                         modifier = Modifier.clickable {
                             navController.navigate(Routes.STUDY)
                         }
@@ -96,7 +104,7 @@ fun BottomBar(
                     Icon(
                         painter = painterResource(calendarIcon),
                         contentDescription = "Calendar",
-                        tint = animatedColor,
+                        tint = calendarColor,
                         modifier = Modifier.clickable {
                             navController.navigate(Routes.CALENDAR)
                         }
@@ -129,7 +137,7 @@ fun BottomBar(
                     Icon(
                         painter = painterResource(homeIcon),
                         contentDescription = "Home",
-                        tint = animatedColor,
+                        tint = homeColor,
                         modifier = Modifier.clickable {
                             navController.navigate(Routes.HOME)
                         }
@@ -140,7 +148,7 @@ fun BottomBar(
                     Icon(
                         painter = painterResource(profileIcon),
                         contentDescription = "Profile",
-                        tint = animatedColor,
+                        tint = profileColor,
                         modifier = Modifier.clickable {
                             navController.navigate(Routes.PROFILE)
                         }
