@@ -1,4 +1,4 @@
-package org.tues.tudy.ui.auth
+package org.tues.tudy.ui.screens.auth
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -6,9 +6,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import kotlinx.coroutines.delay
 import org.tues.tudy.R
 import org.tues.tudy.ui.components.LogoPlusTitle
 import org.tues.tudy.ui.navigation.Routes
@@ -36,7 +38,7 @@ fun EmailVerificationScreen(
     // Navigate to login when verified
     LaunchedEffect(state.success) {
         if (state.success) {
-            kotlinx.coroutines.delay(2000)
+            delay(2000)
             navController.navigate(Routes.LOGIN) {
                 popUpTo(Routes.EMAIL_VERIFICATION) { inclusive = true }
             }
@@ -69,7 +71,7 @@ fun EmailVerificationScreen(
 
                 state.success -> {
                     Icon(
-                        painter = androidx.compose.ui.res.painterResource(
+                        painter = painterResource(
                             id = android.R.drawable.ic_dialog_info
                         ),
                         contentDescription = "Success",
@@ -90,7 +92,7 @@ fun EmailVerificationScreen(
 
                 state.error != null -> {
                     Icon(
-                        painter = androidx.compose.ui.res.painterResource(
+                        painter = painterResource(
                             id = android.R.drawable.ic_dialog_alert
                         ),
                         contentDescription = "Error",

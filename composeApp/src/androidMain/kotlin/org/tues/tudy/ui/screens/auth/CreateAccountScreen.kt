@@ -1,4 +1,4 @@
-package org.tues.tudy.ui.auth
+package org.tues.tudy.ui.screens.auth
 
 import android.os.Build
 import androidx.annotation.RequiresExtension
