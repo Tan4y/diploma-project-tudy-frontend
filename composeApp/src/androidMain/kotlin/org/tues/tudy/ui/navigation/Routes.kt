@@ -13,4 +13,5 @@ object Routes {
     const val ADD = "add"
     const val PROFILE = "profile"
     const val HOME = "home"
+    const val TYPE_SUBJECT = "typeSubject"
 }
