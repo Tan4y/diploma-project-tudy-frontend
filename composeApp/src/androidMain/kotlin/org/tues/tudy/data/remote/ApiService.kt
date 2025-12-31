@@ -2,6 +2,7 @@ package org.tues.tudy.data.remote
 
 import okhttp3.ResponseBody
 import org.tues.tudy.data.model.CreateAccountRequest
+import org.tues.tudy.data.model.Event
 import org.tues.tudy.data.model.LogInRequest
 import org.tues.tudy.data.model.RequestResetPasswordRequest
 import org.tues.tudy.data.model.ResetPasswordRequest
@@ -37,4 +38,8 @@ interface ApiService {
     suspend fun resetPassword(
         @Body request: ResetPasswordRequest
     ): Response<ResponseBody>
+
+    @GET("api/events")
+    suspend fun getEvents(): Response<List<Event>>
+
 }

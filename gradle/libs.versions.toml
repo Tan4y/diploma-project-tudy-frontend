@@ -17,6 +17,8 @@ ui = "1.10.0"
 uiText = "1.10.0"
 firebaseCrashlyticsBuildtools = "3.0.6"
 lifecycleViewmodelKtx = "2.10.0"
+benchmarkTraceprocessor = "1.4.1"
+foundationLayout = "1.10.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -34,6 +36,8 @@ androidx-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "ui" }
 androidx-ui-text = { group = "androidx.compose.ui", name = "ui-text", version.ref = "uiText" }
 firebase-crashlytics-buildtools = { group = "com.google.firebase", name = "firebase-crashlytics-buildtools", version.ref = "firebaseCrashlyticsBuildtools" }
 androidx-lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
+androidx-benchmark-traceprocessor = { group = "androidx.benchmark", name = "benchmark-traceprocessor", version.ref = "benchmarkTraceprocessor" }
+androidx-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "foundationLayout" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
