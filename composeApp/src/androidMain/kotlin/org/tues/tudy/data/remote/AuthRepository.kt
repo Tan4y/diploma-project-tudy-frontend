@@ -3,6 +3,7 @@ package org.tues.tudy.data.remote
 import org.json.JSONObject
 import org.tues.tudy.data.model.CreateAccountRequest
 import org.tues.tudy.data.model.LogInRequest
+import org.tues.tudy.data.model.LoginResponse
 import org.tues.tudy.data.model.RequestResetPasswordRequest
 import org.tues.tudy.data.model.ResetPasswordRequest
 import retrofit2.HttpException
@@ -25,12 +26,13 @@ class AuthRepository {
         }
     }
 
-    suspend fun login(username: String, password: String) {
+    suspend fun login(username: String, password: String): LoginResponse {
         val response = api.login(LogInRequest(username, password))
 
         if (!response.isSuccessful) {
             throw HttpException(response)
         }
+        return response.body() ?: throw Exception("Empty response body")
     }
 
     suspend fun verifyEmail(token: String) {
