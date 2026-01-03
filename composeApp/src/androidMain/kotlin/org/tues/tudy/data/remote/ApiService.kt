@@ -4,12 +4,16 @@ import okhttp3.ResponseBody
 import org.tues.tudy.data.model.CreateAccountRequest
 import org.tues.tudy.data.model.Event
 import org.tues.tudy.data.model.LogInRequest
+import org.tues.tudy.data.model.LoginResponse
 import org.tues.tudy.data.model.RequestResetPasswordRequest
 import org.tues.tudy.data.model.ResetPasswordRequest
+import org.tues.tudy.data.model.TypeSubjectRequest
+import org.tues.tudy.data.model.TypeSubjectResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiService {
@@ -22,7 +26,7 @@ interface ApiService {
     @POST("api/auth/login")
     suspend fun login(
         @Body request: LogInRequest
-    ): Response<ResponseBody>
+    ): Response<LoginResponse>
 
     @GET("verify-email")
     suspend fun verifyEmail(
@@ -42,4 +46,14 @@ interface ApiService {
     @GET("api/events")
     suspend fun getEvents(): Response<List<Event>>
 
+    @GET("api/type-subject/{userId}")
+    suspend fun getItems(
+        @Path("userId") userId: String,
+        @Query("type") type: String
+    ): Response<List<TypeSubjectResponse>>
+
+    @POST("api/type-subject")
+    suspend fun addItem(
+        @Body request: TypeSubjectRequest
+    ): Response<TypeSubjectResponse>
 }
