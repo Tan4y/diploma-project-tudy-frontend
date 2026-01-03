@@ -28,11 +28,12 @@ class LoginViewModel : ViewModel() {
             try {
                 _state.value = LoginState(loading = true)
 
-                repo.login(username, password)
+                val response = repo.login(username, password)
 
                 _state.value = LoginState(
                     loading = false,
-                    success = true
+                    success = true,
+                    userId = response.user.id
                 )
 
             } catch (e: HttpException) {
@@ -77,5 +78,6 @@ class LoginViewModel : ViewModel() {
 data class LoginState(
     val loading: Boolean = false,
     val success: Boolean = false,
-    val error: Int? = null
+    val error: Int? = null,
+    val userId: String? = null
 )

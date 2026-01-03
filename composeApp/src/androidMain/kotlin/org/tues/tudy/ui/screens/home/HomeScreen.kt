@@ -1,25 +1,30 @@
 package org.tues.tudy.ui.screens.home
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import org.tues.tudy.viewmodel.HomeViewModel
 import androidx.compose.material3.Scaffold
-import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import org.tues.tudy.ui.components.BottomBar
 import org.tues.tudy.ui.components.TopBar
 import org.tues.tudy.ui.navigation.Routes
 import org.tues.tudy.ui.theme.BaseColor0
+import org.tues.tudy.viewmodel.HomeViewModel
 
 @Composable
 fun HomeScreen(
     navController: NavController,
-    viewModel: HomeViewModel = viewModel()
+    viewModel: HomeViewModel,
+    userId: String
 ) {
+    val items by viewModel.items.collectAsState()
+
+    LaunchedEffect(userId) {
+        viewModel.ensureLoaded(userId)
+    }
 
     Scaffold(
         topBar = {
@@ -38,7 +43,9 @@ fun HomeScreen(
             navController = navController,
             viewModel = viewModel,
             modifier = Modifier
-                .padding(innerPadding)
+                .padding(innerPadding),
+            userId = userId,
+            items = items
         )
     }
 }
