@@ -121,9 +121,17 @@ class HomeViewModel : ViewModel() {
     }
 
     fun loadData(userId: String) {
-        Log.d("HomeVM", "loadData CALLED with userId=$userId")
+        Log.d("HomeVM", "loadData CALLED with userId='$userId' (length=${userId.length})")
+
+        if (userId.isBlank()) {
+            Log.e("HomeVM", "ERROR: userId is blank or empty!")
+            _errorMessage.value = "Invalid user ID"
+            return
+        }
+
         viewModelScope.launch {
             try {
+                Log.d("HomeVM", "Calling repository.getItems with userId='$userId'")
                 val typesResponse = repository.getItems(userId, "type")
                 Log.d("HomeVM", "typesResponse = ${typesResponse.code()} body=${typesResponse.body()}")
 

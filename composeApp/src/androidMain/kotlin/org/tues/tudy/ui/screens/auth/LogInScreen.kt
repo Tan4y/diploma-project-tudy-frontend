@@ -1,5 +1,6 @@
 package org.tues.tudy.ui.screens.auth
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -59,12 +60,19 @@ fun LogInScreen(
         when {
             state.success -> {
                 val currentUserId = state.userId ?: ""
+                Log.d("LogInScreen", "Login success with userId: '$currentUserId'")
+
+                if (currentUserId.isEmpty()) {
+                    Log.e("LogInScreen", "ERROR: userId is empty after successful login!")
+                    return@LaunchedEffect
+                }
+
                 navController.navigateToSuccessError(
                     title = "Log In",
                     subtitle = "Welcome Back!",
                     description = "You have successfully logged in.",
                     buttonText = "Continue",
-                    buttonDestination = "home?userId=$currentUserId",
+                    buttonDestination = Routes.homeRoute(currentUserId),
                     arrow = false,
                     success = true
                 ) {

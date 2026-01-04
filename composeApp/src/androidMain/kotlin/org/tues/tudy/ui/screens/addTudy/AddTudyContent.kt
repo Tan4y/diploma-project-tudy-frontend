@@ -2,7 +2,6 @@ package org.tues.tudy.ui.screens.addTudy
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,6 +19,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import org.tues.tudy.data.model.TypeSubject
+import org.tues.tudy.ui.components.CustomButton
+import org.tues.tudy.ui.components.CustomTextField
 import org.tues.tudy.ui.components.DropdownField
 import org.tues.tudy.ui.theme.BaseColor100
 import org.tues.tudy.ui.theme.BaseColor80
@@ -27,7 +28,6 @@ import org.tues.tudy.ui.theme.Dimens
 import org.tues.tudy.ui.theme.PrimaryColor1
 import org.tues.tudy.viewmodel.AddTudyViewModel
 import org.tues.tudy.viewmodel.HomeViewModel
-
 @Composable
 fun AddTudyContent(
     modifier: Modifier = Modifier,
@@ -57,6 +57,11 @@ fun AddTudyContent(
 
     val subjects = allItems.filter { it.type == "subject" }
     val safeSubjects = subjects.ifEmpty { emptyList() }
+
+    var title by remember { mutableStateOf("") }
+
+    var description by remember { mutableStateOf("") }
+
 
     LazyColumn(
         modifier = modifier
@@ -88,7 +93,9 @@ fun AddTudyContent(
                     activeColor = activeTypeColor,
                     items = safeTypes
                 )
+
                 Spacer(modifier = Modifier.height(Dimens.Space125))
+
                 DropdownField(
                     selectedItem = subjectSelected?.name,
                     expanded = subjectExpanded,
@@ -107,6 +114,50 @@ fun AddTudyContent(
                     },
                     activeColor = activeSubjectColor,
                     items = safeSubjects
+                )
+
+                Spacer(modifier = Modifier.height(Dimens.Space125))
+
+                CustomTextField(
+                    value = title,
+                    onValueChange = {
+                        title = it
+                    },
+                    label = "Title",
+                    textLength = 16
+                )
+
+                Spacer(modifier = Modifier.height(Dimens.Space125))
+
+                CustomTextField(
+                    value = description,
+                    onValueChange = {
+                        description = it
+                    },
+                    label = "Title",
+                    textLength = 16
+                )
+
+                Spacer(modifier = Modifier.height(Dimens.Space125))
+
+
+                val isButtonEnabled =
+                    typeSelected != null &&
+                            subjectSelected != null &&
+                            title.isNotEmpty() &&
+                            description.isNotEmpty()
+
+                CustomButton(
+                    value = "Add Tudy",
+                    enabled = isButtonEnabled,
+                    onClick = {
+//                            onSubmit(name, selectedIcon!!)
+//                            name = ""
+//                            selectedIcon = null
+//                            onDismiss()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
                 )
             }
         }

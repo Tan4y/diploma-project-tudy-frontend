@@ -1,5 +1,6 @@
 package org.tues.tudy.ui.screens.home
 
+import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -23,6 +24,7 @@ fun HomeScreen(
     val items by viewModel.items.collectAsState()
 
     LaunchedEffect(userId) {
+        Log.d("HomeScreen", "HomeScreen userId='$userId'")
         viewModel.ensureLoaded(userId)
     }
 
@@ -35,7 +37,7 @@ fun HomeScreen(
             )
         },
         bottomBar = {
-            BottomBar(navController = navController, selectedRoute = Routes.HOME)
+            BottomBar(navController = navController, selectedRoute = Routes.homeRoute(userId), userId = userId)
         },
         containerColor = BaseColor0
     ) { innerPadding ->

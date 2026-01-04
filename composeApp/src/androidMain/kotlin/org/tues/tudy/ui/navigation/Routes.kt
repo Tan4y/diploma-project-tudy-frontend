@@ -14,6 +14,9 @@ object Routes {
     const val ADD_TUDY_WITH_USER = "addTudy/{userId}"
     const val PROFILE = "profile"
     const val HOME = "home"
-    const val HOME_WITH_USER = "home?userId={userId}"
+    const val HOME_WITH_USER = "home/{userId}"
     const val TYPE_SUBJECT = "typeSubject"
+
+    fun homeRoute(userId: String) = "home/$userId"
+    fun addTudyRoute(userId: String) = "addTudy/$userId"
 }

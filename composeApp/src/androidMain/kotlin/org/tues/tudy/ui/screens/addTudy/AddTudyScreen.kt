@@ -30,7 +30,7 @@ fun AddTudyScreen (
             )
         },
         bottomBar = {
-            BottomBar(navController = navController, selectedRoute = Routes.ADD_TUDY)
+            BottomBar(navController = navController, selectedRoute = Routes.addTudyRoute(userId), userId = userId)
         },
         containerColor = BaseColor0
     ) { innerPadding ->
