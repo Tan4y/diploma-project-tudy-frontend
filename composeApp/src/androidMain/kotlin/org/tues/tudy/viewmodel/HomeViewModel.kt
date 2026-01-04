@@ -13,28 +13,17 @@ import org.tues.tudy.data.model.TypeSubjectRequest
 import org.tues.tudy.data.remote.ApiServiceBuilder
 import org.tues.tudy.data.remote.TypeSubjectRepository
 import org.tues.tudy.utils.sortByTudiesThenAlphabetical
-import kotlin.math.log
 
 class HomeViewModel : ViewModel() {
-    init {
-        Log.d("IconRes", "Homework icon = ${R.drawable.type_homework}")
-        Log.d("IconRes", "Exam icon = ${R.drawable.type_exam}")
-        Log.d("IconRes", "Quiz icon = ${R.drawable.type_quiz}")
 
-        Log.d("IconRes", "Biology icon = ${R.drawable.subject_biology}")
-        Log.d("IconRes", "Chemistry icon = ${R.drawable.subject_chemistry}")
-        Log.d("IconRes", "Computer Science icon = ${R.drawable.subject_computer_science}")
-        Log.d("IconRes", "English icon = ${R.drawable.subject_english}")
-        Log.d("IconRes", "Geography icon = ${R.drawable.subject_geography}")
-        Log.d("IconRes", "History icon = ${R.drawable.subject_history}")
-        Log.d("IconRes", "Literature icon = ${R.drawable.subject_literature}")
-        Log.d("IconRes", "Mathematics icon = ${R.drawable.subject_mathematics}")
-        Log.d("IconRes", "Physics icon = ${R.drawable.subject_physics}")
-        Log.d("IconRes", "Sport icon = ${R.drawable.subject_sport}")
-
+    private val repository: TypeSubjectRepository by lazy {
+        try {
+            TypeSubjectRepository(ApiServiceBuilder.apiService)
+        } catch (e: Exception) {
+            Log.e("HomeVM", "Failed to initialize repository", e)
+            throw e
+        }
     }
-
-    private val repository = TypeSubjectRepository(ApiServiceBuilder.apiService)
 
     private val _items = MutableStateFlow<List<TypeSubject>>(emptyList())
     val items: StateFlow<List<TypeSubject>> = _items.asStateFlow()
@@ -77,10 +66,47 @@ class HomeViewModel : ViewModel() {
         R.drawable.subject_sport
     )
 
+//    private val _subjectItems = MutableStateFlow<List<NameIcon>>(emptyList())
+//    val subjectItems: StateFlow<List<NameIcon>> = _subjectItems.asStateFlow()
+//
+//    private val _typeItems = MutableStateFlow<List<NameIcon>>(emptyList())
+//    val typeItems: StateFlow<List<NameIcon>> = _typeItems.asStateFlow()
+
+    init {
+//        viewModelScope.launch {
+//            _items.collect { list ->
+//                _subjectItems.value = list
+//                    .filter { it.type == "subject" }
+//                    .map { NameIcon(it.name, getIconForName(it.name)) }
+//
+//                _typeItems.value = list
+//                    .filter { it.type == "type" }
+//                    .map { NameIcon(it.name, getIconForName(it.name)) }
+//            }
+//        }
+
+
+        Log.d("IconRes", "Homework icon = ${R.drawable.type_homework}")
+        Log.d("IconRes", "Exam icon = ${R.drawable.type_exam}")
+        Log.d("IconRes", "Quiz icon = ${R.drawable.type_quiz}")
+
+        Log.d("IconRes", "Biology icon = ${R.drawable.subject_biology}")
+        Log.d("IconRes", "Chemistry icon = ${R.drawable.subject_chemistry}")
+        Log.d("IconRes", "Computer Science icon = ${R.drawable.subject_computer_science}")
+        Log.d("IconRes", "English icon = ${R.drawable.subject_english}")
+        Log.d("IconRes", "Geography icon = ${R.drawable.subject_geography}")
+        Log.d("IconRes", "History icon = ${R.drawable.subject_history}")
+        Log.d("IconRes", "Literature icon = ${R.drawable.subject_literature}")
+        Log.d("IconRes", "Mathematics icon = ${R.drawable.subject_mathematics}")
+        Log.d("IconRes", "Physics icon = ${R.drawable.subject_physics}")
+        Log.d("IconRes", "Sport icon = ${R.drawable.subject_sport}")
+    }
+
+
+
     fun getTypeIcons() = availableTypeIcons
     fun getSubjectIcons() = availableSubjectIcons
 
-    // Filtered lists for UI
     val types: List<TypeSubject>
         get() = _items.value.filter { it.type == "type" }
 
@@ -88,7 +114,6 @@ class HomeViewModel : ViewModel() {
         get() = _items.value.filter { it.type == "subject" }
 
     fun ensureLoaded(userId: String) {
-        // Only load if we haven't loaded this userId yet
         if (loadedUserId != userId) {
             loadedUserId = userId
             loadData(userId)
@@ -143,7 +168,6 @@ class HomeViewModel : ViewModel() {
                 Log.d("HomeVM", "Setting items to: ${merged.map { "${it.name}(${it.type})" }}")
                 _items.value = merged
 
-                // DEBUG: check what is loaded
                 _items.value.forEach {
                     Log.d("HomeVM", "Loaded item: ${it.name}, type: ${it.type}, id: ${it._id}")
                 }
@@ -166,7 +190,6 @@ class HomeViewModel : ViewModel() {
             userId = userId
         )
 
-        // Add locally for instant UI feedback
         _items.value = sortByTudiesThenAlphabetical(
             _items.value + newItem,
             getName = { it.name },
@@ -189,18 +212,15 @@ class HomeViewModel : ViewModel() {
                         userId = returned.userId
                     )
 
-                    // Replace pending item with server-confirmed item
                     _items.value = _items.value.map {
                         if (it._id == null && it.name == confirmedItem.name && it.type == confirmedItem.type && it.userId == confirmedItem.userId)
                             confirmedItem
                         else it
                     }
                 } else {
-                    // Remove pending item if server rejects it
                     _items.value = _items.value.filter { it._id != null || it.name != name || it.type != type }
                 }
             } catch (e: Exception) {
-                // Remove pending item if network fails
                 Log.e("HomeVM", "Failed to sync item: $name", e)
             }
         }
@@ -208,7 +228,6 @@ class HomeViewModel : ViewModel() {
 
     fun getEventsForSubject(subject: TypeSubject): List<String> {
         return if (subject.tudies > 0) {
-            // implement fetching events for this subject
             emptyList()
         } else emptyList()
     }

@@ -48,7 +48,7 @@ fun CustomTextField(
     forgotPassword: Boolean = false,
     navController: NavController? = null,
     trailingIcon: (@Composable (() -> Unit))? = null,
-    visualTransformation: VisualTransformation = VisualTransformation.None
+    visualTransformation: VisualTransformation = VisualTransformation.None,
 ) {
     val isFocused = remember { mutableStateOf(false) }
 
@@ -84,7 +84,7 @@ fun CustomTextField(
                 placeholder = {
                     Text(
                         text = label,
-                        style = AppTypography.Caption1.copy(color = BaseColor80)
+                        style = AppTypography.Paragraph1.copy(color = BaseColor80)
                     )
                 },
                 trailingIcon = trailingIcon,
