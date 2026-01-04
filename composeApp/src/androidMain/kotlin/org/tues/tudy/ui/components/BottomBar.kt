@@ -4,6 +4,7 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -11,9 +12,12 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -35,20 +39,23 @@ fun BottomBar(
 ) {
     val studySelected = selectedRoute == Routes.STUDY
     val calendarSelected = selectedRoute == Routes.CALENDAR
-    val plusSelected = selectedRoute == Routes.ADD
+    val plusSelected = selectedRoute == Routes.ADD_TUDY
     val homeSelected = selectedRoute == Routes.HOME
     val profileSelected = selectedRoute == Routes.PROFILE
 
     val studyIcon = if (studySelected) R.drawable.study_filled else R.drawable.study_outlined
-    val calendarIcon = if (calendarSelected) R.drawable.calendar_filled else R.drawable.calendar_outlined
+    val calendarIcon =
+        if (calendarSelected) R.drawable.calendar_filled else R.drawable.calendar_outlined
     val plusIcon = if (plusSelected) R.drawable.plus_filled else R.drawable.plus_outlined
     val homeIcon = if (homeSelected) R.drawable.home_filled else R.drawable.home_outlined
-    val profileIcon = if (profileSelected) R.drawable.profile_filled else R.drawable.profile_outlined
+    val profileIcon =
+        if (profileSelected) R.drawable.profile_filled else R.drawable.profile_outlined
 
     val studyColor by animateColorAsState(targetValue = if (studySelected) PrimaryColor1 else BaseColor80)
     val calendarColor by animateColorAsState(targetValue = if (calendarSelected) PrimaryColor1 else BaseColor80)
     val homeColor by animateColorAsState(targetValue = if (homeSelected) PrimaryColor1 else BaseColor80)
     val profileColor by animateColorAsState(targetValue = if (profileSelected) PrimaryColor1 else BaseColor80)
+    val plusColor by animateColorAsState(targetValue = if (plusSelected) BaseColor0 else PrimaryColor1)
 
 
     Box(
@@ -65,10 +72,10 @@ fun BottomBar(
                 contentDescription = "Bottom bar outline",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(72.dp)
-                    .clickable() {
-                        navController.navigate(Routes.STUDY)
-                    },
+                    .height(72.dp),
+//                    .clickable() {
+//                        navController.navigate(Routes.STUDY)
+//                    },
                 contentScale = ContentScale.FillBounds
             )
         }
@@ -95,7 +102,9 @@ fun BottomBar(
                         painter = painterResource(studyIcon),
                         contentDescription = "Study",
                         tint = studyColor,
-                        modifier = Modifier.clickable {
+                        modifier = Modifier.clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }) {
                             navController.navigate(Routes.STUDY)
                         }
                     )
@@ -105,7 +114,9 @@ fun BottomBar(
                         painter = painterResource(calendarIcon),
                         contentDescription = "Calendar",
                         tint = calendarColor,
-                        modifier = Modifier.clickable {
+                        modifier = Modifier.clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }) {
                             navController.navigate(Routes.CALENDAR)
                         }
                     )
@@ -118,13 +129,37 @@ fun BottomBar(
                     .fillMaxHeight(),
                 contentAlignment = Alignment.Center
             ) {
+                if(!plusSelected){
                 Icon(
                     painter = painterResource(plusIcon),
                     contentDescription = "Plus",
                     tint = PrimaryColor1,
-                    modifier = Modifier.clickable { navController.navigate(Routes.ADD) }
-                )
+                    modifier = Modifier.clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }) {
+                        navController.navigate(Routes.ADD_TUDY_WITH_USER)
+                    }
+                )}
+                else {
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .background(
+                                color = PrimaryColor1,
+                                shape = CircleShape
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.plus_small),
+                            tint = BaseColor0,
+                            contentDescription = "Plus",
+                        )
+                    }
+
+                }
             }
+
 
             Row(
                 modifier = Modifier
@@ -138,8 +173,10 @@ fun BottomBar(
                         painter = painterResource(homeIcon),
                         contentDescription = "Home",
                         tint = homeColor,
-                        modifier = Modifier.clickable {
-                            navController.navigate(Routes.HOME)
+                        modifier = Modifier.clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }) {
+                            navController.navigate(Routes.HOME_WITH_USER)
                         }
                     )
                 }
@@ -149,7 +186,9 @@ fun BottomBar(
                         painter = painterResource(profileIcon),
                         contentDescription = "Profile",
                         tint = profileColor,
-                        modifier = Modifier.clickable {
+                        modifier = Modifier.clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }) {
                             navController.navigate(Routes.PROFILE)
                         }
                     )
