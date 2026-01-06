@@ -1,5 +1,7 @@
 package org.tues.tudy.ui.screens.home
 
+import android.R.attr.type
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,6 +22,7 @@ import org.tues.tudy.ui.components.AddItemDialog
 import org.tues.tudy.ui.components.SubjectCard
 import org.tues.tudy.ui.components.TitlePlus
 import org.tues.tudy.ui.components.TypeCard
+import org.tues.tudy.ui.navigation.Routes
 import org.tues.tudy.ui.theme.AppTypography
 import org.tues.tudy.ui.theme.BaseColor0
 import org.tues.tudy.ui.theme.Dimens
@@ -28,6 +31,8 @@ import org.tues.tudy.ui.theme.PrimaryColor1
 import org.tues.tudy.utils.formatDateToDayMonth
 import org.tues.tudy.viewmodel.EventViewModel
 import org.tues.tudy.viewmodel.HomeViewModel
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @Composable
 fun HomeContent(
@@ -102,7 +107,12 @@ fun HomeContent(
                             navController = navController,
                             value = type.name,
                             numberOfTudies = type.tudies,
-                            icon = painterResource(id = type.iconRes)
+                            icon = painterResource(id = type.iconRes),
+                            onClick = {
+                                navController.navigate(
+                                    Routes.typeSubjectPageRoute(userId, type.name, true)
+                                )
+                            }
                         )
                     }
                 }
@@ -195,7 +205,12 @@ fun HomeContent(
                                 navController = navController,
                                 value = subject.name,
                                 numberOfTudies = subject.tudies,
-                                icon = painterResource(subject.iconRes)
+                                icon = painterResource(subject.iconRes),
+                                onClick = {
+                                    navController.navigate(
+                                        Routes.typeSubjectPageRoute(userId, subject.name, false)
+                                    )
+                                }
                             )
                         }
                     }
@@ -218,7 +233,12 @@ fun HomeContent(
                         navController = navController,
                         value = subject.name,
                         numberOfTudies = subject.tudies,
-                        icon = painterResource(subject.iconRes)
+                        icon = painterResource(subject.iconRes),
+                        onClick = {
+                            navController.navigate(
+                                Routes.typeSubjectPageRoute(userId, subject.name, false)
+                            )
+                        }
                     )
                 }
             }
