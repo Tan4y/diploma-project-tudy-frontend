@@ -1,5 +1,7 @@
 package org.tues.tudy.ui.navigation
 
+import android.net.Uri
+
 object Routes {
     const val LOGIN = "login"
     const val CREATE_ACCOUNT = "createAccount"
@@ -15,8 +17,9 @@ object Routes {
     const val PROFILE = "profile"
     const val HOME = "home"
     const val HOME_WITH_USER = "home/{userId}"
-    const val TYPE_SUBJECT = "typeSubject"
+    const val TYPE_SUBJECT = "typeSubjectPage/{userId}/{title}/{clickedIsType}"
 
     fun homeRoute(userId: String) = "home/$userId"
     fun addTudyRoute(userId: String) = "addTudy/$userId"
+    fun typeSubjectPageRoute(userId: String, title: String, clickedIsType: Boolean) = "typeSubjectPage/$userId/${Uri.encode(title)}/$clickedIsType"
 }
