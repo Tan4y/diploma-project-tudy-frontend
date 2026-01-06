@@ -118,19 +118,6 @@ fun AddItemDialog(
                         )
 
                         Column {
-
-                            Column(
-                                horizontalAlignment = Alignment.Start,
-                                verticalArrangement = Arrangement.spacedBy(Dimens.Space50)
-                            ) {
-                                if (selectedIcon != null) {
-                                    Text(
-                                        text = "Icon",
-                                        style = AppTypography.Caption1,
-                                        color = activeColor,
-                                        modifier = Modifier.padding(horizontal = Dimens.Space75)
-                                    )
-                                }
                                 DropdownField(
                                     selectedItem = selectedIcon,
                                     expanded = expanded,
@@ -140,7 +127,6 @@ fun AddItemDialog(
                                     placeholder = "Icon",
                                     icons = icons
                                 )
-                            }
                         }
                     }
                     val isButtonEnabled =
