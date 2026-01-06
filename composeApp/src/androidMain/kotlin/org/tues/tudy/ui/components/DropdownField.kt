@@ -5,7 +5,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -48,63 +50,79 @@ fun <T> DropdownField(
     val isTypeSubjectDropdown = items.isNotEmpty()
     val selectedTypeSubject = items.find { it.name == selectedItem }
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(
-                width = 1.dp,
-                color = activeColor,
-                shape = RoundedCornerShape(BorderRadius200)
-            )
-            .clip(RoundedCornerShape(BorderRadius200))
-            .clickable(
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() }
-            ) { onToggleExpand() }
-            .padding(horizontal = 12.dp, vertical = 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+    Column(
+        horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.spacedBy(Dimens.Space50)
     ) {
-        when {
-            isIconDropdown && selectedItem is Int -> Icon(
-                painter = painterResource(selectedItem),
-                contentDescription = null,
-                tint = BaseColor100,
-                modifier = Modifier.size(28.dp)
+        if (selectedItem != null) {
+            Text(
+                text = placeholder,
+                style = AppTypography.Caption1,
+                color = activeColor,
+                modifier = Modifier.padding(horizontal = Dimens.Space75)
             )
-
-            isTypeSubjectDropdown && selectedTypeSubject != null -> Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start,
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = selectedTypeSubject.name,
-                    style = AppTypography.Paragraph1,
-                    color = BaseColor100,
-                    modifier = Modifier.padding(end = Dimens.Space75)
+        }
+        else {
+            Spacer(modifier = Modifier.height(Dimens.Space100))
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(
+                    width = 1.dp,
+                    color = activeColor,
+                    shape = RoundedCornerShape(BorderRadius200)
                 )
-                Icon(
-                    painter = painterResource(selectedTypeSubject.iconRes),
-                    contentDescription = selectedTypeSubject.name,
+                .clip(RoundedCornerShape(BorderRadius200))
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ) { onToggleExpand() }
+                .padding(horizontal = 12.dp, vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            when {
+                isIconDropdown && selectedItem is Int -> Icon(
+                    painter = painterResource(selectedItem),
+                    contentDescription = null,
                     tint = BaseColor100,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(28.dp)
+                )
+
+                isTypeSubjectDropdown && selectedTypeSubject != null -> Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = selectedTypeSubject.name,
+                        style = AppTypography.Paragraph1,
+                        color = BaseColor100,
+                        modifier = Modifier.padding(end = Dimens.Space75)
+                    )
+                    Icon(
+                        painter = painterResource(selectedTypeSubject.iconRes),
+                        contentDescription = selectedTypeSubject.name,
+                        tint = BaseColor100,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+
+                else -> Text(
+                    text = placeholder,
+                    style = AppTypography.Paragraph1,
+                    color = BaseColor80
                 )
             }
 
-            else -> Text(
-                text = placeholder,
-                style = AppTypography.Paragraph1,
-                color = BaseColor80
+            Icon(
+                painter = painterResource(R.drawable.arrow_down),
+                contentDescription = "Dropdown arrow",
+                tint = activeColor,
+                modifier = Modifier.rotate(if (expanded) 180f else 0f)
             )
         }
-
-        Icon(
-            painter = painterResource(R.drawable.arrow_down),
-            contentDescription = "Dropdown arrow",
-            tint = activeColor,
-            modifier = Modifier.rotate(if (expanded) 180f else 0f)
-        )
     }
     if (expanded) {
         if (isIconDropdown) {
