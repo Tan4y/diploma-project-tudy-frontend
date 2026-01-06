@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.tues.tudy.R
 import org.tues.tudy.data.model.TypeSubject
 import org.tues.tudy.data.model.TypeSubjectRequest
@@ -232,11 +233,5 @@ class HomeViewModel : ViewModel() {
                 Log.e("HomeVM", "Failed to sync item: $name", e)
             }
         }
-    }
-
-    fun getEventsForSubject(subject: TypeSubject): List<String> {
-        return if (subject.tudies > 0) {
-            emptyList()
-        } else emptyList()
     }
 }
