@@ -2,6 +2,8 @@ package org.tues.tudy.data.remote
 
 import okhttp3.ResponseBody
 import org.tues.tudy.data.model.CreateAccountRequest
+import org.tues.tudy.data.model.CreateEventRequest
+import org.tues.tudy.data.model.CreateEventResponse
 import org.tues.tudy.data.model.Event
 import org.tues.tudy.data.model.LogInRequest
 import org.tues.tudy.data.model.LoginResponse
@@ -56,4 +58,9 @@ interface ApiService {
     suspend fun addItem(
         @Body request: TypeSubjectRequest
     ): Response<TypeSubjectResponse>
+
+    @POST("api/events")
+    suspend fun createEvent(
+        @Body request: CreateEventRequest
+    ): Response<CreateEventResponse>
 }
