@@ -26,6 +26,7 @@ import org.tues.tudy.ui.theme.Dimens
 import org.tues.tudy.ui.theme.Dimens.BorderRadius250
 import org.tues.tudy.ui.theme.PrimaryColor1
 import org.tues.tudy.utils.formatDateToDayMonth
+import org.tues.tudy.viewmodel.EventViewModel
 import org.tues.tudy.viewmodel.HomeViewModel
 
 @Composable
@@ -50,10 +51,18 @@ fun HomeContent(
     val inactiveSubjects = subjects.filter { it.tudies == 0 }
         .sortedBy { it.name }
 
-    val activeSubjectsWithDates = activeSubjects.associateWith { subject ->
-        val events = viewModel.getEventsForSubject(subject)
-        events.take(3) to events.size
+    val eventViewModel = remember { EventViewModel() }
+    val subjectDates by eventViewModel.subjectDates.collectAsState()
+
+    LaunchedEffect(activeSubjects) {
+        eventViewModel.loadDatesForSubjects(activeSubjects.map { it.name })
     }
+
+    val activeSubjectsWithDates = activeSubjects.associateWith { subject ->
+        val dates = subjectDates[subject.name] ?: emptyList()
+        dates.take(3) to dates.size
+    }
+
 
     val allIcons = viewModel.getTypeIcons() + viewModel.getSubjectIcons()
 

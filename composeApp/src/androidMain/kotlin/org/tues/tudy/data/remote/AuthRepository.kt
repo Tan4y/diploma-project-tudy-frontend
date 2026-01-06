@@ -12,6 +12,20 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class AuthRepository {
 
+    object TokenStorage {
+        private var accessToken: String? = null
+        private var refreshToken: String? = null
+
+        fun saveTokens(access: String, refresh: String) {
+            accessToken = access
+            refreshToken = refresh
+        }
+
+        fun getAccessToken(): String? = accessToken
+        fun getRefreshToken(): String? = refreshToken
+    }
+
+
     private val api = Retrofit.Builder()
         .baseUrl("http://10.0.2.2:5050/")
         .addConverterFactory(GsonConverterFactory.create())

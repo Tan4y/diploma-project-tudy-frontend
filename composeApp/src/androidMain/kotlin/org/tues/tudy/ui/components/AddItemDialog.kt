@@ -113,107 +113,20 @@ fun AddItemDialog(
                                 errorMessage = ""
                             },
                             label = "Title",
-                            error = errorMessage
+                            error = errorMessage,
+                            textLength = 16
                         )
 
                         Column {
-
-                            Column(
-                                horizontalAlignment = Alignment.Start,
-                                verticalArrangement = Arrangement.spacedBy(Dimens.Space50)
-                            ) {
-                                if (selectedIcon != null) {
-                                    Text(
-                                        text = "Icon",
-                                        style = AppTypography.Caption1,
-                                        color = activeColor,
-                                        modifier = Modifier.padding(horizontal = Dimens.Space75)
-                                    )
-                                }
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .border(
-                                            width = 1.dp,
-                                            color = activeColor,
-                                            shape = RoundedCornerShape(BorderRadius200)
-                                        )
-                                        .clip(RoundedCornerShape(BorderRadius200))
-                                        .clickable(
-                                            indication = null,
-                                            interactionSource = remember { MutableInteractionSource() }) {
-                                            expanded = !expanded
-                                        }
-                                        .padding(horizontal = 12.dp, vertical = 16.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    if (selectedIcon != null) {
-                                        Icon(
-                                            painter = painterResource(selectedIcon!!),
-                                            contentDescription = null,
-                                            tint = BaseColor100,
-                                            modifier = Modifier.size(36.dp)
-                                        )
-                                    } else {
-                                        Box(
-                                            modifier = Modifier.height(36.dp),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Text(
-                                                text = "Icon",
-                                                style = AppTypography.Caption1,
-                                                color = BaseColor80,
-                                            )
-                                        }
-                                    }
-                                    Icon(
-                                        painter = painterResource(R.drawable.arrow_down),
-                                        contentDescription = "Dropdown arrow",
-                                        tint = activeColor,
-                                        modifier = Modifier
-                                            .rotate(if (expanded) 180f else 0f)
-                                    )
-
-                                }
-                            }
-
-                            if (expanded) {
-                                LazyVerticalGrid(
-                                    columns = GridCells.Fixed(4),
-                                    modifier = Modifier
-                                        .padding(top = Dimens.Space75)
-                                        .border(
-                                            width = 1.dp,
-                                            color = PrimaryColor1,
-                                            shape = RoundedCornerShape(BorderRadius200)
-                                        )
-                                        .clip(RoundedCornerShape(BorderRadius200))
-                                        .heightIn(max = 300.dp)
-                                ) {
-                                    items(icons) { icon ->
-                                        Box(
-                                            modifier = Modifier
-                                                .padding(Dimens.Space50)
-                                                .clickable(
-                                                    indication = null,
-                                                    interactionSource = remember { MutableInteractionSource() }) {
-                                                    selectedIcon = icon
-                                                    expanded = false
-                                                },
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Box(contentAlignment = Alignment.Center) {
-                                                Icon(
-                                                    painter = painterResource(icon),
-                                                    contentDescription = null,
-                                                    modifier = Modifier.size(36.dp)
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+                                DropdownField(
+                                    selectedItem = selectedIcon,
+                                    expanded = expanded,
+                                    onToggleExpand = { expanded = !expanded },
+                                    onItemSelected = { selectedIcon = it as Int },
+                                    activeColor = activeColor,
+                                    placeholder = "Icon",
+                                    icons = icons
+                                )
                         }
                     }
                     val isButtonEnabled =

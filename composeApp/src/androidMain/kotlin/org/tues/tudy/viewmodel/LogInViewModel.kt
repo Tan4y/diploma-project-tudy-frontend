@@ -10,6 +10,7 @@ import retrofit2.HttpException
 import android.util.Log
 import org.json.JSONObject
 import org.tues.tudy.R
+import org.tues.tudy.data.remote.ApiServiceBuilder
 
 class LoginViewModel : ViewModel() {
 
@@ -29,6 +30,8 @@ class LoginViewModel : ViewModel() {
                 _state.value = LoginState(loading = true)
 
                 val response = repo.login(username, password)
+
+                AuthRepository.TokenStorage.saveTokens(response.accessToken, response.refreshToken)
 
                 _state.value = LoginState(
                     loading = false,

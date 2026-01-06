@@ -1,53 +1,47 @@
-package org.tues.tudy.ui.screens.home
+package org.tues.tudy.ui.screens.addTudy
 
-import android.util.Log
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import org.tues.tudy.ui.components.BottomBar
 import org.tues.tudy.ui.components.TopBar
 import org.tues.tudy.ui.navigation.Routes
+import org.tues.tudy.ui.screens.home.HomeContent
 import org.tues.tudy.ui.theme.BaseColor0
+import org.tues.tudy.viewmodel.AddTudyViewModel
 import org.tues.tudy.viewmodel.HomeViewModel
 
 @Composable
-fun HomeScreen(
+fun AddTudyScreen (
     navController: NavController,
-    viewModel: HomeViewModel,
+    viewModel: AddTudyViewModel,
+    homeViewModel: HomeViewModel,
     userId: String
 ) {
-    val items by viewModel.items.collectAsState()
-
-    LaunchedEffect(userId) {
-        Log.d("HomeScreen", "HomeScreen userId='$userId'")
-        viewModel.ensureLoaded(userId)
-    }
-
     Scaffold(
         topBar = {
             TopBar(
                 primary = true,
-                heading = "Home",
+                heading = "Add Tudy",
                 navController = navController
             )
         },
         bottomBar = {
-            BottomBar(navController = navController, selectedRoute = Routes.homeRoute(userId), userId = userId)
+            BottomBar(navController = navController, selectedRoute = Routes.addTudyRoute(userId), userId = userId)
         },
         containerColor = BaseColor0
     ) { innerPadding ->
-        HomeContent(
+        AddTudyContent(
             navController = navController,
             viewModel = viewModel,
+            homeViewModel = homeViewModel,
             modifier = Modifier
                 .padding(innerPadding),
-            userId = userId,
-            items = items
+            userId = userId
         )
     }
+
 }

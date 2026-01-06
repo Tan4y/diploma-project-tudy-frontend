@@ -48,7 +48,8 @@ fun CustomTextField(
     forgotPassword: Boolean = false,
     navController: NavController? = null,
     trailingIcon: (@Composable (() -> Unit))? = null,
-    visualTransformation: VisualTransformation = VisualTransformation.None
+    textLength: Int = 0,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
 ) {
     val isFocused = remember { mutableStateOf(false) }
 
@@ -79,15 +80,29 @@ fun CustomTextField(
         ) {
             TextField(
                 value = value,
-                onValueChange = onValueChange,
+                onValueChange = {
+                    if (textLength == 0 || it.length <= textLength) {
+                        onValueChange(it)
+                    }
+                },
                 textStyle = AppTypography.Paragraph1.copy(color = stateColor),
                 placeholder = {
                     Text(
                         text = label,
-                        style = AppTypography.Caption1.copy(color = BaseColor80)
+                        style = AppTypography.Paragraph1.copy(color = BaseColor80)
                     )
                 },
-                trailingIcon = trailingIcon,
+                trailingIcon = {
+                    if (textLength > 0) {
+                        Text(
+                            text = "${value.length}/$textLength",
+                            style = AppTypography.Caption1,
+                            color = if (value.length > textLength) ErrorColor else BaseColor100
+                        )
+                    } else if (trailingIcon != null) {
+                        trailingIcon()
+                    }
+                },
                 visualTransformation = visualTransformation,
                 modifier = Modifier
                     .fillMaxWidth()
