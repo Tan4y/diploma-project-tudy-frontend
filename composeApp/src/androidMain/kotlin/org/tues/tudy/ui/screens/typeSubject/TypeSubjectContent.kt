@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.tues.tudy.data.model.Event
 import org.tues.tudy.ui.components.TypeCard
+import org.tues.tudy.ui.components.TypeSubjectTitle
 import org.tues.tudy.ui.theme.AppTypography
 import org.tues.tudy.ui.theme.BaseColor0
 import org.tues.tudy.viewmodel.TypeSubjectViewModel
@@ -64,13 +65,7 @@ fun TypeSubjectContent(
         groupedItems.forEach { (itemName, itemEvents) ->
             // Parent card (subject or type)
             item {
-                Text(
-                    text = itemName,
-                    style = AppTypography.Heading5,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
-                )
+                TypeSubjectTitle(itemName)
             }
 
             itemEvents.forEach { event ->
