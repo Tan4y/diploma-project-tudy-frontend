@@ -2,7 +2,7 @@ package org.tues.tudy.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import org.tues.tudy.data.remote.AuthRepository
+import org.tues.tudy.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

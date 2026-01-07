@@ -11,7 +11,7 @@ import org.tues.tudy.R
 import org.tues.tudy.data.model.TypeSubject
 import org.tues.tudy.data.model.TypeSubjectRequest
 import org.tues.tudy.data.remote.ApiServiceBuilder
-import org.tues.tudy.data.remote.TypeSubjectRepository
+import org.tues.tudy.data.repository.TypeSubjectRepository
 import org.tues.tudy.utils.sortByTudiesThenAlphabetical
 
 class HomeViewModel : ViewModel() {

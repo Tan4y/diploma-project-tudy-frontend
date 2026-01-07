@@ -2,7 +2,7 @@ package org.tues.tudy.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import org.tues.tudy.data.remote.AuthRepository
+import org.tues.tudy.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -11,6 +11,7 @@ import android.util.Log
 import org.json.JSONObject
 import org.tues.tudy.R
 import org.tues.tudy.data.remote.ApiServiceBuilder
+import org.tues.tudy.data.storage.TokenStorage
 
 class LoginViewModel : ViewModel() {
 
@@ -30,8 +31,21 @@ class LoginViewModel : ViewModel() {
                 _state.value = LoginState(loading = true)
 
                 val response = repo.login(username, password)
+                Log.d("LoginVM", "Login response: $response")
 
-                AuthRepository.TokenStorage.saveTokens(response.accessToken, response.refreshToken)
+                if (response.accessToken.isNullOrEmpty() || response.user?.id.isNullOrEmpty()) {
+                    _state.value = LoginState(
+                        loading = false,
+                        error = R.string.log_in_failed
+                    )
+                    return@launch
+                }
+
+                TokenStorage.saveAccessToken(response.accessToken)
+
+                response.refreshToken?.let {
+                    TokenStorage.saveRefreshToken(it)
+                }
 
                 _state.value = LoginState(
                     loading = false,
@@ -64,7 +78,7 @@ class LoginViewModel : ViewModel() {
 
                 _state.value = LoginState(
                     loading = false,
-                    error = R.string.invalid_username_or_password
+                    error = finalMessage as? Int ?: R.string.log_in_failed
                 )
 
             } catch (e: Exception) {
