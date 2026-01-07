@@ -21,7 +21,7 @@ fun TypeCardWithCount(
     val count by viewModel.tudiesCount.collectAsState()
 
     LaunchedEffect(category) {
-        viewModel.loadTudiesByCategory(category)
+        viewModel.loadTudiesByCategory(userId, category)
     }
 
 //    TypeCard(

@@ -39,12 +39,14 @@ fun TudyCard(
     var showConfirm by remember { mutableStateOf(false) }
 
     if (showConfirm) {
-        ConfirmDeleteDialog(
+        BasePopUp(
             onDismiss = { showConfirm = false },
             onConfirm = {
                 showConfirm = false
                 onDelete()
-            }
+            },
+            title = "Delete Tudy",
+            description = "Are you sure you want to delete Tudy about $title"
         )
     }
 
@@ -91,7 +93,7 @@ fun TudyCard(
                 value = "Delete",
                 enabled = true,
                 onClick = { showConfirm = true },
-                big = false,
+                size = ButtonSize.SMALL,
                 color = BaseColor80
             )
 
@@ -101,7 +103,7 @@ fun TudyCard(
                 value = "Study",
                 enabled = true,
                 onClick = onClick,
-                big = false
+                size = ButtonSize.SMALL
             )
         }
     }

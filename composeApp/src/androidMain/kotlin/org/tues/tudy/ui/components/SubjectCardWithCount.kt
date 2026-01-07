@@ -21,7 +21,7 @@ fun SubjectCardWithCount (
     val count by viewModel.tudiesCount.collectAsState()
 
     LaunchedEffect(subject) {
-        viewModel.loadTudiesByCategory(subject)
+        viewModel.loadTudiesByCategory(userId, subject)
     }
 
 //    SubjectCard(
