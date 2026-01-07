@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.tues.tudy.R
 import org.tues.tudy.data.model.TypeSubject
 import org.tues.tudy.data.model.TypeSubjectRequest
@@ -67,26 +66,7 @@ class HomeViewModel : ViewModel() {
         R.drawable.subject_sport
     )
 
-//    private val _subjectItems = MutableStateFlow<List<NameIcon>>(emptyList())
-//    val subjectItems: StateFlow<List<NameIcon>> = _subjectItems.asStateFlow()
-//
-//    private val _typeItems = MutableStateFlow<List<NameIcon>>(emptyList())
-//    val typeItems: StateFlow<List<NameIcon>> = _typeItems.asStateFlow()
-
     init {
-//        viewModelScope.launch {
-//            _items.collect { list ->
-//                _subjectItems.value = list
-//                    .filter { it.type == "subject" }
-//                    .map { NameIcon(it.name, getIconForName(it.name)) }
-//
-//                _typeItems.value = list
-//                    .filter { it.type == "type" }
-//                    .map { NameIcon(it.name, getIconForName(it.name)) }
-//            }
-//        }
-
-
         Log.d("IconRes", "Homework icon = ${R.drawable.type_homework}")
         Log.d("IconRes", "Exam icon = ${R.drawable.type_exam}")
         Log.d("IconRes", "Quiz icon = ${R.drawable.type_quiz}")
@@ -102,8 +82,6 @@ class HomeViewModel : ViewModel() {
         Log.d("IconRes", "Physics icon = ${R.drawable.subject_physics}")
         Log.d("IconRes", "Sport icon = ${R.drawable.subject_sport}")
     }
-
-
 
     fun getTypeIcons() = availableTypeIcons
     fun getSubjectIcons() = availableSubjectIcons
