@@ -17,7 +17,6 @@ class TypeSubjectViewModel: ViewModel() {
             try {
                 val response = ApiServiceBuilder.apiService.getEvents()
                 if (response.isSuccessful) {
-                    // Filter by the user if needed
                     _events.value = response.body()?.filter { it.user == userId } ?: emptyList()
                 } else {
                     _events.value = emptyList()

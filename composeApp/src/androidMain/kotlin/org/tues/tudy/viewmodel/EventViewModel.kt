@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.tues.tudy.data.model.Event
 import org.tues.tudy.data.model.TypeSubject
 import org.tues.tudy.data.remote.ApiServiceBuilder
 import org.tues.tudy.data.repository.EventRepository
@@ -14,6 +15,22 @@ class EventViewModel: ViewModel() {
     private val repository = EventRepository(ApiServiceBuilder.apiService)
     private val _tudiesCount = MutableStateFlow(0)
     val tudiesCount = _tudiesCount.asStateFlow()
+
+    private val _events = MutableStateFlow<List<Event>>(emptyList())
+    val events = _events.asStateFlow()
+
+    // Load all events for the user
+    fun loadEvents() {
+        viewModelScope.launch {
+            try {
+                val response = repository.getEvents()
+                _events.value = response.sortedBy { it.date }
+            } catch (e: Exception) {
+                _events.value = emptyList()
+            }
+        }
+    }
+
 
     fun loadTudiesByCategory(category: String) {
         viewModelScope.launch {
@@ -54,4 +71,18 @@ class EventViewModel: ViewModel() {
             _subjectDates.value = map
         }
     }
+
+    fun deleteEvent(eventId: String, onSuccess: (() -> Unit)? = null, onError: ((String) -> Unit)? = null) {
+        viewModelScope.launch {
+            try {
+                repository.deleteEvent(eventId)
+                loadEvents()
+                onSuccess?.invoke()
+            } catch (e: Exception) {
+                onError?.invoke(e.message ?: "Unknown error")
+            }
+        }
+    }
+
+
 }

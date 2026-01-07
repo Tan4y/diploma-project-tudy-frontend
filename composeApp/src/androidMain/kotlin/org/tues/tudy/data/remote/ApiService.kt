@@ -13,6 +13,7 @@ import org.tues.tudy.data.model.TypeSubjectRequest
 import org.tues.tudy.data.model.TypeSubjectResponse
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -63,4 +64,9 @@ interface ApiService {
     suspend fun createEvent(
         @Body request: CreateEventRequest
     ): Response<CreateEventResponse>
+
+    @DELETE("api/events/{id}")
+    suspend fun deleteEvent(
+        @Path("id") eventId: String
+    ): Response<ResponseBody>
 }
