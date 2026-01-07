@@ -1,5 +1,6 @@
 package org.tues.tudy.ui.components
 
+import android.graphics.Color
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -29,9 +30,11 @@ fun CustomButton(
     enabled: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    big: Boolean = true
+    big: Boolean = true,
+    color: androidx.compose.ui.graphics.Color? = null
 ) {
-    val backgroundColor = if (enabled) PrimaryColor1 else BaseColor80
+    val enabledColor = color ?: PrimaryColor1
+    val backgroundColor = if (enabled) enabledColor else BaseColor80
     val textStyle = if (big) AppTypography.Heading4 else AppTypography.Heading7
 
     Box(
