@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -28,11 +29,9 @@ import org.tues.tudy.ui.theme.BaseColor0
 import org.tues.tudy.ui.theme.Dimens
 import org.tues.tudy.ui.theme.Dimens.BorderRadius250
 import org.tues.tudy.ui.theme.PrimaryColor1
-import org.tues.tudy.utils.formatDateToDayMonth
+import org.tues.tudy.utils.formatDate
 import org.tues.tudy.viewmodel.EventViewModel
 import org.tues.tudy.viewmodel.HomeViewModel
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 
 @Composable
 fun HomeContent(
@@ -172,7 +171,7 @@ fun HomeContent(
                                 ) {
                                     dates.forEach { date ->
                                         Text(
-                                            text = formatDateToDayMonth(date),
+                                            text = formatDate(date),
                                             style = AppTypography.Caption1,
                                             color = BaseColor0
                                         )
