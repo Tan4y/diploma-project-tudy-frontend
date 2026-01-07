@@ -21,7 +21,7 @@ import org.tues.tudy.ui.theme.BaseColor0
 import org.tues.tudy.ui.theme.BaseColor100
 import org.tues.tudy.ui.theme.BaseColor80
 import org.tues.tudy.ui.theme.Dimens
-import org.tues.tudy.ui.theme.Dimens.BorderRadius200
+import org.tues.tudy.ui.theme.Dimens.BorderRadius250
 import org.tues.tudy.ui.theme.shadow1
 import org.tues.tudy.utils.formatDate
 
@@ -37,8 +37,8 @@ fun TudyCard(
         verticalArrangement = Arrangement.spacedBy(Dimens.Space125),
         modifier = Modifier
             .shadow1()
+            .clip(RoundedCornerShape(BorderRadius250))
             .background(BaseColor0)
-            .clip(RoundedCornerShape(BorderRadius200))
             .padding(Dimens.Space125)
     ) {
         Row(
