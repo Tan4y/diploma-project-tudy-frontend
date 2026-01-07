@@ -10,13 +10,16 @@ class AuthInterceptor(
     private val authApiService: AuthApiService
 ) : Interceptor {
 
-    @Synchronized
+    companion object {
+        private var isRefreshing = false
+        private val refreshLock = Object()
+    }
+
     override fun intercept(chain: Interceptor.Chain): Response {
-        Log.d("AuthInterceptor", "Refreshing token…")
 
         var request = chain.request()
 
-        // Attach access token
+        // attach access token
         TokenStorage.getAccessToken()?.let { token ->
             request = request.newBuilder()
                 .addHeader("Authorization", "Bearer $token")
@@ -25,37 +28,61 @@ class AuthInterceptor(
 
         var response = chain.proceed(request)
 
-        // Token expired?
+        // expired token?
         if (response.code == 401 || response.code == 403) {
+
             response.close()
 
-            val refreshToken = TokenStorage.getRefreshToken()
+            synchronized(refreshLock) {
 
-            if (refreshToken != null) {
+                // ако вече refresh-ваме – просто изчакай
+                if (!isRefreshing) {
 
-                val refreshResponse =
-                    authApiService.refreshToken(RefreshRequest(refreshToken)).execute()
+                    isRefreshing = true
+                    Log.d("AuthInterceptor", "Access token expired → refreshing…")
 
-                if (refreshResponse.isSuccessful) {
+                    try {
+                        val refreshToken = TokenStorage.getRefreshToken()
 
-                    val body = refreshResponse.body()!!
+                        if (refreshToken != null) {
 
-                    TokenStorage.saveAccessToken(body.accessToken)
+                            val refreshResponse =
+                                authApiService.refreshToken(
+                                    RefreshRequest(refreshToken)
+                                ).execute()
 
-                    // If backend rotates refresh token
-                    body.refreshToken?.let {
-                        TokenStorage.saveRefreshToken(it)
+                            if (refreshResponse.isSuccessful) {
+
+                                val body = refreshResponse.body()!!
+
+                                TokenStorage.saveAccessToken(body.accessToken)
+
+                                body.refreshToken?.let {
+                                    TokenStorage.saveRefreshToken(it)
+                                }
+
+                                Log.d("AuthInterceptor", "Token refreshed successfully")
+
+                            } else {
+                                Log.e("AuthInterceptor", "Refresh failed → clearing tokens")
+                                TokenStorage.clear()
+                            }
+                        }
+
+                    } finally {
+                        isRefreshing = false
                     }
-
-                    val newRequest = request.newBuilder()
-                        .removeHeader("Authorization")
-                        .addHeader("Authorization", "Bearer ${body.accessToken}")
-                        .build()
-
-                    return chain.proceed(newRequest)
-                } else {
-                    TokenStorage.clear()
                 }
+            }
+
+            // retry request with new token
+            TokenStorage.getAccessToken()?.let { newToken ->
+                val newRequest = request.newBuilder()
+                    .removeHeader("Authorization")
+                    .addHeader("Authorization", "Bearer $newToken")
+                    .build()
+
+                return chain.proceed(newRequest)
             }
         }
 
