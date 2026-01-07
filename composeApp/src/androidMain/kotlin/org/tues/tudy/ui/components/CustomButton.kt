@@ -21,6 +21,7 @@ import org.tues.tudy.ui.theme.BaseColor80
 import org.tues.tudy.ui.theme.Dimens
 import org.tues.tudy.ui.theme.Dimens.BorderRadius200
 import org.tues.tudy.ui.theme.PrimaryColor1
+import org.tues.tudy.ui.theme.shadow1
 
 @Composable
 fun CustomButton(
@@ -28,12 +29,18 @@ fun CustomButton(
     enabled: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    big: Boolean = true
 ) {
     val backgroundColor = if (enabled) PrimaryColor1 else BaseColor80
+    val textStyle = if (big) AppTypography.Heading4 else AppTypography.Heading7
 
     Box(
         modifier = modifier
-            .fillMaxWidth()
+            .then(
+                if (big) Modifier.fillMaxWidth()
+                else Modifier
+            )
+            .shadow1()
             .border(
                 width = 1.dp,
                 color = backgroundColor,
@@ -42,12 +49,16 @@ fun CustomButton(
             .background(backgroundColor, RoundedCornerShape(BorderRadius200))
             .clip(RoundedCornerShape(BorderRadius200))
             .clickable(enabled = enabled) { onClick() }
-            .padding(vertical = Dimens.Space50),
+            .padding(
+                vertical = if (big) Dimens.Space50 else Dimens.Space0,
+                horizontal = Dimens.Space50
+            ),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = value,
-            style = AppTypography.Heading4.copy(color = BaseColor0)
+            style = textStyle,
+            color = BaseColor0
         )
     }
 }
