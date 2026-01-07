@@ -20,6 +20,7 @@ import org.tues.tudy.ui.theme.AppTypography
 import org.tues.tudy.ui.theme.BaseColor0
 import org.tues.tudy.ui.theme.BaseColor80
 import org.tues.tudy.ui.theme.Dimens
+import org.tues.tudy.ui.theme.Dimens.BorderRadius150
 import org.tues.tudy.ui.theme.Dimens.BorderRadius200
 import org.tues.tudy.ui.theme.PrimaryColor1
 import org.tues.tudy.ui.theme.shadow1
@@ -30,30 +31,50 @@ fun CustomButton(
     enabled: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    big: Boolean = true,
+    size: ButtonSize = ButtonSize.LARGE,
     color: androidx.compose.ui.graphics.Color? = null
 ) {
     val enabledColor = color ?: PrimaryColor1
     val backgroundColor = if (enabled) enabledColor else BaseColor80
-    val textStyle = if (big) AppTypography.Heading4 else AppTypography.Heading7
+
+    val textStyle = when (size) {
+        ButtonSize.SMALL -> AppTypography.Heading7
+        ButtonSize.MEDIUM -> AppTypography.Heading5
+        ButtonSize.LARGE -> AppTypography.Heading4
+    }
+
+    val verticalPadding = when (size) {
+        ButtonSize.SMALL -> Dimens.Space0
+        ButtonSize.MEDIUM -> Dimens.Space50
+        ButtonSize.LARGE -> Dimens.Space50
+    }
+
+    val buttonWidth = when (size) {
+        ButtonSize.SMALL -> Modifier
+        ButtonSize.MEDIUM -> Modifier.fillMaxWidth()
+        ButtonSize.LARGE -> Modifier.fillMaxWidth()
+    }
+
+    val borderRadius = when (size) {
+        ButtonSize.SMALL -> BorderRadius150
+        ButtonSize.MEDIUM -> BorderRadius200
+        ButtonSize.LARGE -> BorderRadius200
+    }
 
     Box(
         modifier = modifier
-            .then(
-                if (big) Modifier.fillMaxWidth()
-                else Modifier
-            )
+            .then(buttonWidth)
             .shadow1()
-            .border(
-                width = 1.dp,
-                color = backgroundColor,
-                shape = RoundedCornerShape(BorderRadius200)
-            )
-            .background(backgroundColor, RoundedCornerShape(BorderRadius200))
+//            .border(
+//                width = 1.dp,
+//                color = backgroundColor,
+//                shape = RoundedCornerShape(BorderRadius200)
+//            )
+            .background(backgroundColor, RoundedCornerShape(borderRadius))
             .clip(RoundedCornerShape(BorderRadius200))
             .clickable(enabled = enabled) { onClick() }
             .padding(
-                vertical = if (big) Dimens.Space50 else Dimens.Space0,
+                vertical = verticalPadding,
                 horizontal = Dimens.Space50
             ),
         contentAlignment = Alignment.Center
