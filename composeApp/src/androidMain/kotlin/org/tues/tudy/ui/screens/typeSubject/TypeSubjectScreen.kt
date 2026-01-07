@@ -13,11 +13,13 @@ import org.tues.tudy.ui.components.TopBar
 import org.tues.tudy.ui.navigation.Routes
 import org.tues.tudy.viewmodel.TypeSubjectViewModel
 import org.tues.tudy.ui.theme.BaseColor0
+import org.tues.tudy.viewmodel.EventViewModel
 
 @Composable
 fun TypeSubjectScreen(
     navController: NavController,
     viewModel: TypeSubjectViewModel,
+    eventViewModel: EventViewModel,
     userId: String,
     title: String,
     clickedIsType: Boolean
@@ -43,16 +45,15 @@ fun TypeSubjectScreen(
         },
         containerColor = BaseColor0
     ) { innerPadding ->
-        val allEvents by viewModel.events.collectAsState()
         TypeSubjectContent(
             navController = navController,
             viewModel = viewModel,
+            eventViewModel = eventViewModel,
             modifier = Modifier
                 .padding(innerPadding),
             userId = userId,
             title = title,
             clickedIsType = clickedIsType,
-            events = allEvents
         )
     }
 }

@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import org.tues.tudy.data.model.TypeSubject
 import org.tues.tudy.ui.components.AddItemDialog
@@ -32,12 +33,14 @@ import org.tues.tudy.ui.theme.PrimaryColor1
 import org.tues.tudy.utils.formatDate
 import org.tues.tudy.viewmodel.EventViewModel
 import org.tues.tudy.viewmodel.HomeViewModel
+import org.tues.tudy.viewmodel.TypeSubjectViewModel
 
 @Composable
 fun HomeContent(
     modifier: Modifier = Modifier,
     navController: NavController,
     viewModel: HomeViewModel,
+    eventViewModel: EventViewModel,
     userId: String,
     items: List<TypeSubject>
 ) {
@@ -49,17 +52,40 @@ fun HomeContent(
 
     val errorMessage by viewModel.errorMessage.collectAsState()
 
-    val activeSubjects = subjects.filter { it.tudies > 0 }
-        .sortedWith(compareByDescending<TypeSubject> { it.tudies }.thenBy { it.name })
-
-    val inactiveSubjects = subjects.filter { it.tudies == 0 }
-        .sortedBy { it.name }
-
-    val eventViewModel = remember { EventViewModel() }
+    val events by eventViewModel.events.collectAsState()
     val subjectDates by eventViewModel.subjectDates.collectAsState()
+
+    LaunchedEffect(Unit) {
+        eventViewModel.loadEvents()
+    }
+
+    val updatedSubjects by remember(items, events) {
+        derivedStateOf {
+            subjects.map { subject ->
+                val newCount = events.count { it.subject == subject.name && it.type == "study" }
+                subject.copy(tudies = newCount)
+            }
+        }
+    }
+
+    val activeSubjects by remember(updatedSubjects) {
+        derivedStateOf {
+            updatedSubjects.filter { it.tudies > 0 }
+                .sortedWith(compareByDescending<TypeSubject> { it.tudies }.thenBy { it.name })
+        }
+    }
+
+    val inactiveSubjects by remember(updatedSubjects) {
+        derivedStateOf {
+            updatedSubjects.filter { it.tudies == 0 }
+                .sortedBy { it.name }
+        }
+    }
+
 
     LaunchedEffect(activeSubjects) {
         eventViewModel.loadDatesForSubjects(activeSubjects.map { it.name })
+        viewModel.loadData(userId)
     }
 
     val activeSubjectsWithDates = activeSubjects.associateWith { subject ->
@@ -91,6 +117,7 @@ fun HomeContent(
                         onSubmit = { name, icon ->
                             viewModel.addTypeSubject(userId, name, icon, "type")
                             showAddTypeDialog = false
+                            eventViewModel.loadEvents()
                         },
                         icons = allIcons,
                         existingTitles = types.map { it.name }
@@ -135,6 +162,7 @@ fun HomeContent(
                         onSubmit = { name, icon ->
                             viewModel.addTypeSubject(userId, name, icon, "subject")
                             showAddSubjectDialog = false
+                            eventViewModel.loadEvents()
                         },
                         icons = allIcons,
                         existingTitles = types.map { it.name }

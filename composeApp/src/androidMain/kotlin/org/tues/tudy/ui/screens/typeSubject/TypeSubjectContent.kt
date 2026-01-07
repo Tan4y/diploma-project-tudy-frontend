@@ -13,6 +13,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -30,20 +33,21 @@ import org.tues.tudy.ui.theme.BaseColor80
 import org.tues.tudy.ui.theme.Dimens
 import org.tues.tudy.utils.isUpcoming
 import org.tues.tudy.viewmodel.TypeSubjectViewModel
+import org.tues.tudy.viewmodel.EventViewModel
 
 @Composable
 fun TypeSubjectContent(
     modifier: Modifier,
     navController: NavController,
     viewModel: TypeSubjectViewModel,
+    eventViewModel: EventViewModel,
     userId: String,
     title: String,
     clickedIsType: Boolean,
-    events: List<Event>
 ) {
-    val studyEvents = events.filter {
-        it.type == "study" && it.isUpcoming()
-    }
+    val events by eventViewModel.events.collectAsState()
+    val studyEvents = events.filter { it.type == "study" && it.isUpcoming() }
+
 
     Log.d(TAG, "Study events (upcoming only): ${studyEvents.size}")
 
@@ -58,6 +62,12 @@ fun TypeSubjectContent(
             .groupBy { it.category ?: "Unknown" }
             .map { it.key to it.value }
     }
+
+
+    LaunchedEffect(Unit) {
+        eventViewModel.loadEvents()
+    }
+
 
 
     LazyColumn(
@@ -133,6 +143,13 @@ fun TypeSubjectContent(
                                     Routes.STUDY
                                 )
                             },
+                            onDelete = {
+                                eventViewModel.deleteEvent(
+                                    eventId = event._id,
+                                    onSuccess = { eventViewModel.loadEvents() },
+                                    onError = { error -> Log.e("DeleteEvent", error) }
+                                )
+                            }
                         )
                     }
                 }

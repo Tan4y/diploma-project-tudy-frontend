@@ -13,12 +13,14 @@ import org.tues.tudy.ui.components.BottomBar
 import org.tues.tudy.ui.components.TopBar
 import org.tues.tudy.ui.navigation.Routes
 import org.tues.tudy.ui.theme.BaseColor0
+import org.tues.tudy.viewmodel.EventViewModel
 import org.tues.tudy.viewmodel.HomeViewModel
 
 @Composable
 fun HomeScreen(
     navController: NavController,
     viewModel: HomeViewModel,
+    eventViewModel: EventViewModel,
     userId: String
 ) {
     val items by viewModel.items.collectAsState()
@@ -44,6 +46,7 @@ fun HomeScreen(
         HomeContent(
             navController = navController,
             viewModel = viewModel,
+            eventViewModel = eventViewModel,
             modifier = Modifier
                 .padding(innerPadding),
             userId = userId,

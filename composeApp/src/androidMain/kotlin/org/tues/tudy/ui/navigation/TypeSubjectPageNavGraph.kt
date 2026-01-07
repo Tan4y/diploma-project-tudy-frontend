@@ -8,6 +8,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import org.tues.tudy.ui.screens.typeSubject.TypeSubjectScreen
+import org.tues.tudy.viewmodel.EventViewModel
 import org.tues.tudy.viewmodel.TypeSubjectViewModel
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
@@ -32,11 +33,13 @@ fun NavGraphBuilder.typeSubjectPageNavGraph (navController: NavHostController){
         val title = URLDecoder.decode(encodedTitle, StandardCharsets.UTF_8.toString())
 
         val typeSubjectViewModel: TypeSubjectViewModel = viewModel()
+        val eventViewModel: EventViewModel = viewModel()
 
 
         TypeSubjectScreen(
             navController = navController,
             viewModel = typeSubjectViewModel,
+            eventViewModel = eventViewModel,
             userId = userId,
             title = title,
             clickedIsType = clickedIsType
