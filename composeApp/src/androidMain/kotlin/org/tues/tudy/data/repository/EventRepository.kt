@@ -5,47 +5,35 @@ import org.tues.tudy.data.remote.ApiService
 
 class EventRepository(private val api: ApiService) {
 
-    suspend fun getEvents(): List<Event> {
-        val response = api.getEvents()
-        if (response.isSuccessful) {
-            return response.body() ?: emptyList()
-        } else {
-            throw Exception("Failed to fetch events")
-        }
+    suspend fun getEventsForUser(userId: String): List<Event> {
+        return api.getEvents().body()?.filter { it.user == userId } ?: emptyList()
     }
 
-
-    suspend fun getTudiesCountByCategory(category: String): Int {
+    suspend fun getTudiesCountByCategory(userId: String, category: String): Int {
         val response = api.getEvents()
         if (response.isSuccessful) {
             val events = response.body() ?: emptyList()
-            return events.count { it.type == "study" && it.category == category }
-        } else {
-            throw Exception("Failed to fetch events")
-        }
+            return events.count { it.type == "study" && it.user == userId && it.category == category }
+        } else throw Exception("Failed to fetch events")
     }
 
-    suspend fun getTudiesCountBySubject(subject: String): Int {
+    suspend fun getTudiesCountBySubject(userId: String, subject: String): Int {
         val response = api.getEvents()
         if (response.isSuccessful) {
             val events = response.body() ?: emptyList()
-            return events.count { it.type == "study" && it.subject == subject }
-        } else {
-            throw Exception("Failed to fetch events")
-        }
+            return events.count { it.type == "study" && it.user == userId && it.subject == subject }
+        } else throw Exception("Failed to fetch events")
     }
 
-    suspend fun getEventDatesForSubject(subject: String): List<String> {
+    suspend fun getEventDatesForSubject(userId: String, subject: String): List<String> {
         val response = api.getEvents()
         if (response.isSuccessful) {
             val events = response.body() ?: emptyList()
-            // Filter by subject and type "study", return their date strings
-            return events.filter { it.type == "study" && it.subject == subject }
-                .map { it.date } // assuming 'date' is String in ISO format
-        } else {
-            throw Exception("Failed to fetch events")
-        }
+            return events.filter { it.type == "study" && it.user == userId && it.subject == subject }
+                .map { it.date }
+        } else throw Exception("Failed to fetch events")
     }
+
 
     suspend fun deleteEvent(eventId: String) {
         val response = api.deleteEvent(eventId)

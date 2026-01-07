@@ -10,4 +10,7 @@ class TypeSubjectRepository(private val api: ApiService) {
 
     suspend fun addItem(request: TypeSubjectRequest) =
         api.addItem(request)
+
+    suspend fun deleteItem(userId: String, itemId: String) =
+        api.deleteTypeSubject(userId, itemId)
 }

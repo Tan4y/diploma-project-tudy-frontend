@@ -60,6 +60,12 @@ interface ApiService {
         @Body request: TypeSubjectRequest
     ): Response<TypeSubjectResponse>
 
+    @DELETE("api/type-subject/{userId}/{id}")
+    suspend fun deleteTypeSubject(
+        @Path("userId") userId: String,
+        @Path("id") itemId: String
+    ): Response<ResponseBody>
+
     @POST("api/events")
     suspend fun createEvent(
         @Body request: CreateEventRequest
