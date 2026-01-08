@@ -35,11 +35,11 @@ class AuthInterceptor(
 
             synchronized(refreshLock) {
 
-                // ако вече refresh-ваме – просто изчакай
+                // if already refreshing, just wait
                 if (!isRefreshing) {
 
                     isRefreshing = true
-                    Log.d("AuthInterceptor", "Access token expired → refreshing…")
+                    Log.d("AuthInterceptor", "Access token expired → refreshing… (Status: ${response.code})")
 
                     try {
                         val refreshToken = TokenStorage.getRefreshToken()
@@ -64,11 +64,20 @@ class AuthInterceptor(
                                 Log.d("AuthInterceptor", "Token refreshed successfully")
 
                             } else {
-                                Log.e("AuthInterceptor", "Refresh failed → clearing tokens")
+                                Log.e("AuthInterceptor", "Refresh failed (${refreshResponse.code()}) → clearing tokens")
                                 TokenStorage.clear()
+                                return response  // ← Return error response
                             }
+                        } else {
+                            Log.e("AuthInterceptor", "No refresh token available")
+                            TokenStorage.clear()
+                            return response  // ← Return error response
                         }
 
+                    } catch (e: Exception) {
+                        Log.e("AuthInterceptor", "Token refresh exception: ${e.message}")
+                        TokenStorage.clear()
+                        return response  // ← Return error response
                     } finally {
                         isRefreshing = false
                     }
@@ -76,13 +85,16 @@ class AuthInterceptor(
             }
 
             // retry request with new token
-            TokenStorage.getAccessToken()?.let { newToken ->
+            return TokenStorage.getAccessToken()?.let { newToken ->
                 val newRequest = request.newBuilder()
                     .removeHeader("Authorization")
                     .addHeader("Authorization", "Bearer $newToken")
                     .build()
 
-                return chain.proceed(newRequest)
+                chain.proceed(newRequest)
+            } ?: run {
+                Log.e("AuthInterceptor", "No token after refresh attempt")
+                response  // ← Return error if no token
             }
         }
 
