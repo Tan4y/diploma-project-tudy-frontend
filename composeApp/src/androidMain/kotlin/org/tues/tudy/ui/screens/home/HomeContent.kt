@@ -27,6 +27,7 @@ import org.tues.tudy.ui.components.TypeCard
 import org.tues.tudy.ui.navigation.Routes
 import org.tues.tudy.ui.theme.AppTypography
 import org.tues.tudy.ui.theme.BaseColor0
+import org.tues.tudy.ui.theme.BaseColor80
 import org.tues.tudy.ui.theme.Dimens
 import org.tues.tudy.ui.theme.Dimens.BorderRadius250
 import org.tues.tudy.ui.theme.PrimaryColor1
@@ -46,6 +47,12 @@ fun HomeContent(
 ) {
     var showAddTypeDialog by remember { mutableStateOf(false) }
     var showAddSubjectDialog by remember { mutableStateOf(false) }
+    val isLoading by viewModel.isLoading.collectAsState()
+
+    LaunchedEffect(userId) {
+        viewModel.loadData(userId)
+        eventViewModel.loadEvents(userId)
+    }
 
     val types = items.filter { it.type == "type" }
     val subjects = items.filter { it.type == "subject" }
@@ -55,14 +62,10 @@ fun HomeContent(
     val events by eventViewModel.events.collectAsState()
     val subjectDates by eventViewModel.subjectDates.collectAsState()
 
-    LaunchedEffect(Unit) {
-        eventViewModel.loadEvents()
-    }
-
     val updatedSubjects by remember(items, events) {
         derivedStateOf {
             subjects.map { subject ->
-                val newCount = events.count { it.subject == subject.name && it.type == "study" }
+                val newCount = events.count { it.subject == subject.name }
                 subject.copy(tudies = newCount)
             }
         }
@@ -82,10 +85,10 @@ fun HomeContent(
         }
     }
 
-
     LaunchedEffect(activeSubjects) {
-        eventViewModel.loadDatesForSubjects(activeSubjects.map { it.name })
-        viewModel.loadData(userId)
+        if (activeSubjects.isNotEmpty()) {
+            eventViewModel.loadDatesForSubjects(userId,activeSubjects.map { it.name })
+        }
     }
 
     val activeSubjectsWithDates = activeSubjects.associateWith { subject ->
@@ -93,180 +96,196 @@ fun HomeContent(
         dates.take(3) to dates.size
     }
 
-
     val allIcons = viewModel.getTypeIcons() + viewModel.getSubjectIcons()
 
-    LazyColumn(
-        modifier = modifier
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.Top
-    ) {
+    if (isLoading) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "Loading...",
+                style = AppTypography.Heading4,
+                color = BaseColor80
+            )
+        }
+    } else {
+        LazyColumn(
+            modifier = modifier
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Top
+        ) {
 
-        // Types
-        item {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(Dimens.Space50)
-            ) {
-                TitlePlus("Type", onAddClick = { showAddTypeDialog = true })
-
-                if (showAddTypeDialog) {
-                    AddItemDialog(
-                        title = "Add Type",
-                        onDismiss = { showAddTypeDialog = false },
-                        onSubmit = { name, icon ->
-                            viewModel.addTypeSubject(userId, name, icon, "type")
-                            showAddTypeDialog = false
-                            eventViewModel.loadEvents()
-                        },
-                        icons = allIcons,
-                        existingTitles = types.map { it.name }
-                    )
-                }
-
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(Dimens.Space125),
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = Dimens.Space100),
+            // Types
+            item {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(Dimens.Space50)
                 ) {
-                    items(types) { type ->
-                        TypeCard(
+                    TitlePlus("Type", onAddClick = { showAddTypeDialog = true })
+
+                    if (showAddTypeDialog) {
+                        AddItemDialog(
+                            title = "Add Type",
+                            onDismiss = { showAddTypeDialog = false },
+                            onSubmit = { name, icon ->
+                                viewModel.addTypeSubject(userId, name, icon, "type")
+                                showAddTypeDialog = false
+                                viewModel.loadData(userId)
+                                eventViewModel.loadEvents(userId)
+                            },
+                            icons = allIcons,
+                            existingTitles = types.map { it.name }
+                        )
+                    }
+
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(Dimens.Space125),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = Dimens.Space100),
+                    ) {
+                        items(types) { type ->
+                            TypeCard(
+                                navController = navController,
+                                value = type.name,
+                                numberOfTudies = type.tudies,
+                                icon = painterResource(id = type.iconRes),
+                                onClick = {
+                                    navController.navigate(
+                                        Routes.typeSubjectPageRoute(userId, type.name, true)
+                                    )
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
+            item { Spacer(modifier = Modifier.height(Dimens.Space150)) }
+
+            // Subjects
+            item {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(Dimens.Space50)
+                ) {
+                    TitlePlus("Subject", onAddClick = { showAddSubjectDialog = true })
+
+                    if (showAddSubjectDialog) {
+                        AddItemDialog(
+                            title = "Add Subject",
+                            onDismiss = { showAddSubjectDialog = false },
+                            onSubmit = { name, icon ->
+                                viewModel.addTypeSubject(userId, name, icon, "subject")
+                                showAddSubjectDialog = false
+                                viewModel.loadData(userId)
+                                eventViewModel.loadEvents(userId)
+                            },
+                            icons = allIcons,
+                            existingTitles = types.map { it.name }
+                        )
+                    }
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(IntrinsicSize.Max)
+                            .padding(horizontal = Dimens.Space100),
+                        horizontalArrangement = Arrangement.spacedBy(Dimens.Space125)
+                    ) {
+                        // Dates Column
+                        if (activeSubjects.isNotEmpty()) {
+                            Column(
+                                modifier = Modifier
+                                    .width(80.dp)
+                                    .fillMaxHeight()
+                                    .clip(RoundedCornerShape(BorderRadius250))
+                                    .background(PrimaryColor1)
+                                    .padding(Dimens.Space125),
+                                verticalArrangement = Arrangement.spacedBy(Dimens.Space125),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                activeSubjects.forEachIndexed { index, subject ->
+                                    val (dates, totalEvents) = activeSubjectsWithDates[subject]!!
+                                    Column(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .fillMaxHeight(),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center
+                                    ) {
+                                        dates.forEach { date ->
+                                            Text(
+                                                text = formatDate(date),
+                                                style = AppTypography.Caption1,
+                                                color = BaseColor0
+                                            )
+                                        }
+                                        if (totalEvents > 3) {
+                                            Text(
+                                                text = "...",
+                                                style = AppTypography.Caption1,
+                                                color = BaseColor0
+                                            )
+                                        }
+                                    }
+                                    if (index < activeSubjects.lastIndex) {
+                                        HorizontalDivider(
+                                            thickness = 1.dp,
+                                            color = BaseColor0
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        // SubjectCard Column
+                        Column(
+                            modifier = Modifier.weight(2f),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            activeSubjects.forEach { subject ->
+                                SubjectCard(
+                                    navController = navController,
+                                    value = subject.name,
+                                    numberOfTudies = subject.tudies,
+                                    icon = painterResource(subject.iconRes),
+                                    onClick = {
+                                        navController.navigate(
+                                            Routes.typeSubjectPageRoute(userId, subject.name, false)
+                                        )
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            item { if (activeSubjects.isNotEmpty()) Spacer(modifier = Modifier.height(Dimens.Space125)) }
+
+            // Inactive Subjects
+            item {
+                Column(
+                    modifier = Modifier
+                        .padding(horizontal = Dimens.Space100)
+                        .padding(bottom = Dimens.Space125),
+                    verticalArrangement = Arrangement.spacedBy(Dimens.Space125)
+                ) {
+                    inactiveSubjects.forEach { subject ->
+                        SubjectCard(
                             navController = navController,
-                            value = type.name,
-                            numberOfTudies = type.tudies,
-                            icon = painterResource(id = type.iconRes),
+                            value = subject.name,
+                            numberOfTudies = subject.tudies,
+                            icon = painterResource(subject.iconRes),
                             onClick = {
                                 navController.navigate(
-                                    Routes.typeSubjectPageRoute(userId, type.name, true)
+                                    Routes.typeSubjectPageRoute(userId, subject.name, false)
                                 )
                             }
                         )
                     }
-                }
-            }
-        }
-
-        item { Spacer(modifier = Modifier.height(Dimens.Space150)) }
-
-        // Subjects
-        item {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(Dimens.Space50)
-            ) {
-                TitlePlus("Subject", onAddClick = { showAddSubjectDialog = true })
-
-                if (showAddSubjectDialog) {
-                    AddItemDialog(
-                        title = "Add Subject",
-                        onDismiss = { showAddSubjectDialog = false },
-                        onSubmit = { name, icon ->
-                            viewModel.addTypeSubject(userId, name, icon, "subject")
-                            showAddSubjectDialog = false
-                            eventViewModel.loadEvents()
-                        },
-                        icons = allIcons,
-                        existingTitles = types.map { it.name }
-                    )
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(IntrinsicSize.Max)
-                        .padding(horizontal = Dimens.Space100),
-                    horizontalArrangement = Arrangement.spacedBy(Dimens.Space125)
-                ) {
-                    // Dates Column
-                    if (activeSubjects.isNotEmpty()) {
-                        Column(
-                            modifier = Modifier
-                                .width(80.dp)
-                                .fillMaxHeight()
-                                .clip(RoundedCornerShape(BorderRadius250))
-                                .background(PrimaryColor1)
-                                .padding(Dimens.Space125),
-                            verticalArrangement = Arrangement.spacedBy(Dimens.Space125),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            activeSubjects.forEachIndexed { index, subject ->
-                                val (dates, totalEvents) = activeSubjectsWithDates[subject]!!
-                                Column(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight(),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center
-                                ) {
-                                    dates.forEach { date ->
-                                        Text(
-                                            text = formatDate(date),
-                                            style = AppTypography.Caption1,
-                                            color = BaseColor0
-                                        )
-                                    }
-                                    if (totalEvents > 3) {
-                                        Text(
-                                            text = "...",
-                                            style = AppTypography.Caption1,
-                                            color = BaseColor0
-                                        )
-                                    }
-                                }
-                                if (index < activeSubjects.lastIndex) {
-                                    HorizontalDivider(
-                                        thickness = 1.dp,
-                                        color = BaseColor0
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                    // SubjectCard Column
-                    Column(
-                        modifier = Modifier.weight(2f),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        activeSubjects.forEach { subject ->
-                            SubjectCard(
-                                navController = navController,
-                                value = subject.name,
-                                numberOfTudies = subject.tudies,
-                                icon = painterResource(subject.iconRes),
-                                onClick = {
-                                    navController.navigate(
-                                        Routes.typeSubjectPageRoute(userId, subject.name, false)
-                                    )
-                                }
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
-        item { if (activeSubjects.isNotEmpty()) Spacer(modifier = Modifier.height(Dimens.Space125)) }
-
-        // Inactive Subjects
-        item {
-            Column(
-                modifier = Modifier
-                    .padding(horizontal = Dimens.Space100)
-                    .padding(bottom = Dimens.Space125),
-                verticalArrangement = Arrangement.spacedBy(Dimens.Space125)
-            ) {
-                inactiveSubjects.forEach { subject ->
-                    SubjectCard(
-                        navController = navController,
-                        value = subject.name,
-                        numberOfTudies = subject.tudies,
-                        icon = painterResource(subject.iconRes),
-                        onClick = {
-                            navController.navigate(
-                                Routes.typeSubjectPageRoute(userId, subject.name, false)
-                            )
-                        }
-                    )
                 }
             }
         }

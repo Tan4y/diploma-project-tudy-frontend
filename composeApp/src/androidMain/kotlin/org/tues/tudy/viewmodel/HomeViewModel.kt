@@ -92,6 +92,9 @@ class HomeViewModel : ViewModel() {
     val subjects: List<TypeSubject>
         get() = _items.value.filter { it.type == "subject" }
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
     fun ensureLoaded(userId: String) {
         if (loadedUserId != userId) {
             loadedUserId = userId
@@ -110,6 +113,8 @@ class HomeViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
+                _isLoading.value = true
+
                 Log.d("HomeVM", "Calling repository.getItems with userId='$userId'")
                 val typesResponse = repository.getItems(userId, "type")
                 Log.d("HomeVM", "typesResponse = ${typesResponse.code()} body=${typesResponse.body()}")
@@ -162,6 +167,8 @@ class HomeViewModel : ViewModel() {
             } catch (e: Exception) {
                 Log.e("HomeVM", "loadData ERROR", e)
                 _errorMessage.value = "Network error: ${e.localizedMessage}"
+            } finally {
+                _isLoading.value = false
             }
         }
     }
@@ -212,4 +219,15 @@ class HomeViewModel : ViewModel() {
             }
         }
     }
+
+//    fun deleteTypeSubject(userId: String, item: TypeSubject) {
+//        viewModelScope.launch {
+//            try {
+//                repository.deleteItem(item._id!!)
+//            } finally {
+//                loadData(userId)
+//            }
+//        }
+//    }
+
 }
