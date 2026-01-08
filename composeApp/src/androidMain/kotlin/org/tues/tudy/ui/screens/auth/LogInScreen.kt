@@ -48,7 +48,7 @@ fun LogInScreen(
     viewModel: LoginViewModel = viewModel(),
     previewState: LoginState? = null
 ) {
-    val state = previewState ?: viewModel.state.collectAsState().value
+    val state by viewModel.state.collectAsState()
 
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }

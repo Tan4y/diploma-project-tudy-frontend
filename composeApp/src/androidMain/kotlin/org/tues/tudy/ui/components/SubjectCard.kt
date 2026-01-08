@@ -35,7 +35,8 @@ fun SubjectCard(
     navController: NavController,
     value: String,
     icon: Painter,
-    numberOfTudies: Int
+    numberOfTudies: Int,
+    onClick: () -> Unit
 ) {
     val activeColor = if (numberOfTudies > 0) PrimaryColor1 else BaseColor80
 
@@ -45,6 +46,7 @@ fun SubjectCard(
             .clip(RoundedCornerShape(BorderRadius250))
             .height(100.dp)
             .background(BaseColor0)
+            .clickable { onClick() }
             .padding(Dimens.Space125)
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,

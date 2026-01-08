@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import org.tues.tudy.ui.navigation.Routes
 import org.tues.tudy.viewmodel.EventViewModel
 
 @Composable
@@ -14,18 +15,24 @@ fun SubjectCardWithCount (
     navController: NavController,
     subject: String,
     icon: Painter,
-    viewModel: EventViewModel = viewModel()
+    viewModel: EventViewModel = viewModel(),
+    userId: String
     ) {
     val count by viewModel.tudiesCount.collectAsState()
 
     LaunchedEffect(subject) {
-        viewModel.loadTudiesByCategory(subject)
+        viewModel.loadTudiesByCategory(userId, subject)
     }
 
-    SubjectCard(
-        navController = navController,
-        value = subject,
-        icon = icon,
-        numberOfTudies = count
-    )
+//    SubjectCard(
+//        navController = navController,
+//        value = subject,
+//        icon = icon,
+//        numberOfTudies = count,
+//        onClick = {
+//            navController.navigate(
+//                Routes.typeSubjectPageRoute(userId, subject.name)
+//            )
+//        }
+//    )
 }

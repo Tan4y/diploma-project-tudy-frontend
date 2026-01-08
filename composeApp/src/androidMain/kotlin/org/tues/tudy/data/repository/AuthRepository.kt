@@ -1,11 +1,11 @@
-package org.tues.tudy.data.remote
+package org.tues.tudy.data.repository
 
-import org.json.JSONObject
 import org.tues.tudy.data.model.CreateAccountRequest
 import org.tues.tudy.data.model.LogInRequest
 import org.tues.tudy.data.model.LoginResponse
 import org.tues.tudy.data.model.RequestResetPasswordRequest
 import org.tues.tudy.data.model.ResetPasswordRequest
+import org.tues.tudy.data.remote.ApiService
 import retrofit2.HttpException
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

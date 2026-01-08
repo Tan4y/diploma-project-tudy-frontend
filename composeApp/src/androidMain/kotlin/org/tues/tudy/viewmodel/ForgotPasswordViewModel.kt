@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.tues.tudy.R
-import org.tues.tudy.data.remote.AuthRepository
+import org.tues.tudy.data.repository.AuthRepository
 import retrofit2.HttpException
 
 class ForgotPasswordViewModel : ViewModel() {

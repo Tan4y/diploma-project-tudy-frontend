@@ -77,33 +77,10 @@ fun AddItemDialog(
                         .padding(Dimens.Space200),
                     verticalArrangement = Arrangement.spacedBy(Dimens.Space200)
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(Dimens.Space50),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Box(modifier = Modifier.fillMaxWidth()) {
-                            Icon(
-                                painter = painterResource(android.R.drawable.ic_menu_close_clear_cancel),
-                                contentDescription = "Close",
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .align(Alignment.TopEnd)
-                                    .clickable(
-                                        indication = null,
-                                        interactionSource = remember { MutableInteractionSource() }) {
-                                        onDismiss()
-                                    }
-                            )
-                        }
-
-                        Text(
-                            text = title,
-                            style = AppTypography.Heading4,
-                            color = PrimaryColor1
-                        )
-                    }
+                    CrossTitlePopUp(
+                        onClick = { onDismiss() },
+                        title = title
+                    )
 
                     Column(verticalArrangement = Arrangement.spacedBy(Dimens.Space125)) {
                         CustomTextField(
@@ -118,15 +95,15 @@ fun AddItemDialog(
                         )
 
                         Column {
-                                DropdownField(
-                                    selectedItem = selectedIcon,
-                                    expanded = expanded,
-                                    onToggleExpand = { expanded = !expanded },
-                                    onItemSelected = { selectedIcon = it as Int },
-                                    activeColor = activeColor,
-                                    placeholder = "Icon",
-                                    icons = icons
-                                )
+                            DropdownField(
+                                selectedItem = selectedIcon,
+                                expanded = expanded,
+                                onToggleExpand = { expanded = !expanded },
+                                onItemSelected = { selectedIcon = it as Int },
+                                activeColor = activeColor,
+                                placeholder = "Icon",
+                                icons = icons
+                            )
                         }
                     }
                     val isButtonEnabled =

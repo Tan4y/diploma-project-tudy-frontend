@@ -1,6 +1,7 @@
-package org.tues.tudy.data.remote
+package org.tues.tudy.data.repository
 
 import org.tues.tudy.data.model.TypeSubjectRequest
+import org.tues.tudy.data.remote.ApiService
 
 class TypeSubjectRepository(private val api: ApiService) {
 
@@ -9,4 +10,7 @@ class TypeSubjectRepository(private val api: ApiService) {
 
     suspend fun addItem(request: TypeSubjectRequest) =
         api.addItem(request)
+
+    suspend fun deleteItem(userId: String, itemId: String) =
+        api.deleteTypeSubject(userId, itemId)
 }

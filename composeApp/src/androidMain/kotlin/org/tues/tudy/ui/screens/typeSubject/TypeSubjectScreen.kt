@@ -1,56 +1,59 @@
-package org.tues.tudy.ui.screens.home
+package org.tues.tudy.ui.screens.typeSubject
 
-import android.util.Log
 import androidx.compose.foundation.layout.padding
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.navigation.NavController
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
 import org.tues.tudy.ui.components.BottomBar
 import org.tues.tudy.ui.components.TopBar
 import org.tues.tudy.ui.navigation.Routes
+import org.tues.tudy.viewmodel.TypeSubjectViewModel
 import org.tues.tudy.ui.theme.BaseColor0
 import org.tues.tudy.viewmodel.EventViewModel
-import org.tues.tudy.viewmodel.HomeViewModel
 
 @Composable
-fun HomeScreen(
+fun TypeSubjectScreen(
     navController: NavController,
-    viewModel: HomeViewModel,
+    viewModel: TypeSubjectViewModel,
     eventViewModel: EventViewModel,
-    userId: String
+    userId: String,
+    title: String,
+    clickedIsType: Boolean
 ) {
-    val items by viewModel.items.collectAsState()
-
     LaunchedEffect(userId) {
-        Log.d("HomeScreen", "HomeScreen userId='$userId'")
-        viewModel.ensureLoaded(userId)
+        viewModel.loadEventsForUser(userId)
     }
 
     Scaffold(
         topBar = {
             TopBar(
-                primary = true,
-                heading = "Home",
+                primary = false,
+                heading = title,
                 navController = navController
             )
         },
         bottomBar = {
-            BottomBar(navController = navController, selectedRoute = Routes.homeRoute(userId), userId = userId)
+            BottomBar(
+                navController = navController,
+                selectedRoute = Routes.typeSubjectPageRoute(userId, title, clickedIsType),
+                userId = userId
+            )
         },
         containerColor = BaseColor0
     ) { innerPadding ->
-        HomeContent(
+        TypeSubjectContent(
             navController = navController,
             viewModel = viewModel,
             eventViewModel = eventViewModel,
             modifier = Modifier
                 .padding(innerPadding),
             userId = userId,
-            items = items
+            title = title,
+            clickedIsType = clickedIsType,
         )
     }
 }

@@ -7,12 +7,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.tues.tudy.R
 import org.tues.tudy.data.model.TypeSubject
 import org.tues.tudy.data.model.TypeSubjectRequest
 import org.tues.tudy.data.remote.ApiServiceBuilder
-import org.tues.tudy.data.remote.TypeSubjectRepository
+import org.tues.tudy.data.repository.TypeSubjectRepository
 import org.tues.tudy.utils.sortByTudiesThenAlphabetical
 
 class HomeViewModel : ViewModel() {
@@ -67,26 +66,7 @@ class HomeViewModel : ViewModel() {
         R.drawable.subject_sport
     )
 
-//    private val _subjectItems = MutableStateFlow<List<NameIcon>>(emptyList())
-//    val subjectItems: StateFlow<List<NameIcon>> = _subjectItems.asStateFlow()
-//
-//    private val _typeItems = MutableStateFlow<List<NameIcon>>(emptyList())
-//    val typeItems: StateFlow<List<NameIcon>> = _typeItems.asStateFlow()
-
     init {
-//        viewModelScope.launch {
-//            _items.collect { list ->
-//                _subjectItems.value = list
-//                    .filter { it.type == "subject" }
-//                    .map { NameIcon(it.name, getIconForName(it.name)) }
-//
-//                _typeItems.value = list
-//                    .filter { it.type == "type" }
-//                    .map { NameIcon(it.name, getIconForName(it.name)) }
-//            }
-//        }
-
-
         Log.d("IconRes", "Homework icon = ${R.drawable.type_homework}")
         Log.d("IconRes", "Exam icon = ${R.drawable.type_exam}")
         Log.d("IconRes", "Quiz icon = ${R.drawable.type_quiz}")
@@ -103,8 +83,6 @@ class HomeViewModel : ViewModel() {
         Log.d("IconRes", "Sport icon = ${R.drawable.subject_sport}")
     }
 
-
-
     fun getTypeIcons() = availableTypeIcons
     fun getSubjectIcons() = availableSubjectIcons
 
@@ -113,6 +91,9 @@ class HomeViewModel : ViewModel() {
 
     val subjects: List<TypeSubject>
         get() = _items.value.filter { it.type == "subject" }
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
 
     fun ensureLoaded(userId: String) {
         if (loadedUserId != userId) {
@@ -132,6 +113,8 @@ class HomeViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
+                _isLoading.value = true
+
                 Log.d("HomeVM", "Calling repository.getItems with userId='$userId'")
                 val typesResponse = repository.getItems(userId, "type")
                 Log.d("HomeVM", "typesResponse = ${typesResponse.code()} body=${typesResponse.body()}")
@@ -184,6 +167,8 @@ class HomeViewModel : ViewModel() {
             } catch (e: Exception) {
                 Log.e("HomeVM", "loadData ERROR", e)
                 _errorMessage.value = "Network error: ${e.localizedMessage}"
+            } finally {
+                _isLoading.value = false
             }
         }
     }
@@ -234,4 +219,15 @@ class HomeViewModel : ViewModel() {
             }
         }
     }
+
+//    fun deleteTypeSubject(userId: String, item: TypeSubject) {
+//        viewModelScope.launch {
+//            try {
+//                repository.deleteItem(item._id!!)
+//            } finally {
+//                loadData(userId)
+//            }
+//        }
+//    }
+
 }

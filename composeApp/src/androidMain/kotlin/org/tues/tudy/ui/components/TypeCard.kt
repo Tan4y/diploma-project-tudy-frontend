@@ -36,7 +36,8 @@ fun TypeCard(
     navController: NavController,
     value: String,
     icon: Painter,
-    numberOfTudies: Int
+    numberOfTudies: Int,
+    onClick: () -> Unit
 ) {
     val activeColor = if (numberOfTudies > 0) PrimaryColor1 else BaseColor80
     Column(
@@ -45,6 +46,7 @@ fun TypeCard(
             .height(164.dp)
             .clip(RoundedCornerShape(BorderRadius250))
             .background(BaseColor0)
+            .clickable { onClick() }
             .padding(vertical = Dimens.Space125, horizontal = Dimens.Space250),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = if (numberOfTudies > 0)
@@ -66,7 +68,6 @@ fun TypeCard(
                 painter = icon,
                 contentDescription = value,
                 tint = activeColor,
-                modifier = Modifier.clickable { navController.navigate(Routes.TYPE_SUBJECT) }
             )
         }
 
