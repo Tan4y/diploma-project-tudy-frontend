@@ -39,7 +39,7 @@ fun BottomBar(
     userId: String
 ) {
     val studySelected = selectedRoute == Routes.STUDY
-    val calendarSelected = selectedRoute == Routes.CALENDAR
+    val calendarSelected = selectedRoute == Routes.calendarRoute(userId)
     val plusSelected = selectedRoute == Routes.addTudyRoute(userId)
     val homeSelected = selectedRoute == Routes.homeRoute(userId)
     val profileSelected = selectedRoute == Routes.PROFILE
@@ -118,7 +118,7 @@ fun BottomBar(
                         modifier = Modifier.clickable(
                             indication = null,
                             interactionSource = remember { MutableInteractionSource() }) {
-                            navController.navigate(Routes.CALENDAR)
+                            navController.navigate(Routes.calendarRoute(userId))
                         }
                     )
                 }
