@@ -1,6 +1,7 @@
 package org.tues.tudy.data.remote
 
 import okhttp3.ResponseBody
+import org.tues.tudy.data.model.CalendarItem
 import org.tues.tudy.data.model.CreateAccountRequest
 import org.tues.tudy.data.model.CreateEventRequest
 import org.tues.tudy.data.model.CreateEventResponse
@@ -9,6 +10,7 @@ import org.tues.tudy.data.model.LogInRequest
 import org.tues.tudy.data.model.LoginResponse
 import org.tues.tudy.data.model.RequestResetPasswordRequest
 import org.tues.tudy.data.model.ResetPasswordRequest
+import org.tues.tudy.data.model.StudyPlanResponse
 import org.tues.tudy.data.model.TypeSubjectRequest
 import org.tues.tudy.data.model.TypeSubjectResponse
 import retrofit2.Response
@@ -75,4 +77,13 @@ interface ApiService {
     suspend fun deleteEvent(
         @Path("id") eventId: String
     ): Response<ResponseBody>
+
+    @GET("/api/calendar")
+    suspend fun getCalendarItems(): Response<List<CalendarItem>>
+
+    @GET("/api/study/study-plans")
+    suspend fun getAllStudyPlans(): Response<List<StudyPlanResponse>>
+
+
+
 }
