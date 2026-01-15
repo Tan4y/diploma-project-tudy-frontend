@@ -1,13 +1,22 @@
 package org.tues.tudy.ui.screens.addTudy
 
+import android.app.TimePickerDialog
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -18,7 +27,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import org.tues.tudy.data.model.CreateEventRequest
 import org.tues.tudy.data.model.TypeSubject
@@ -26,6 +38,7 @@ import org.tues.tudy.ui.components.CustomButton
 import org.tues.tudy.ui.components.CustomTextField
 import org.tues.tudy.ui.components.DateTimePicker
 import org.tues.tudy.ui.components.DropdownField
+import org.tues.tudy.ui.components.FullSelectDateTimeField
 import org.tues.tudy.ui.theme.BaseColor100
 import org.tues.tudy.ui.theme.BaseColor80
 import org.tues.tudy.ui.theme.Dimens
@@ -35,6 +48,11 @@ import org.tues.tudy.viewmodel.AddTudyViewModel
 import org.tues.tudy.viewmodel.HomeViewModel
 import org.tues.tudy.ui.navigation.Routes
 import org.tues.tudy.ui.navigation.navigateToSuccessError
+import org.tues.tudy.ui.theme.AppTypography
+import org.tues.tudy.ui.theme.BaseColor0
+import org.tues.tudy.ui.theme.ErrorColor
+import org.tues.tudy.utils.toLocalDateSafe
+import org.tues.tudy.viewmodel.EventViewModel
 import java.util.Calendar
 
 
@@ -46,9 +64,12 @@ fun AddTudyContent(
     homeViewModel: HomeViewModel,
     userId: String
 ) {
+    var hasHandledSuccess by remember { mutableStateOf(false) }
     LaunchedEffect(userId) {
         homeViewModel.ensureLoaded(userId)
     }
+
+    val eventViewModel: EventViewModel = viewModel()
     var typeExpanded by remember { mutableStateOf(false) }
     var typeSelected by remember { mutableStateOf<TypeSubject?>(null) }
 
@@ -71,6 +92,8 @@ fun AddTudyContent(
 
     var description by remember { mutableStateOf("") }
 
+    var pagesText: String by remember { mutableStateOf("") }
+
     var datePicked by remember { mutableStateOf(false) }
     var timePicked by remember { mutableStateOf(false) }
 
@@ -87,11 +110,28 @@ fun AddTudyContent(
 
     val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(uiState.success, uiState.error) {
-        when{
-        uiState.success == true -> {
+    var endHour by remember { mutableStateOf(hour) }
+    var endMinute by remember { mutableStateOf(minute) }
+    var endTimePicked by remember { mutableStateOf(false) }
+    val activeColorEndTime = if (endTimePicked) BaseColor100 else BaseColor80
+
+    fun toMillis(year: Int, month: Int, day: Int, hour: Int, minute: Int): Long {
+        return Calendar.getInstance().apply {
+            set(year, month - 1, day, hour, minute)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+    }
+
+
+    LaunchedEffect(uiState.success) {
+        if (uiState.success == true && !hasHandledSuccess) {
+            hasHandledSuccess = true
+
+            // Load data BEFORE navigating
             homeViewModel.loadData(userId)
 
+            // Then navigate
             navController.navigateToSuccessError(
                 title = "Success",
                 subtitle = "Tudy Created!",
@@ -104,25 +144,30 @@ fun AddTudyContent(
                 popUpTo(Routes.homeRoute(userId)) { inclusive = true }
             }
 
+            // Reset state after navigation
             viewModel.resetState()
         }
-            uiState.error != null -> {
-                navController.navigateToSuccessError(
-                    title = "Error",
-                    subtitle = "Couldn't Create Tudy",
-                    description = "Something went wrong while creating your study session. Please try again.",
-                    buttonText = "Try Again",
-                    buttonDestination = Routes.addTudyRoute(userId),
-                    arrow = false,
-                    success = false
-                ) {
-                    popUpTo(Routes.homeRoute(userId)) { inclusive = true }
-                }
+    }
 
-                viewModel.resetState()
+    LaunchedEffect(uiState.error) {
+        if (uiState.error != null && !hasHandledSuccess) {
+            hasHandledSuccess = true
+
+            navController.navigateToSuccessError(
+                title = "Error",
+                subtitle = "Couldn't Create Tudy",
+                description = "Something went wrong while creating your study session. Please try again.",
+                buttonText = "Try Again",
+                buttonDestination = Routes.addTudyRoute(userId),
+                arrow = false,
+                success = false
+            ) {
+                popUpTo(Routes.homeRoute(userId)) { inclusive = true }
             }
-            }
+
+            viewModel.resetState()
         }
+    }
 
 
     LazyColumn(
@@ -207,6 +252,18 @@ fun AddTudyContent(
                         textLength = 200
                     )
 
+                    CustomTextField(
+                        value = pagesText,
+                        onValueChange = {
+                            pagesText = it
+                        },
+                        label = "Pages (optional)",
+                        digitsOnly = true,
+                        error = if (pagesText.isNotEmpty() && (pagesText.toIntOrNull() !in 0..999)) {
+                            "Pages must be between 0 and 999"
+                        } else null,
+                        )
+
                     Spacer(modifier = Modifier.height(Dimens.Space100))
 
                     DateTimePicker(
@@ -224,22 +281,132 @@ fun AddTudyContent(
                         onTimePicked = { timePicked = it }
                     )
 
+                    // ------------------ END TIME PICKER ------------------
+                    Spacer(modifier = Modifier.height(Dimens.Space150))
+
+                    Row(
+                        modifier = Modifier.padding(start = Dimens.Space75),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Start
+                    ) {
+                        Text(
+                            text = "End Time: ",
+                            style = AppTypography.Paragraph1,
+                            color = BaseColor100
+                        )
+
+                        Spacer(modifier = Modifier.width(Dimens.Space100))
+
+                        val context = LocalContext.current
+                        Button(
+                            onClick = {
+                                TimePickerDialog(
+                                    context,
+                                    { _, selectedHour, selectedMinute ->
+                                        endHour = selectedHour
+                                        endMinute = selectedMinute
+                                        endTimePicked = true
+                                    },
+                                    endHour,
+                                    endMinute,
+                                    true
+                                ).show()
+                            },
+                            contentPadding = PaddingValues(0.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = BaseColor0,
+                                contentColor = BaseColor0
+                            ),
+                            shape = RoundedCornerShape(Dimens.BorderRadius200),
+                            modifier = Modifier.wrapContentWidth(),
+                        ) {
+                            FullSelectDateTimeField(endHour, endMinute, null, activeColorEndTime, time = true)
+                        }
+                    }
+
+                    val startTimeMillis = Calendar.getInstance().apply {
+                        set(year, month - 1, day, hour, minute)
+                    }.timeInMillis
+
+                    val endTimeMillis = Calendar.getInstance().apply {
+                        set(year, month - 1, day, endHour, endMinute)
+                    }.timeInMillis
+
+                    val isStartBeforeEnd = startTimeMillis < endTimeMillis
+
+                    val allEvents = eventViewModel.studySessions.collectAsState().value
+                    val hasOverlap = allEvents.any { event ->
+                        val eventDate = event.date.toLocalDateSafe()
+                        // Only compare sessions on the same date as the picker
+                        if (eventDate.year != year || eventDate.monthValue != month || eventDate.dayOfMonth != day) {
+                            false
+                        } else {
+                            val eventStartParts = event.startTime?.split(":")?.map { it.toInt() } ?: return@any false
+                            val eventEndParts = event.endTime?.split(":")?.map { it.toInt() } ?: return@any false
+
+                            val eventStartMillis = toMillis(
+                                eventDate.year,
+                                eventDate.monthValue,
+                                eventDate.dayOfMonth,
+                                eventStartParts[0],
+                                eventStartParts[1]
+                            )
+
+                            val eventEndMillis = toMillis(
+                                eventDate.year,
+                                eventDate.monthValue,
+                                eventDate.dayOfMonth,
+                                eventEndParts[0],
+                                eventEndParts[1]
+                            )
+
+                            // Compare with the picker-selected start and end times
+                            startTimeMillis < eventEndMillis && endTimeMillis > eventStartMillis
+                        }
+                    }
+
+                    val isInvalidTime = startTimeMillis >= endTimeMillis
+
+                    val errorMessage: String? = when {
+                        isInvalidTime && timePicked && endTimePicked -> "Start time must be before end time"
+                        hasOverlap && timePicked && endTimePicked -> "This session overlaps with an existing session"
+                        else -> null
+                    }
+
                     val isButtonEnabled =
                         typeSelected != null &&
                                 subjectSelected != null &&
                                 title.isNotEmpty() &&
                                 datePicked &&
-                                timePicked
+                                timePicked &&
+                                endTimePicked &&
+                                isStartBeforeEnd &&
+                                !hasOverlap
+
 
                     Spacer(modifier = Modifier.height(Dimens.Space200))
+
+                    if (errorMessage != null) {
+                        Text(
+                            text = errorMessage,
+                            color = ErrorColor,
+                            style = AppTypography.Paragraph1,
+                            modifier = Modifier.padding(bottom = Dimens.Space100)
+                        )
+                    }
+
+
+                    Spacer(modifier = Modifier.height(Dimens.Space50))
 
                     CustomButton(
                         value = "Add Tudy",
                         enabled = isButtonEnabled,
                         onClick = {
                             val dateIso = BuildIsoDate(year, month, day)
-                            val startTimeIso = BuildIsoDate(year, month, day)
-                            val endTimeIso = BuildIsoDate(year, month, day)
+                            val startTimeIso = BuildIsoDate(year, month, day, hour, minute)
+                            val endTimeIso = BuildIsoDate(year, month, day, endHour, endMinute)
+
+                            val pagesInt = pagesText.toIntOrNull() ?: 0
 
                             val request = CreateEventRequest(
                                 title = title,
@@ -250,7 +417,7 @@ fun AddTudyContent(
                                 date = dateIso,
                                 startTime = startTimeIso,
                                 endTime = endTimeIso,
-                                pages = 0
+                                pages = pagesInt
                             )
 
                             viewModel.createTudy(
@@ -260,6 +427,7 @@ fun AddTudyContent(
                         },
                         modifier = Modifier.fillMaxWidth()
                     )
+                    Spacer(modifier = Modifier.height(Dimens.Space125))
                 }
             }
         }
