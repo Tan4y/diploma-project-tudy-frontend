@@ -97,7 +97,7 @@ fun DateTimePicker(
         horizontalArrangement = Arrangement.Start
     ) {
         Text(
-            text = "Time: ",
+            text = "Start Time: ",
             style = AppTypography.Paragraph1,
             color = BaseColor100
         )

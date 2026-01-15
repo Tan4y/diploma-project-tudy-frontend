@@ -1,4 +1,4 @@
-package org.tues.tudy.ui.screens.calendar
+package org.tues.tudy.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -10,8 +10,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.navigation.NavController
-import org.tues.tudy.ui.components.CalendarMode
-import org.tues.tudy.ui.navigation.Routes
 import org.tues.tudy.ui.theme.BaseColor0
 import org.tues.tudy.ui.theme.Dimens
 import org.tues.tudy.ui.theme.Dimens.BorderRadius250
@@ -21,7 +19,8 @@ import org.tues.tudy.ui.theme.shadow1
 fun CalendarModes(
     navController: NavController,
     selectedMode: CalendarMode,
-    userId: String
+    userId: String,
+    onModeSelected: (CalendarMode) -> Unit
 ) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(Dimens.Space75),
@@ -35,19 +34,19 @@ fun CalendarModes(
         CalendarModeButton(
             text = "month",
             selected = selectedMode == CalendarMode.MONTH,
-            onClick = {navController.navigate(Routes.calendarRoute(userId))},
+            onClick = {onModeSelected(CalendarMode.MONTH)},
             modifier = Modifier.weight(1f)
         )
         CalendarModeButton(
             text = "week",
             selected = selectedMode == CalendarMode.WEEK,
-            onClick = {navController.navigate(Routes.calendarWeekRoute(userId))},
+            onClick = {onModeSelected(CalendarMode.WEEK)},
             modifier = Modifier.weight(1f)
         )
         CalendarModeButton(
             text = "day",
             selected = selectedMode == CalendarMode.DAY,
-            onClick = {},
+            onClick = {onModeSelected(CalendarMode.DAY)},
             modifier = Modifier.weight(1f)
         )
     }

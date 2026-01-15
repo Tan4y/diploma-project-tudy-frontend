@@ -3,7 +3,6 @@ package org.tues.tudy.ui.components
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -50,6 +51,7 @@ fun CustomTextField(
     trailingIcon: (@Composable (() -> Unit))? = null,
     textLength: Int = 0,
     visualTransformation: VisualTransformation = VisualTransformation.None,
+    digitsOnly: Boolean? = false
 ) {
     val isFocused = remember { mutableStateOf(false) }
 
@@ -80,11 +82,21 @@ fun CustomTextField(
         ) {
             TextField(
                 value = value,
-                onValueChange = {
-                    if (textLength == 0 || it.length <= textLength) {
-                        onValueChange(it)
+                onValueChange = { newValue: String ->
+                    if (digitsOnly == true) {
+                        val digitsOnlyFiltered = newValue.filter { it.isDigit() }
+                        if (textLength == 0 || digitsOnlyFiltered.length <= textLength) {
+                            onValueChange(digitsOnlyFiltered)
+                        }
+                    } else {
+                        if (textLength == 0 || newValue.length <= textLength) {
+                            onValueChange(newValue)
+                        }
                     }
                 },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = if (digitsOnly == true) KeyboardType.Number else KeyboardType.Text
+                ),
                 textStyle = AppTypography.Paragraph1.copy(color = stateColor),
                 placeholder = {
                     Text(
@@ -142,7 +154,7 @@ fun CustomTextField(
                     style = AppTypography.UnderlinedCaption1,
                     modifier = Modifier
                         .clip(RoundedCornerShape(BorderRadius150))
-                        .clickable() { navController.navigate( Routes.FORGOT_PASSWORD) }
+                        .clickable() { navController.navigate(Routes.FORGOT_PASSWORD) }
                 )
             }
         }

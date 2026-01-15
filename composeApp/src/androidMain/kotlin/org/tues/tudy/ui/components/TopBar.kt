@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
 import org.tues.tudy.R
 import org.tues.tudy.ui.theme.AppTypography
@@ -78,6 +79,7 @@ fun TopBar(
                 text = heading,
                 color = PrimaryColor1,
                 style = AppTypography.Heading4,
+                textAlign = TextAlign.Center
             )
         }
 
