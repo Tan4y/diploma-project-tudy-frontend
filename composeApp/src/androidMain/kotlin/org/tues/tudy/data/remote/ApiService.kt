@@ -13,6 +13,7 @@ import org.tues.tudy.data.model.ResetPasswordRequest
 import org.tues.tudy.data.model.StudyPlanResponse
 import org.tues.tudy.data.model.TypeSubjectRequest
 import org.tues.tudy.data.model.TypeSubjectResponse
+import org.tues.tudy.data.model.UserResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -84,6 +85,8 @@ interface ApiService {
     @GET("/api/study/study-plans")
     suspend fun getAllStudyPlans(): Response<List<StudyPlanResponse>>
 
-
-
+    @GET("api/users/{userId}")
+    suspend fun getUser(
+        @Path("userId") userId: String
+    ): Response<UserResponse>
 }
