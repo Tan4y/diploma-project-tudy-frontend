@@ -27,11 +27,14 @@ import org.tues.tudy.ui.theme.Dimens.BorderRadius250
 import org.tues.tudy.ui.theme.ErrorColor
 import org.tues.tudy.ui.theme.shadow1
 import org.tues.tudy.utils.formatDate
+import org.tues.tudy.utils.formatTime
 
 @Composable
 fun TudyCard(
     title: String,
     date: String,
+    startTime: String? = "",
+    endTime: String? = "",
     description: String?,
     onClick: () -> Unit,
     onDelete: () -> Unit
@@ -69,11 +72,25 @@ fun TudyCard(
                 style = AppTypography.Heading6,
                 color = BaseColor100
             )
-            Text(
-                text = formatDate(date, true),
-                style = AppTypography.Caption1,
-                color = BaseColor80
-            )
+            Row {
+                Text(
+                    text = "${formatTime(startTime ?: "")} - ${
+                        formatTime(
+                            endTime ?: ""
+                        )
+                    }",
+                    style = AppTypography.Caption1,
+                    color = BaseColor80
+                )
+
+                Spacer(modifier = Modifier.width(Dimens.Space50))
+
+                Text(
+                    text = formatDate(date, true),
+                    style = AppTypography.Caption1,
+                    color = BaseColor80
+                )
+            }
         }
 
         if (description != null) {

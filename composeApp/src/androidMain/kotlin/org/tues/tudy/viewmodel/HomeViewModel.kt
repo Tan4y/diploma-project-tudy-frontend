@@ -8,21 +8,24 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.tues.tudy.R
+import org.tues.tudy.data.model.CalendarItem
+import org.tues.tudy.data.model.StudyPlanResponse
 import org.tues.tudy.data.model.TypeSubject
 import org.tues.tudy.data.model.TypeSubjectRequest
 import org.tues.tudy.data.remote.ApiServiceBuilder
+import org.tues.tudy.data.repository.CalendarRepository
 import org.tues.tudy.data.repository.TypeSubjectRepository
 import org.tues.tudy.utils.sortByTudiesThenAlphabetical
 
+
 class HomeViewModel : ViewModel() {
 
-    private val repository: TypeSubjectRepository by lazy {
-        try {
+    private val typeSubjectRepository: TypeSubjectRepository by lazy {
             TypeSubjectRepository(ApiServiceBuilder.apiService)
-        } catch (e: Exception) {
-            Log.e("HomeVM", "Failed to initialize repository", e)
-            throw e
-        }
+    }
+
+    private val calendarRepository: CalendarRepository by lazy {
+        CalendarRepository(ApiServiceBuilder.apiService)
     }
 
     private val _items = MutableStateFlow<List<TypeSubject>>(emptyList())
@@ -30,6 +33,9 @@ class HomeViewModel : ViewModel() {
 
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage = _errorMessage.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
 
     // Track loaded userId instead of just a boolean
     private var loadedUserId: String? = null
@@ -66,6 +72,10 @@ class HomeViewModel : ViewModel() {
         R.drawable.subject_sport
     )
 
+    private val _studySessions = MutableStateFlow<List<CalendarItem>>(emptyList())
+    val studySessions: StateFlow<List<CalendarItem>> = _studySessions.asStateFlow()
+
+
     init {
         Log.d("IconRes", "Homework icon = ${R.drawable.type_homework}")
         Log.d("IconRes", "Exam icon = ${R.drawable.type_exam}")
@@ -92,9 +102,6 @@ class HomeViewModel : ViewModel() {
     val subjects: List<TypeSubject>
         get() = _items.value.filter { it.type == "subject" }
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading
-
     fun ensureLoaded(userId: String) {
         if (loadedUserId != userId) {
             loadedUserId = userId
@@ -103,75 +110,123 @@ class HomeViewModel : ViewModel() {
     }
 
     fun loadData(userId: String) {
-        Log.d("HomeVM", "loadData CALLED with userId='$userId' (length=${userId.length})")
-
         if (userId.isBlank()) {
-            Log.e("HomeVM", "ERROR: userId is blank or empty!")
             _errorMessage.value = "Invalid user ID"
             return
         }
 
         viewModelScope.launch {
+            _isLoading.value = true
             try {
-                _isLoading.value = true
+                // ✅ Single source of truth
+                val calendarItems = calendarRepository.getCalendarItems()
 
-                Log.d("HomeVM", "Calling repository.getItems with userId='$userId'")
-                val typesResponse = repository.getItems(userId, "type")
-                Log.d("HomeVM", "typesResponse = ${typesResponse.code()} body=${typesResponse.body()}")
+                // ✅ Study sessions are already CalendarItem
+                _studySessions.value = calendarItems
+                    .filter { it.type == "study" }
+                    .sortedBy { it.startDateTime }
 
-                val subjectsResponse = repository.getItems(userId, "subject")
-                Log.d("HomeVM", "subjectsResponse = ${subjectsResponse.code()} body=${subjectsResponse.body()}")
+                // ✅ Load TypeSubjects (unchanged)
+                val typesResponse = typeSubjectRepository.getItems(userId, "type")
+                val subjectsResponse = typeSubjectRepository.getItems(userId, "subject")
 
-                val userServerItems: List<TypeSubject> = listOf(
-                    (typesResponse.body() ?: emptyList()).map { response ->
-                        TypeSubject(
-                            _id = response._id,
-                            name = response.name,
-                            tudies = response.tudies,
-                            iconRes = response.iconRes,
-                            type = response.type,
-                            userId = response.userId
-                        )
-                    },
-                    (subjectsResponse.body() ?: emptyList()).map { response ->
-                        TypeSubject(
-                            _id = response._id,
-                            name = response.name,
-                            tudies = response.tudies,
-                            iconRes = response.iconRes,
-                            type = response.type,
-                            userId = response.userId
-                        )
-                    }
-                ).flatten()
+                val typeSubjects =
+                    (typesResponse.body() ?: emptyList()).map { r ->
+                        TypeSubject(r._id, r.name, r.tudies, r.iconRes, r.type, r.userId)
+                    } +
+                            (subjectsResponse.body() ?: emptyList()).map { r ->
+                                TypeSubject(r._id, r.name, r.tudies, r.iconRes, r.type, r.userId)
+                            }
 
-                val localPending = _items.value.filter { it._id == null }
-
-                val mergedPending = localPending.filter { pending ->
-                    userServerItems.none { it.name == pending.name && it.type == pending.type }
-                }
-
-                val merged = sortByTudiesThenAlphabetical(
-                    userServerItems + mergedPending,
+                _items.value = sortByTudiesThenAlphabetical(
+                    typeSubjects,
                     getName = { it.name },
                     getTudies = { it.tudies }
                 )
+                Log.d("HomeVM", "Loaded items: ${_items.value.map { it.name + "(${it.type})" }}")
 
-                Log.d("HomeVM", "Setting items to: ${merged.map { "${it.name}(${it.type})" }}")
-                _items.value = merged
-
-                _items.value.forEach {
-                    Log.d("HomeVM", "Loaded item: ${it.name}, type: ${it.type}, id: ${it._id}")
-                }
 
             } catch (e: Exception) {
-                Log.e("HomeVM", "loadData ERROR", e)
                 _errorMessage.value = "Network error: ${e.localizedMessage}"
+                Log.e("HomeVM", "loadData ERROR", e)
             } finally {
                 _isLoading.value = false
             }
         }
     }
+
+
+
+//    fun loadData(userId: String) {
+//        Log.d("HomeVM", "loadData CALLED with userId='$userId' (length=${userId.length})")
+//
+//        if (userId.isBlank()) {
+//            Log.e("HomeVM", "ERROR: userId is blank or empty!")
+//            _errorMessage.value = "Invalid user ID"
+//            return
+//        }
+//
+//        viewModelScope.launch {
+//            try {
+//                _isLoading.value = true
+//
+//                Log.d("HomeVM", "Calling repository.getItems with userId='$userId'")
+//                val typesResponse = repository.getItems(userId, "type")
+//                Log.d("HomeVM", "typesResponse = ${typesResponse.code()} body=${typesResponse.body()}")
+//
+//                val subjectsResponse = repository.getItems(userId, "subject")
+//                Log.d("HomeVM", "subjectsResponse = ${subjectsResponse.code()} body=${subjectsResponse.body()}")
+//
+//                val userServerItems: List<TypeSubject> = listOf(
+//                    (typesResponse.body() ?: emptyList()).map { response ->
+//                        TypeSubject(
+//                            _id = response._id,
+//                            name = response.name,
+//                            tudies = response.tudies,
+//                            iconRes = response.iconRes,
+//                            type = response.type,
+//                            userId = response.userId
+//                        )
+//                    },
+//                    (subjectsResponse.body() ?: emptyList()).map { response ->
+//                        TypeSubject(
+//                            _id = response._id,
+//                            name = response.name,
+//                            tudies = response.tudies,
+//                            iconRes = response.iconRes,
+//                            type = response.type,
+//                            userId = response.userId
+//                        )
+//                    }
+//                ).flatten()
+//
+//                val localPending = _items.value.filter { it._id == null }
+//
+//                val mergedPending = localPending.filter { pending ->
+//                    userServerItems.none { it.name == pending.name && it.type == pending.type }
+//                }
+//
+//                val merged = sortByTudiesThenAlphabetical(
+//                    userServerItems + mergedPending,
+//                    getName = { it.name },
+//                    getTudies = { it.tudies }
+//                )
+//
+//                Log.d("HomeVM", "Setting items to: ${merged.map { "${it.name}(${it.type})" }}")
+//                _items.value = merged
+//
+//                _items.value.forEach {
+//                    Log.d("HomeVM", "Loaded item: ${it.name}, type: ${it.type}, id: ${it._id}")
+//                }
+//
+//            } catch (e: Exception) {
+//                Log.e("HomeVM", "loadData ERROR", e)
+//                _errorMessage.value = "Network error: ${e.localizedMessage}"
+//            } finally {
+//                _isLoading.value = false
+//            }
+//        }
+//    }
 
     fun addTypeSubject(userId: String, name: String, iconRes: Int, type: String) {
         Log.d("HomeVM", "addTypeSubject called for $name")
@@ -194,7 +249,7 @@ class HomeViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
-                val response = repository.addItem(TypeSubjectRequest(name, iconRes, userId, type))
+                val response = typeSubjectRepository.addItem(TypeSubjectRequest(name, iconRes, userId, type))
                 if (response.isSuccessful) {
                     val returned = response.body()!!
                     val confirmedItem = TypeSubject(

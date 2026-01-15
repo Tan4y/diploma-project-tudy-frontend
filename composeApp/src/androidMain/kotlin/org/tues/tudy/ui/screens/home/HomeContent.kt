@@ -1,7 +1,11 @@
 package org.tues.tudy.ui.screens.home
 
 import android.R.attr.type
+import android.annotation.SuppressLint
 import android.net.Uri
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import org.tues.tudy.data.model.CalendarItem
 import org.tues.tudy.data.model.TypeSubject
 import org.tues.tudy.ui.components.AddItemDialog
 import org.tues.tudy.ui.components.SubjectCard
@@ -35,7 +40,13 @@ import org.tues.tudy.utils.formatDate
 import org.tues.tudy.viewmodel.EventViewModel
 import org.tues.tudy.viewmodel.HomeViewModel
 import org.tues.tudy.viewmodel.TypeSubjectViewModel
+import java.time.LocalDate
+import org.tues.tudy.utils.toLocalDateSafe
+import androidx.compose.runtime.collectAsState
 
+
+@SuppressLint("UnrememberedMutableState")
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomeContent(
     modifier: Modifier = Modifier,
@@ -43,8 +54,8 @@ fun HomeContent(
     viewModel: HomeViewModel,
     eventViewModel: EventViewModel,
     userId: String,
-    items: List<TypeSubject>
 ) {
+    val items by viewModel.items.collectAsState()
     var showAddTypeDialog by remember { mutableStateOf(false) }
     var showAddSubjectDialog by remember { mutableStateOf(false) }
     val isLoading by viewModel.isLoading.collectAsState()
@@ -62,14 +73,153 @@ fun HomeContent(
     val events by eventViewModel.events.collectAsState()
     val subjectDates by eventViewModel.subjectDates.collectAsState()
 
-    val updatedSubjects by remember(items, events) {
-        derivedStateOf {
-            subjects.map { subject ->
-                val newCount = events.count { it.subject == subject.name }
-                subject.copy(tudies = newCount)
-            }
-        }
+    fun resolveSubject(subjectIdOrName: String?): String {
+        if (subjectIdOrName.isNullOrBlank()) return "Unknown"
+        val fromId = subjects.find { it._id == subjectIdOrName }?.name
+        return fromId ?: subjectIdOrName
     }
+
+
+    val studyItems: List<CalendarItem> = viewModel.studySessions.collectAsState().value
+
+    val allItems: List<CalendarItem> by derivedStateOf {
+        val eventsItems = events
+            .filter { it.type != "study" }
+            .map { event ->
+                CalendarItem(
+                    id = event._id,
+                    title = event.title,
+                    description = event.description,
+                    date = event.date,
+                    startTime = event.startTime,
+                    endTime = event.endTime,
+                    type = event.type,
+                    isStudySession = false,
+                    subject = event.subject ?: "Unknown",
+                    category = event.category
+                )
+            }
+
+        val combined = studyItems + eventsItems
+        combined
+    }
+
+
+    //val uniqueEvents = events.distinctBy { it._id }
+    val validSubjects = subjects.map { it.name }.toSet()
+
+//    fun normalizeSubject(raw: String?): String? {
+//        val s = raw?.trim()
+//        return if (s != null && s in validSubjects) s else null
+//    }
+
+    // Combine events and study sessions
+
+// Prevent duplicate event counting
+    val countedEventTitles = mutableSetOf<String>()
+
+// Group sessions by title once (fast & safe)
+    val sessionsByTitle = studyItems.groupBy { it.title }
+
+    //val countedEventIds = mutableSetOf<String>()
+
+    //Log.d("TUDY_COUNT", "===== COUNTING SUBJECT EVENTS =====")
+
+//    events.forEach { event ->
+//        val subject = event.subject ?: return@forEach
+//
+//        // 🚫 prevent duplicate events
+//        if (!countedEventIds.add(event._id)) return@forEach
+//
+//        val sessionCount =
+//            if ((event.totalPages ?: 0) > 0)
+//                studyItems.count { it.subject == subject }
+//            else 0
+//
+//        val total = 1 + sessionCount
+//        subjectCounts[subject] = (subjectCounts[subject] ?: 0) + total
+//
+//        Log.d(
+//            "TUDY_COUNT",
+//            "Event '${event.title}' [$subject]: 1 event + $sessionCount sessions = $total"
+//        )
+//    }
+
+
+
+    // 1️⃣ Map eventId -> subject
+    val eventSubjectMap = events.associate { it._id to it.subject }
+
+
+    val eventById = events
+        .filter { it.type == "study" }
+        .associateBy { it._id }
+
+// 2️⃣ Count events per subject
+    //val subjectCounts = mutableMapOf<String, Int>()
+
+    val subjectCounts = mutableMapOf<String, Int>()
+    val typeCounts = mutableMapOf<String, Int>()
+
+    val sessionsByEventId = studyItems.groupBy { it.id.substringBefore("-") }
+
+    eventById.forEach { (eventId, event) ->
+        val subject = event.subject ?: return@forEach
+
+        // Count all sessions related to this event
+        val sessionsCount = sessionsByEventId[eventId]?.size ?: 0
+
+        // total = 1 event + all sessions
+        val total = 1 + sessionsCount
+        subjectCounts[subject] = (subjectCounts[subject] ?: 0) + total
+
+        Log.d(
+            "TUDY_COUNT",
+            "Event '${event.title}' [$subject]: 1 event + $sessionsCount sessions = $total"
+        )
+    }
+
+
+
+    Log.d("TUDY_COUNT", "FINAL SUBJECT COUNTS: $subjectCounts")
+
+
+    Log.d("TUDY_COUNT", "FINAL SUBJECT COUNTS: $subjectCounts")
+
+    eventById.forEach { (eventId, event) ->
+        val category = event.category ?: return@forEach
+
+        // Only count sessions if totalPages > 0
+        val sessionsCount = if ((event.totalPages ?: 0) > 0) {
+            sessionsByEventId[eventId]?.size ?: 0
+        } else {
+            0
+        }
+
+        val total = 1 + sessionsCount
+
+        typeCounts[category] = (typeCounts[category] ?: 0) + total
+
+        Log.d(
+            "TUDY_COUNT",
+            "Event '${event.title}' (category=$category): 1 event + $sessionsCount sessions = $total"
+        )
+    }
+
+
+
+    val updatedSubjects = subjects.map { subject ->
+        subject.copy(
+            tudies = subjectCounts[subject.name] ?: 0
+        )
+    }
+
+    val updatedTypes = types.map { type ->
+        type.copy(
+            tudies = typeCounts[type.name] ?: 0
+        )
+    }
+
 
     val activeSubjects by remember(updatedSubjects) {
         derivedStateOf {
@@ -85,16 +235,55 @@ fun HomeContent(
         }
     }
 
-    LaunchedEffect(activeSubjects) {
-        if (activeSubjects.isNotEmpty()) {
-            eventViewModel.loadDatesForSubjects(userId,activeSubjects.map { it.name })
+    val activeTypes by remember(updatedTypes) {
+        derivedStateOf {
+            updatedTypes.filter { it.tudies > 0 }
+                .sortedWith(compareByDescending<TypeSubject> { it.tudies }.thenBy { it.name })
         }
     }
 
-    val activeSubjectsWithDates = activeSubjects.associateWith { subject ->
-        val dates = subjectDates[subject.name] ?: emptyList()
-        dates.take(3) to dates.size
+    val inactiveTypes by remember(updatedTypes) {
+        derivedStateOf {
+            updatedTypes.filter { it.tudies == 0 }
+                .sortedBy { it.name }
+        }
     }
+
+    Log.d("HomeContent", "===== LOGGING updatedSubjects =====")
+    updatedSubjects.forEach { sub ->
+        Log.d("HomeContent", "Subject '${sub.name}' has tudies=${sub.tudies}")
+    }
+
+    Log.d("HomeContent", "Active subjects: ${activeSubjects.map { it.name }}")
+    Log.d("HomeContent", "Inactive subjects: ${inactiveSubjects.map { it.name }}")
+
+
+    LaunchedEffect(activeSubjects) {
+        if (activeSubjects.isNotEmpty()) {
+            eventViewModel.loadDatesForSubjects(userId, activeSubjects.map { it.name })
+        }
+    }
+
+
+    val activeSubjectsWithDates: Map<TypeSubject, Pair<List<LocalDate>, Int>> =
+        activeSubjects.associateWith { subject ->
+            val eventDates =
+                events.filter { it.subject == subject.name || it.category == subject.name }
+                    .map { it.date.toLocalDateSafe() }
+
+            val sessionDates = studyItems.filter { it.subject == subject.name }
+                .map { it.date.toLocalDateSafe() }
+
+            val allDates = (eventDates + sessionDates)
+                .filter { it.isAfter(LocalDate.now().minusDays(1)) } // today and future
+                .sorted()
+
+            val totalEvents = allDates.size
+            val displayedDates = allDates.take(3)
+
+            displayedDates to totalEvents
+        }
+
 
     val allIcons = viewModel.getTypeIcons() + viewModel.getSubjectIcons()
 
@@ -145,7 +334,7 @@ fun HomeContent(
                             .fillMaxWidth()
                             .padding(horizontal = Dimens.Space100),
                     ) {
-                        items(types) { type ->
+                        items(updatedTypes) { type ->
                             TypeCard(
                                 navController = navController,
                                 value = type.name,
@@ -217,7 +406,7 @@ fun HomeContent(
                                     ) {
                                         dates.forEach { date ->
                                             Text(
-                                                text = formatDate(date),
+                                                text = formatDate("${date}T00:00:00Z"),
                                                 style = AppTypography.Caption1,
                                                 color = BaseColor0
                                             )
