@@ -8,10 +8,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.tues.tudy.data.model.CalendarDay
 import org.tues.tudy.data.model.CalendarItem
+import org.tues.tudy.data.model.User
+import org.tues.tudy.data.model.UserResponse
 import org.tues.tudy.data.remote.ApiServiceBuilder
 import org.tues.tudy.data.repository.CalendarRepository
 import org.tues.tudy.data.repository.EventRepository
 import org.tues.tudy.data.repository.TypeSubjectRepository
+import org.tues.tudy.ui.components.CalendarMode
 import org.tues.tudy.utils.toLocalDateSafe
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -39,6 +42,129 @@ class CalendarViewModel(
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
+
+    private val _calendarMode = MutableStateFlow(CalendarMode.MONTH)
+    val calendarMode: StateFlow<CalendarMode> = _calendarMode.asStateFlow()
+
+    private val _selectedDay = MutableStateFlow(LocalDate.now())
+    val selectedDay = _selectedDay.asStateFlow()
+
+
+    private val _currentUser = MutableStateFlow<UserResponse?>(null)
+    val currentUser: StateFlow<UserResponse?> = _currentUser.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            _currentUser.value = repository.getCurrentUser(userId)
+        }
+    }
+
+
+    fun setSelectedDay(date: LocalDate) {
+        _selectedDay.value = date
+
+        val dayMonth = YearMonth.from(date)
+        if (_selectedMonth.value != dayMonth) {
+            _selectedMonth.value = dayMonth
+            loadMonth(dayMonth)
+        }
+
+        _selectedWeekStart.value =
+            date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+    }
+
+
+    fun setCalendarMode(mode: CalendarMode) {
+        _calendarMode.value = mode
+
+        when (mode) {
+            CalendarMode.WEEK -> {
+                val baseDate =
+                    if (_selectedDay.value.month == _selectedMonth.value.month) {
+                        _selectedDay.value
+                    } else {
+                        _selectedMonth.value.atDay(1)
+                    }
+
+                val weekStart =
+                    baseDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+
+                _selectedWeekStart.value = weekStart
+
+                val weekMonth = YearMonth.from(weekStart)
+                if (_selectedMonth.value != weekMonth) {
+                    _selectedMonth.value = weekMonth
+                    loadMonth(weekMonth)
+                }
+            }
+
+            CalendarMode.DAY -> {
+                val today = LocalDate.now()
+
+                val dayToShow =
+                    if (_selectedMonth.value == YearMonth.from(today)) {
+                        today
+                    } else {
+                        _selectedMonth.value.atDay(1)
+                    }
+
+                _selectedDay.value = dayToShow
+
+                val dayMonth = YearMonth.from(dayToShow)
+                if (_selectedMonth.value != dayMonth) {
+                    _selectedMonth.value = dayMonth
+                    loadMonth(dayMonth)
+                }
+
+                _selectedWeekStart.value =
+                    dayToShow.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+            }
+
+            CalendarMode.MONTH -> {
+                // no-op
+            }
+        }
+    }
+
+    private val _selectedWeekStart = MutableStateFlow<LocalDate?>(null)
+    val selectedWeekStart = _selectedWeekStart.asStateFlow()
+
+    val userStudyWindowStart: String
+        get() = _currentUser.value?.studyWindowStart ?: "08:00"
+
+    val userStudyWindowEnd: String
+        get() = _currentUser.value?.studyWindowEnd ?: "22:00"
+
+
+    fun setSelectedWeek(date: LocalDate) {
+        val weekStart = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+        _selectedWeekStart.value = weekStart
+
+        val weekMonth = YearMonth.from(weekStart)
+        if (_selectedMonth.value != weekMonth) {
+            _selectedMonth.value = weekMonth
+            loadMonth(weekMonth)
+        }
+    }
+
+
+    fun getWeekDays(startOfWeek: LocalDate?): List<CalendarDay> {
+        if (startOfWeek == null) return emptyList()
+
+        return (0..6).map { offset ->
+            val date = startOfWeek.plusDays(offset.toLong())
+            val itemsForDay = _days.value.find { it.date == date }?.items ?: emptyList()
+
+            CalendarDay(
+                date = date,
+                isCurrentMonth = true, // optional: you can check month if needed
+                items = itemsForDay,
+                eventsCount = itemsForDay.size
+            )
+        }
+    }
+
+
 
 
 //    fun loadMonth(userId: String) {
@@ -115,8 +241,20 @@ class CalendarViewModel(
 
     fun changeMonth(month: YearMonth) {
         _selectedMonth.value = month
+
+        _selectedWeekStart.value =
+            if (month == YearMonth.now()) {
+                LocalDate.now()
+                    .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+            } else {
+                month.atDay(1)
+                    .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+            }
+
         loadMonth(month)
     }
+
+
 
 //    fun nextMonth(userId: String) {
 //        _currentMonth.value = _currentMonth.value.plusMonths(1)
