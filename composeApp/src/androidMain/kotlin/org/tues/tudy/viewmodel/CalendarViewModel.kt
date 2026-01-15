@@ -99,26 +99,18 @@ class CalendarViewModel(
             }
 
             CalendarMode.DAY -> {
-                val today = LocalDate.now()
+                val selected = _selectedDay.value
+                val selectedMonth = YearMonth.from(selected)
 
-                val dayToShow =
-                    if (_selectedMonth.value == YearMonth.from(today)) {
-                        today
-                    } else {
-                        _selectedMonth.value.atDay(1)
-                    }
-
-                _selectedDay.value = dayToShow
-
-                val dayMonth = YearMonth.from(dayToShow)
-                if (_selectedMonth.value != dayMonth) {
-                    _selectedMonth.value = dayMonth
-                    loadMonth(dayMonth)
+                if (_selectedMonth.value != selectedMonth) {
+                    _selectedMonth.value = selectedMonth
+                    loadMonth(selectedMonth)
                 }
 
                 _selectedWeekStart.value =
-                    dayToShow.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+                    selected.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
             }
+
 
             CalendarMode.MONTH -> {
                 // no-op

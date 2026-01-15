@@ -23,8 +23,6 @@ fun HomeScreen(
     eventViewModel: EventViewModel,
     userId: String
 ) {
-    val items by viewModel.items.collectAsState()
-
     LaunchedEffect(userId) {
         Log.d("HomeScreen", "HomeScreen userId='$userId'")
         viewModel.ensureLoaded(userId)
@@ -50,7 +48,6 @@ fun HomeScreen(
             modifier = Modifier
                 .padding(innerPadding),
             userId = userId,
-            items = items
         )
     }
 }
