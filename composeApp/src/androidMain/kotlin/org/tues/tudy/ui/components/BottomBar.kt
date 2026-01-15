@@ -38,7 +38,7 @@ fun BottomBar(
     navController: NavController,
     userId: String
 ) {
-    val studySelected = selectedRoute == Routes.STUDY
+    val studySelected = selectedRoute == Routes.studyRoute(userId)
     val calendarSelected = selectedRoute == Routes.calendarRoute(userId)
     val plusSelected = selectedRoute == Routes.addTudyRoute(userId)
     val homeSelected = selectedRoute == Routes.homeRoute(userId)
