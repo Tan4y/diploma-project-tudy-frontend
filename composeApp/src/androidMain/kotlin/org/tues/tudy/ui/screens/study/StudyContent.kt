@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,24 +21,35 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.tues.tudy.ui.components.CustomButton
 import org.tues.tudy.ui.components.FlashText
 import org.tues.tudy.ui.components.StudyPhase
+import org.tues.tudy.ui.components.StudyTimelineProgress
 import org.tues.tudy.ui.navigation.Routes
 import org.tues.tudy.ui.theme.AppTypography
 import org.tues.tudy.ui.theme.BaseColor0
+import org.tues.tudy.ui.theme.BaseColor100
+import org.tues.tudy.ui.theme.BaseColor40
 import org.tues.tudy.ui.theme.Dimens
 import org.tues.tudy.ui.theme.Dimens.BorderRadius0
 import org.tues.tudy.ui.theme.Dimens.BorderRadius200
 import org.tues.tudy.ui.theme.PrimaryColor1
+import org.tues.tudy.ui.theme.PrimaryColor2
 import org.tues.tudy.viewmodel.StudyViewModel
+import android.media.AudioManager
+import android.media.ToneGenerator
 
 private fun formatTime(seconds: Int): String {
     val m = seconds / 60
@@ -52,7 +64,31 @@ fun StudyContent(
     userId: String,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    //val soundPlayer = remember { SoundPlayer(context) }
+
     val state by viewModel.uiState.collectAsState()
+
+    val currentSegmentIndex =
+        (state.currentRound - 1) * 2 +
+                if (state.phase == StudyPhase.STUDYING) 0 else 1
+
+    val toneGen = remember {
+        ToneGenerator(AudioManager.STREAM_NOTIFICATION, 80)
+    }
+
+    LaunchedEffect(currentSegmentIndex) {
+        if (currentSegmentIndex >= 0) {
+            toneGen.startTone(
+                ToneGenerator.TONE_PROP_BEEP,
+                150
+            )
+        }
+    }
+
+    val modeColor =
+        if (state.phase == StudyPhase.RESTING) PrimaryColor2
+        else PrimaryColor1
 
     when (state.phase) {
         StudyPhase.IDLE -> {
@@ -123,7 +159,10 @@ fun StudyContent(
                             }
                         }[0].measure(constraints)
 
-                        layout(maxOf(boxPlaceable.width, innerColumnPlaceable.width), boxPlaceable.height + innerColumnPlaceable.height) {
+                        layout(
+                            maxOf(boxPlaceable.width, innerColumnPlaceable.width),
+                            boxPlaceable.height + innerColumnPlaceable.height
+                        ) {
                             boxPlaceable.place(0, 0)
                             innerColumnPlaceable.place(0, boxPlaceable.height)
                         }
@@ -152,19 +191,24 @@ fun StudyContent(
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text(
                         text = if (state.phase == StudyPhase.STUDYING)
-                            "Study time"
+                            "Study"
                         else
-                            "Rest time",
-                        style = MaterialTheme.typography.headlineMedium
+                            "Rest",
+                        style = AppTypography.Heading4,
+                        color = BaseColor100,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
                     )
 
                     Text(
                         text = formatTime(state.remainingSeconds),
-                        style = MaterialTheme.typography.displaySmall
+                        style = MaterialTheme.typography.displaySmall,
+                        color = modeColor
                     )
 
                     Text(
@@ -173,10 +217,19 @@ fun StudyContent(
                 }
 
                 Column {
-                    LinearProgressIndicator(
-                        progress = progress,
+                    val segments = remember { viewModel.buildSegments(state.maxRounds) }
+
+                    val progress =
+                        1f - (state.remainingSeconds.toFloat() / state.totalSeconds)
+
+                    StudyTimelineProgress(
+                        segments = segments,
+                        currentIndex = currentSegmentIndex,
+                        progressInCurrent = progress,
+                        isStudyPhase = state.phase == StudyPhase.STUDYING,
                         modifier = Modifier.fillMaxWidth()
                     )
+
 
                     Spacer(modifier = Modifier.height(16.dp))
 
@@ -184,6 +237,7 @@ fun StudyContent(
                         value = if (state.phase == StudyPhase.STUDYING) "I am done" else "Continue studying",
                         enabled = true,
                         onClick = { viewModel.nextPhase() },
+                        color = modeColor
                     )
                 }
             }

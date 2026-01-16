@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import org.tues.tudy.data.model.ProgressSegment
+import org.tues.tudy.data.model.SegmentType
 import org.tues.tudy.data.model.StudyUiState
 import org.tues.tudy.ui.components.StudyPhase
 
@@ -57,6 +59,22 @@ class StudyViewModel : ViewModel() {
         }
     }
 
+    fun buildSegments(maxRounds: Int): List<ProgressSegment> {
+        val segments = mutableListOf<ProgressSegment>()
+        repeat(maxRounds) { round ->
+            segments += ProgressSegment(
+                index = segments.size,
+                type = SegmentType.STUDY,
+                round = round + 1
+            )
+            segments += ProgressSegment(
+                index = segments.size,
+                type = SegmentType.REST,
+                round = round + 1
+            )
+        }
+        return segments
+    }
 
     fun continueAfterRest() {
         if (_uiState.value.currentRound >= _uiState.value.maxRounds) {
