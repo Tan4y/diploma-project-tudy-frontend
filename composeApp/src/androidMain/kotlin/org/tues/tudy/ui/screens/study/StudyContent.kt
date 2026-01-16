@@ -50,6 +50,7 @@ import org.tues.tudy.ui.theme.PrimaryColor2
 import org.tues.tudy.viewmodel.StudyViewModel
 import android.media.AudioManager
 import android.media.ToneGenerator
+import kotlinx.coroutines.delay
 
 private fun formatTime(seconds: Int): String {
     val m = seconds / 60
@@ -78,11 +79,21 @@ fun StudyContent(
     }
 
     LaunchedEffect(currentSegmentIndex) {
-        if (currentSegmentIndex >= 0) {
-            toneGen.startTone(
-                ToneGenerator.TONE_PROP_BEEP,
-                150
-            )
+        if (currentSegmentIndex > 0) {
+            val tone = if (state.phase == StudyPhase.STUDYING)
+                ToneGenerator.TONE_PROP_ACK
+            else
+                ToneGenerator.TONE_PROP_PROMPT
+
+            toneGen.startTone(tone, 180)
+        }
+    }
+
+    LaunchedEffect(state.phase) {
+        if (state.phase == StudyPhase.FINISHED) {
+            toneGen.startTone(ToneGenerator.TONE_PROP_ACK, 120)
+            delay(140)
+            toneGen.startTone(ToneGenerator.TONE_PROP_ACK, 180)
         }
     }
 
