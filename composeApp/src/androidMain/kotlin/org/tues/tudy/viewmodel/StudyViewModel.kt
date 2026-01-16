@@ -26,7 +26,13 @@ class StudyViewModel : ViewModel() {
 
     private var timerJob: Job? = null
 
+    private var studyStartTime: Long = 0L
+    private var accumulatedStudySeconds = 0
+
+
     fun startSession() {
+        accumulatedStudySeconds = 0
+
         _uiState.value = StudyUiState(
             phase = StudyPhase.STUDYING,
             totalSeconds = STUDY_MINUTES * 60,
@@ -38,7 +44,7 @@ class StudyViewModel : ViewModel() {
     }
 
     fun finishStudyEarly() {
-        // Study done → start rest, keep currentRound the same
+        finishStudySegment()
         startRest()
     }
 
@@ -92,6 +98,8 @@ class StudyViewModel : ViewModel() {
 
 
     private fun startStudy() {
+        studyStartTime = System.currentTimeMillis()
+
         _uiState.value = _uiState.value.copy(
             phase = StudyPhase.STUDYING,
             totalSeconds = STUDY_MINUTES * 60,
@@ -100,7 +108,14 @@ class StudyViewModel : ViewModel() {
         startTimer()
     }
 
+    private fun finishStudySegment() {
+        val now = System.currentTimeMillis()
+        val studiedSeconds = ((now - studyStartTime) / 1000).toInt()
+        accumulatedStudySeconds += studiedSeconds
+    }
+
     private fun startRest() {
+        finishStudySegment()
         cancelTimer()
         _uiState.value = _uiState.value.copy(
             phase = StudyPhase.RESTING,
@@ -130,6 +145,9 @@ class StudyViewModel : ViewModel() {
             StudyPhase.RESTING -> {
                 if (_uiState.value.currentRound >= MAX_ROUNDS) {
                     cancelTimer()
+
+                    //saveSessionStats(accumulatedStudySeconds)
+                    
                     _uiState.value = _uiState.value.copy(
                         phase = StudyPhase.FINISHED
                     )
