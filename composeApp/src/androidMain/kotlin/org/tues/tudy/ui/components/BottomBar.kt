@@ -1,5 +1,6 @@
 package org.tues.tudy.ui.components
 
+import android.net.http.SslCertificate.restoreState
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -106,7 +107,7 @@ fun BottomBar(
                         modifier = Modifier.clickable(
                             indication = null,
                             interactionSource = remember { MutableInteractionSource() }) {
-                            navController.navigate(Routes.STUDY)
+                            navController.navigate(Routes.studyRoute(userId))
                         }
                     )
                 }
