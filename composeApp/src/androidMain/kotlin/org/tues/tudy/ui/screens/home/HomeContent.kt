@@ -43,6 +43,7 @@ import org.tues.tudy.viewmodel.TypeSubjectViewModel
 import java.time.LocalDate
 import org.tues.tudy.utils.toLocalDateSafe
 import androidx.compose.runtime.collectAsState
+import androidx.navigation.compose.currentBackStackEntryAsState
 
 
 @SuppressLint("UnrememberedMutableState")
@@ -60,10 +61,13 @@ fun HomeContent(
     var showAddSubjectDialog by remember { mutableStateOf(false) }
     val isLoading by viewModel.isLoading.collectAsState()
 
-    LaunchedEffect(userId) {
+    var reloadTrigger by remember { mutableStateOf(0) }
+
+    LaunchedEffect(userId, reloadTrigger) {
         viewModel.loadData(userId)
         eventViewModel.loadEvents(userId)
     }
+
 
     val types = items.filter { it.type == "type" }
     val subjects = items.filter { it.type == "subject" }
@@ -82,27 +86,27 @@ fun HomeContent(
 
     val studyItems: List<CalendarItem> = viewModel.studySessions.collectAsState().value
 
-    val allItems: List<CalendarItem> by derivedStateOf {
-        val eventsItems = events
-            .filter { it.type != "study" }
-            .map { event ->
-                CalendarItem(
-                    id = event._id,
-                    title = event.title,
-                    description = event.description,
-                    date = event.date,
-                    startTime = event.startTime,
-                    endTime = event.endTime,
-                    type = event.type,
-                    isStudySession = false,
-                    subject = event.subject ?: "Unknown",
-                    category = event.category
-                )
-            }
-
-        val combined = studyItems + eventsItems
-        combined
-    }
+//    val allItems: List<CalendarItem> by derivedStateOf {
+//        val eventsItems = events
+//            .filter { it.type != "study" }
+//            .map { event ->
+//                CalendarItem(
+//                    id = event._id,
+//                    title = event.title,
+//                    description = event.description,
+//                    date = event.date,
+//                    startTime = event.startTime,
+//                    endTime = event.endTime,
+//                    type = event.type,
+//                    isStudySession = false,
+//                    subject = event.subject ?: "Unknown",
+//                    category = event.category
+//                )
+//            }
+//
+//        val combined = studyItems + eventsItems
+//        combined
+//    }
 
 
     //val uniqueEvents = events.distinctBy { it._id }
@@ -292,11 +296,12 @@ fun HomeContent(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = "Loading...",
-                style = AppTypography.Heading4,
-                color = BaseColor80
-            )
+            CircularProgressIndicator()
+//            Text(
+//                text = "Loading...",
+//                style = AppTypography.Heading4,
+//                color = BaseColor80
+//            )
         }
     } else {
         LazyColumn(

@@ -24,8 +24,8 @@ fun HomeScreen(
     userId: String
 ) {
     LaunchedEffect(userId) {
-        Log.d("HomeScreen", "HomeScreen userId='$userId'")
         viewModel.ensureLoaded(userId)
+        eventViewModel.loadEvents(userId)
     }
 
     Scaffold(

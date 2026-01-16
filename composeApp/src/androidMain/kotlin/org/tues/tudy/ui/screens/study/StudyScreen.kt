@@ -22,7 +22,7 @@ fun StudyScreen (
         topBar = {
             TopBar(
                 primary = true,
-                heading = "Study",
+                heading = "Focus",
                 navController = navController
             )
         },
