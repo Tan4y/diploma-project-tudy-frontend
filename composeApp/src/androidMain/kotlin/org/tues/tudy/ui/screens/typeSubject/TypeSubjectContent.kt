@@ -93,8 +93,11 @@ fun TypeSubjectContent(
         }
     }
 
+
     val allItems: List<CalendarItem> by derivedStateOf {
-        val eventsItems = events.map { event ->
+        val eventsItems = events
+            .filter { it.date?.isUpcoming() == true }
+            .map { event ->
             CalendarItem(
                 id = event._id,
                 title = event.title,
@@ -155,8 +158,9 @@ fun TypeSubjectContent(
 // Create a 3-level hierarchy: Type/Subject → Other Dimension → Events → Sessions
     val hierarchicalGroups by remember(sessionsByTitle, title, clickedIsType, events) {
         derivedStateOf {
+            val upcomingEvents = events.filter { it.date?.isUpcoming() == true }
             // All relevant events (filter by type/subject)
-            val relevantEvents = events.filter { event ->
+            val relevantEvents = upcomingEvents.filter { event ->
                 if (clickedIsType) {
                     event.category?.equals(title, ignoreCase = true) ?: false
                 } else {
@@ -344,7 +348,7 @@ fun TypeSubjectContent(
                                 Spacer(modifier = Modifier.height(Dimens.Space75))
                                 Sessions(sessions)
                             } else {
-                                Spacer(modifier = Modifier.height(Dimens.Space150))
+                                //Spacer(modifier = Modifier.height(Dimens.Space150))
                             }
                         }
                     }
