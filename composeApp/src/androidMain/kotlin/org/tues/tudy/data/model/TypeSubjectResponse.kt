@@ -4,7 +4,7 @@ data class TypeSubjectResponse(
     val _id: String,
     val name: String,
     val tudies: Int,
-    val iconRes: Int,
+    val iconName: String,
     val userId: String,
     val type: String
 )

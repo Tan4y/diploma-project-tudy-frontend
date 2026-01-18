@@ -40,15 +40,15 @@ import org.tues.tudy.ui.theme.Dimens.BorderRadius200
 
 @Composable
 fun AddItemDialog(
-    icons: List<Int>,
+    icons: List<String>,
     existingTitles: List<String>,
     onDismiss: () -> Unit,
-    onSubmit: (String, Int) -> Unit,
+    onSubmit: (String, String) -> Unit,
     title: String
 ) {
     var name by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
-    var selectedIcon by remember { mutableStateOf<Int?>(null) }
+    var selectedIcon by remember { mutableStateOf<String?>(null) }
     val activeColor =
         if (expanded) PrimaryColor1 else if (selectedIcon != null) BaseColor100 else BaseColor80
 
@@ -99,7 +99,7 @@ fun AddItemDialog(
                                 selectedItem = selectedIcon,
                                 expanded = expanded,
                                 onToggleExpand = { expanded = !expanded },
-                                onItemSelected = { selectedIcon = it as Int },
+                                onItemSelected = { selectedIcon = it as String },
                                 activeColor = activeColor,
                                 placeholder = "Icon",
                                 icons = icons

@@ -147,7 +147,7 @@ class StudyViewModel : ViewModel() {
                     cancelTimer()
 
                     //saveSessionStats(accumulatedStudySeconds)
-                    
+
                     _uiState.value = _uiState.value.copy(
                         phase = StudyPhase.FINISHED
                     )

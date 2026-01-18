@@ -1,5 +1,6 @@
 package org.tues.tudy.ui.components
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -24,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import org.tues.tudy.R
@@ -34,6 +36,7 @@ import org.tues.tudy.ui.theme.BaseColor80
 import org.tues.tudy.ui.theme.Dimens
 import org.tues.tudy.ui.theme.Dimens.BorderRadius200
 
+@SuppressLint("DiscouragedApi", "LocalContextResourcesRead")
 @Composable
 fun <T> DropdownField(
     selectedItem: T?,
@@ -42,7 +45,7 @@ fun <T> DropdownField(
     onItemSelected: (Any) -> Unit,
     activeColor: androidx.compose.ui.graphics.Color,
     placeholder: String = "Select",
-    icons: List<Int> = emptyList(),
+    icons: List<String> = emptyList(),
     items: List<TypeSubject> = emptyList()
 ) {
     val isIconDropdown = icons.isNotEmpty()
@@ -101,8 +104,16 @@ fun <T> DropdownField(
                         color = BaseColor100,
                         modifier = Modifier.padding(end = Dimens.Space75)
                     )
+                    val context = LocalContext.current
+                    val iconResId = remember(selectedTypeSubject.iconName) {
+                        context.resources.getIdentifier(
+                            selectedTypeSubject.iconName,
+                            "drawable",
+                            context.packageName
+                        )
+                    }
                     Icon(
-                        painter = painterResource(selectedTypeSubject.iconRes),
+                        painter = painterResource(id = iconResId),
                         contentDescription = selectedTypeSubject.name,
                         tint = BaseColor100,
                         modifier = Modifier.size(24.dp)
@@ -128,7 +139,7 @@ fun <T> DropdownField(
         if (isIconDropdown) {
             ExpandedIconGrid(
                 icons = icons,
-                selectedIcon = selectedItem as? Int,
+                selectedIcon = selectedItem as? String,
                 onIconSelected = {
                     onItemSelected(it)
                     onToggleExpand()
