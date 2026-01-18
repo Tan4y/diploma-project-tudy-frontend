@@ -44,13 +44,12 @@ fun StudyTimelineProgress(
                 else -> BaseColor40
             }
 
-            LinearProgressIndicator(
-                progress = { progress },
+            TimelineSegment(
+                progress = progress,
+                activeColor = color,
+                backgroundColor = BaseColor40,
                 modifier = Modifier
                     .weight(weight)
-                    .height(8.dp),
-                color = color,
-                trackColor = BaseColor40
             )
 
             if (index != segments.lastIndex) {

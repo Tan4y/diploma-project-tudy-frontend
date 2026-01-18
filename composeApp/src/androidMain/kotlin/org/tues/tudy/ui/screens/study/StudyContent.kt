@@ -1,6 +1,7 @@
 package org.tues.tudy.ui.screens.study
 
-import android.R
+import org.tues.tudy.R
+import android.graphics.Color
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -26,7 +27,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalContext
@@ -50,9 +50,135 @@ import org.tues.tudy.ui.theme.PrimaryColor2
 import org.tues.tudy.viewmodel.StudyViewModel
 import android.media.AudioManager
 import android.media.ToneGenerator
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.graphics.drawscope.clipRect
 import kotlinx.coroutines.delay
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
+import kotlin.math.sin
+import kotlin.math.PI
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
+import androidx.core.content.res.ResourcesCompat
+import org.tues.tudy.ui.theme.PrimaryFont
 
-private fun formatTime(seconds: Int): String {
+@Composable
+fun WaveLiquidTimer(
+    totalSeconds: Int,
+    remainingSeconds: Int,
+    phase: StudyPhase,
+    modifier: Modifier = Modifier
+) {
+    val progress = 1f - remainingSeconds.toFloat() / totalSeconds
+    val activeColor = if (phase == StudyPhase.STUDYING) PrimaryColor1 else PrimaryColor2
+    val timerText = formatTimeSeconds(remainingSeconds)
+    val context = LocalContext.current
+
+    // Animate horizontal wave movement
+    val infiniteTransition = rememberInfiniteTransition()
+    val waveShift by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = (2 * PI).toFloat(),
+        animationSpec = infiniteRepeatable(
+            animation = tween(10000, easing = LinearEasing)
+        )
+    )
+
+    val density = LocalDensity.current.density // get density here
+
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier.size(280.dp)
+    ) {
+        Canvas(modifier = Modifier.matchParentSize()) {
+            val diameter = size.minDimension
+            val radius = diameter / 2
+
+            // Draw circle outline
+            drawCircle(
+                color = activeColor,
+                radius = radius,
+                style = Stroke(width = 4f)
+            )
+
+            // Wave path
+            val waveHeight = 10f
+            val waveLength = diameter / 1.5f
+            val liquidLevel = diameter * (1 - progress)
+
+            val path = Path().apply {
+                moveTo(0f, diameter)
+                lineTo(0f, liquidLevel)
+                for (x in 0..diameter.toInt()) {
+                    val y =
+                        liquidLevel + sin((x / waveLength + waveShift) * 2 * PI).toFloat() * waveHeight
+                    lineTo(x.toFloat(), y)
+                }
+                lineTo(diameter, diameter)
+                close()
+            }
+
+            // Clip the circle and draw the wave
+            clipPath(Path().apply {
+                addOval(
+                    androidx.compose.ui.geometry.Rect(
+                        0f,
+                        0f,
+                        diameter,
+                        diameter
+                    )
+                )
+            }) {
+                drawPath(path, color = activeColor)
+            }
+
+            val typefaceValue = ResourcesCompat.getFont(context, R.font.fredoka_bold)
+
+            // Draw text in two layers: behind and in front of wave
+            val paintBehind = android.graphics.Paint().apply {
+                color = BaseColor0.toArgb()
+                textAlign = android.graphics.Paint.Align.CENTER
+                textSize = 40 * density
+                typeface = typefaceValue
+            }
+            val paintFront = android.graphics.Paint().apply {
+                color = activeColor.toArgb()
+                textAlign = android.graphics.Paint.Align.CENTER
+                textSize = 40 * density
+                typeface = typefaceValue
+            }
+
+            // Center the text vertically
+            val yPos = diameter / 2 - (paintBehind.descent() + paintBehind.ascent()) / 2
+            val padding = 2f
+
+            // Behind the liquid
+            clipRect(0f, liquidLevel - padding, diameter, diameter) {
+                drawContext.canvas.nativeCanvas.drawText(timerText, diameter / 2, yPos, paintBehind)
+            }
+
+            // In front of the liquid
+            clipRect(0f, 0f, diameter, liquidLevel + padding) {
+                drawContext.canvas.nativeCanvas.drawText(timerText, diameter / 2, yPos, paintFront)
+            }
+        }
+    }
+}
+
+private fun formatTimeSeconds(seconds: Int): String {
     val m = seconds / 60
     val s = seconds % 60
     return "%02d:%02d".format(m, s)
@@ -65,9 +191,6 @@ fun StudyContent(
     userId: String,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-    //val soundPlayer = remember { SoundPlayer(context) }
-
     val state by viewModel.uiState.collectAsState()
 
     val currentSegmentIndex =
@@ -182,11 +305,22 @@ fun StudyContent(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                CustomButton(
-                    value = "Start",
-                    enabled = true,
-                    onClick = { viewModel.startSession() }
-                )
+                Box(contentAlignment = Alignment.BottomCenter) {
+                    CustomButton(
+                        value = "Start",
+                        enabled = true,
+                        onClick = { viewModel.startSession() }
+                    )
+                    Image(
+                        painter = painterResource(id = R.drawable.giraffe_head_with_sunglasses),
+                        contentDescription = "Giraffe head",
+                        modifier = Modifier
+                            .size(104.dp)
+                            .align(Alignment.TopEnd)
+                            .graphicsLayer { translationY = -28.dp.toPx() }
+                            .zIndex(1f)
+                    )
+                }
             }
         }
 
@@ -198,34 +332,69 @@ fun StudyContent(
             Column(
                 modifier = modifier
                     .fillMaxSize()
-                    .padding(24.dp),
+                    .padding(22.dp),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
+                Spacer(modifier = Modifier.weight(1f))
+
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(Dimens.Space250)
                 ) {
-                    Text(
-                        text = if (state.phase == StudyPhase.STUDYING)
-                            "Study"
-                        else
-                            "Rest",
-                        style = AppTypography.Heading4,
-                        color = BaseColor100,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    )
 
-                    Text(
-                        text = formatTime(state.remainingSeconds),
-                        style = MaterialTheme.typography.displaySmall,
-                        color = modeColor
+                    Box (contentAlignment = Alignment.Center) {
+                    WaveLiquidTimer(
+                        totalSeconds = state.totalSeconds,
+                        remainingSeconds = state.remainingSeconds,
+                        phase = state.phase,
+                        //modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
+                        if( state.phase == StudyPhase.STUDYING) {
+                        Image(
+                            painter = painterResource(id = R.drawable.giraffe_head_with_sunglasses),
+                            contentDescription = "Giraffe head",
+                            modifier = Modifier
+                                .size(104.dp)
+                                .align(Alignment.TopCenter)
+                                .graphicsLayer { translationY = -81.dp.toPx() }
+                                .zIndex(1f)
+                        )} else {
+                            Image(
+                                painter = painterResource(id = R.drawable.giraffe_resting),
+                                contentDescription = "Giraffe head",
+                                modifier = Modifier
+                                    .size(104.dp)
+                                    .align(Alignment.TopCenter)
+                                    .graphicsLayer { translationY = -68.dp.toPx(); translationX = 24.dp.toPx() }
+                                    .zIndex(1f))
+                        }
+                    }
 
-                    Text(
-                        text = "Round ${state.currentRound} / ${state.maxRounds}"
-                    )
+
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(Dimens.Space50),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = if (state.phase == StudyPhase.STUDYING)
+                                "Study"
+                            else
+                                "Rest",
+                            style = AppTypography.Heading6,
+                            color = BaseColor100,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Text(
+                            text = "Take it easy. Each step comes with a helpful beep sound.",
+                            style = AppTypography.Caption1,
+                            color = BaseColor100
+                        )
+                    }
                 }
+
+                Spacer(modifier = Modifier.weight(1f))
 
                 Column {
                     val segments = remember { viewModel.buildSegments(state.maxRounds) }
@@ -242,10 +411,11 @@ fun StudyContent(
                     )
 
 
-                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Spacer(modifier = Modifier.height(Dimens.Space125))
 
                     CustomButton(
-                        value = if (state.phase == StudyPhase.STUDYING) "I am done" else "Continue studying",
+                        value = if (state.phase == StudyPhase.STUDYING) "I am done" else if (state.currentRound == currentSegmentIndex / 2) "Finish" else "Continue studying",
                         enabled = true,
                         onClick = { viewModel.nextPhase() },
                         color = modeColor
@@ -259,13 +429,15 @@ fun StudyContent(
                 modifier = modifier
                     .fillMaxSize()
                     .padding(Dimens.Space100),
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.weight(1f))
 
                 Text(
-                    text = "Session completed 🎉",
-                    style = MaterialTheme.typography.headlineMedium
+                    text = "Session completed!",
+                    style = AppTypography.Heading3,
+                    color = PrimaryColor1
                 )
 
                 Spacer(modifier = Modifier.weight(1f))
