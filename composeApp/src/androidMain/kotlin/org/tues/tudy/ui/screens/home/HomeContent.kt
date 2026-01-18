@@ -80,7 +80,8 @@ fun HomeContent(
     val today = LocalDate.now()
 
 // Only keep study sessions in the future (today and later)
-    val futureStudyItems = studyItems.filter { it.date.toLocalDateSafe().isAfter(today.minusDays(1)) }
+    val futureStudyItems =
+        studyItems.filter { it.date.toLocalDateSafe().isAfter(today.minusDays(1)) }
 
 // Only keep events in the future
     val futureEvents = events.filter { it.date.toLocalDateSafe().isAfter(today.minusDays(1)) }
@@ -157,18 +158,14 @@ fun HomeContent(
 
     val activeSubjectsWithDates: Map<TypeSubject, Pair<List<LocalDate>, Int>> =
         activeSubjects.associateWith { subject ->
-            val eventDates =
-                futureEvents.filter { it.subject == subject.name || it.category == subject.name }
-                    .map { it.date.toLocalDateSafe() }
-
-            val sessionDates = futureStudyItems.filter { it.subject == subject.name }
+            // Only parent events
+            val eventDates = futureEvents
+                .filter { it.subject == subject.name || it.category == subject.name }
                 .map { it.date.toLocalDateSafe() }
-
-            val allDates = (eventDates + sessionDates)
                 .sorted()
 
-            val totalEvents = allDates.size
-            val displayedDates = allDates.take(3)
+            val displayedDates = eventDates.take(3)
+            val totalEvents = eventDates.size
 
             displayedDates to totalEvents
         }
