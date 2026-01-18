@@ -1,48 +1,54 @@
-package org.tues.tudy.ui.screens.addTudy
+package org.tues.tudy.ui.screens.study
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import org.tues.tudy.ui.components.BottomBar
+import org.tues.tudy.ui.components.StudyPhase
 import org.tues.tudy.ui.components.TopBar
 import org.tues.tudy.ui.components.TopBarMode
 import org.tues.tudy.ui.navigation.Routes
-import org.tues.tudy.ui.screens.home.HomeContent
 import org.tues.tudy.ui.theme.BaseColor0
-import org.tues.tudy.viewmodel.AddTudyViewModel
-import org.tues.tudy.viewmodel.HomeViewModel
+import org.tues.tudy.viewmodel.StudyViewModel
 
 @Composable
-fun AddTudyScreen (
+fun StudyScreen(
     navController: NavController,
-    viewModel: AddTudyViewModel,
-    homeViewModel: HomeViewModel,
+    viewModel: StudyViewModel,
     userId: String
 ) {
+    val state by viewModel.uiState.collectAsState()
+
     Scaffold(
         topBar = {
             TopBar(
-                mode = TopBarMode.MENU,
-                heading = "Add Tudy",
-                navController = navController
+                mode = if (state.phase == StudyPhase.IDLE) TopBarMode.MENU else TopBarMode.CLOSE,
+                heading = "Focus",
+                navController = navController,
+                onClose = { navController.navigate(Routes.studyRoute(userId)) }
             )
         },
         bottomBar = {
-            BottomBar(navController = navController, selectedRoute = Routes.addTudyRoute(userId), userId = userId)
+            if (state.phase == StudyPhase.IDLE) {
+                BottomBar(
+                    navController = navController,
+                    selectedRoute = Routes.studyRoute(userId),
+                    userId = userId
+                )
+            }
         },
         containerColor = BaseColor0
     ) { innerPadding ->
-        AddTudyContent(
+        StudyContent(
             navController = navController,
             viewModel = viewModel,
-            homeViewModel = homeViewModel,
             modifier = Modifier
                 .padding(innerPadding),
             userId = userId
         )
     }
-
 }

@@ -20,6 +20,7 @@ import org.tues.tudy.ui.navigation.Routes
 import org.tues.tudy.viewmodel.ForgotPasswordViewModel
 import androidx.compose.ui.res.stringResource
 import org.tues.tudy.ui.components.TopBar
+import org.tues.tudy.ui.components.TopBarMode
 import org.tues.tudy.ui.navigation.navigateToSuccessError
 import org.tues.tudy.ui.theme.Dimens
 
@@ -58,7 +59,7 @@ fun ForgotPasswordUsernameScreen(
             TopBar(
                 modifier = Modifier,
                 navController = navController,
-                primary = false,
+                mode = TopBarMode.BACK,
                 heading = ""
             )
         }

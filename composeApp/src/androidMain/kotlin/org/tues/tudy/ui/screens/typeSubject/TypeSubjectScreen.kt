@@ -1,5 +1,7 @@
 package org.tues.tudy.ui.screens.typeSubject
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -10,11 +12,13 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import org.tues.tudy.ui.components.BottomBar
 import org.tues.tudy.ui.components.TopBar
+import org.tues.tudy.ui.components.TopBarMode
 import org.tues.tudy.ui.navigation.Routes
 import org.tues.tudy.viewmodel.TypeSubjectViewModel
 import org.tues.tudy.ui.theme.BaseColor0
 import org.tues.tudy.viewmodel.EventViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TypeSubjectScreen(
     navController: NavController,
@@ -31,7 +35,7 @@ fun TypeSubjectScreen(
     Scaffold(
         topBar = {
             TopBar(
-                primary = false,
+                mode = TopBarMode.BACK,
                 heading = title,
                 navController = navController
             )

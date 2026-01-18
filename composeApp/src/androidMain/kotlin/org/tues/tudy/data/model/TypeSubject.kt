@@ -4,7 +4,7 @@ data class TypeSubject(
     val _id: String? = null,
     val name: String,
     val tudies: Int = 0,
-    val iconRes: Int,
+    val iconName: String,
     val type: String,
     val userId: String
 )

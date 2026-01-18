@@ -3,11 +3,13 @@ package org.tues.tudy.ui.components
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -22,6 +24,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.tues.tudy.R
 import org.tues.tudy.ui.theme.AppTypography
@@ -34,14 +37,25 @@ import org.tues.tudy.ui.theme.PrimaryColor1
 fun TopBar(
     modifier: Modifier = Modifier,
     navController: NavController? = null,
-    primary: Boolean = true,
+    mode: TopBarMode = TopBarMode.MENU,
     heading: String,
+    onClose: (() -> Unit)? = null
 ) {
     var isOpen by remember { mutableStateOf(false) }
-    val showIcon = if (primary) R.drawable.menu else R.drawable.arrow_left
+
+    val leftIcon = when (mode) {
+        TopBarMode.MENU -> R.drawable.menu
+        TopBarMode.BACK -> R.drawable.arrow_left
+        TopBarMode.CLOSE -> null
+    }
+
+    val rightIcon = when (mode) {
+        TopBarMode.CLOSE -> R.drawable.cancel
+        else -> null
+    }
 
     val rotation by animateFloatAsState(
-        targetValue = if (primary && isOpen) 90f else 0f,
+        targetValue = if (mode == TopBarMode.MENU && isOpen) 90f else 0f,
         label = "menuRotation"
     )
 
@@ -54,24 +68,32 @@ fun TopBar(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
-            Icon(
-                painter = painterResource(showIcon),
-                contentDescription = "Menu",
-                tint = PrimaryColor1,
-                modifier = Modifier
-                    .graphicsLayer {
-                        rotationZ = rotation
-                    }
-                    .clip(RoundedCornerShape(BorderRadius150))
-                    .clickable() {
-                        if (primary) {
-                            isOpen = !isOpen
-                        } else {
-                            navController?.popBackStack()
+            leftIcon?.let {
+                Icon(
+                    painter = painterResource(it),
+                    contentDescription = "Left action",
+                    tint = PrimaryColor1,
+                    modifier = Modifier
+                        .graphicsLayer {
+                            if (mode == TopBarMode.MENU) {
+                                rotationZ = rotation
+                            }
                         }
-                    }
-                    .padding(Dimens.Space50)
-            )
+                        .clip(RoundedCornerShape(BorderRadius150))
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }) {
+                            when (mode) {
+                                TopBarMode.MENU -> { /* open menu */
+                                }
+
+                                TopBarMode.BACK -> navController?.popBackStack()
+                                else -> {}
+                            }
+                        }
+                        .padding(Dimens.Space50)
+                )
+            }
         }
 
         Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
@@ -83,13 +105,20 @@ fun TopBar(
             )
         }
 
-        Box(Modifier.weight(1f))
-    }
-
-    if (isOpen) {
-//         menu screen
-//         (
-//            onClose = { isOpen = false }
-//        )
+        Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
+            rightIcon?.let {
+                Icon(
+                    painter = painterResource(it),
+                    contentDescription = "Close",
+                    tint = PrimaryColor1,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(BorderRadius150))
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }) { onClose?.invoke() }
+                        .padding(Dimens.Space50)
+                )
+            }
+        }
     }
 }

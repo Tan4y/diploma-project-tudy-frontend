@@ -43,9 +43,11 @@ import org.tues.tudy.viewmodel.TypeSubjectViewModel
 import java.time.LocalDate
 import org.tues.tudy.utils.toLocalDateSafe
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.compose.currentBackStackEntryAsState
 
 
-@SuppressLint("UnrememberedMutableState")
+@SuppressLint("UnrememberedMutableState", "LocalContextResourcesRead", "DiscouragedApi")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomeContent(
@@ -60,166 +62,79 @@ fun HomeContent(
     var showAddSubjectDialog by remember { mutableStateOf(false) }
     val isLoading by viewModel.isLoading.collectAsState()
 
-    LaunchedEffect(userId) {
+    var reloadTrigger by remember { mutableStateOf(0) }
+
+    LaunchedEffect(userId, reloadTrigger) {
         viewModel.loadData(userId)
         eventViewModel.loadEvents(userId)
     }
 
+
     val types = items.filter { it.type == "type" }
     val subjects = items.filter { it.type == "subject" }
 
-    val errorMessage by viewModel.errorMessage.collectAsState()
-
     val events by eventViewModel.events.collectAsState()
-    val subjectDates by eventViewModel.subjectDates.collectAsState()
-
-    fun resolveSubject(subjectIdOrName: String?): String {
-        if (subjectIdOrName.isNullOrBlank()) return "Unknown"
-        val fromId = subjects.find { it._id == subjectIdOrName }?.name
-        return fromId ?: subjectIdOrName
-    }
-
 
     val studyItems: List<CalendarItem> = viewModel.studySessions.collectAsState().value
 
-    val allItems: List<CalendarItem> by derivedStateOf {
-        val eventsItems = events
-            .filter { it.type != "study" }
-            .map { event ->
-                CalendarItem(
-                    id = event._id,
-                    title = event.title,
-                    description = event.description,
-                    date = event.date,
-                    startTime = event.startTime,
-                    endTime = event.endTime,
-                    type = event.type,
-                    isStudySession = false,
-                    subject = event.subject ?: "Unknown",
-                    category = event.category
-                )
-            }
+    val today = LocalDate.now()
 
-        val combined = studyItems + eventsItems
-        combined
-    }
+// Only keep study sessions in the future (today and later)
+    val futureStudyItems =
+        studyItems.filter { it.date.toLocalDateSafe().isAfter(today.minusDays(1)) }
 
+// Only keep events in the future
+    val futureEvents = events.filter { it.date.toLocalDateSafe().isAfter(today.minusDays(1)) }
 
-    //val uniqueEvents = events.distinctBy { it._id }
-    val validSubjects = subjects.map { it.name }.toSet()
-
-//    fun normalizeSubject(raw: String?): String? {
-//        val s = raw?.trim()
-//        return if (s != null && s in validSubjects) s else null
-//    }
-
-    // Combine events and study sessions
-
-// Prevent duplicate event counting
-    val countedEventTitles = mutableSetOf<String>()
-
-// Group sessions by title once (fast & safe)
-    val sessionsByTitle = studyItems.groupBy { it.title }
-
-    //val countedEventIds = mutableSetOf<String>()
-
-    //Log.d("TUDY_COUNT", "===== COUNTING SUBJECT EVENTS =====")
-
-//    events.forEach { event ->
-//        val subject = event.subject ?: return@forEach
-//
-//        // 🚫 prevent duplicate events
-//        if (!countedEventIds.add(event._id)) return@forEach
-//
-//        val sessionCount =
-//            if ((event.totalPages ?: 0) > 0)
-//                studyItems.count { it.subject == subject }
-//            else 0
-//
-//        val total = 1 + sessionCount
-//        subjectCounts[subject] = (subjectCounts[subject] ?: 0) + total
-//
-//        Log.d(
-//            "TUDY_COUNT",
-//            "Event '${event.title}' [$subject]: 1 event + $sessionCount sessions = $total"
-//        )
-//    }
-
-
-
-    // 1️⃣ Map eventId -> subject
-    val eventSubjectMap = events.associate { it._id to it.subject }
-
-
-    val eventById = events
-        .filter { it.type == "study" }
-        .associateBy { it._id }
-
-// 2️⃣ Count events per subject
-    //val subjectCounts = mutableMapOf<String, Int>()
+// Group future study sessions by eventId
+    val sessionsByEventId = futureStudyItems.groupBy { it.id.substringBefore("-") }
 
     val subjectCounts = mutableMapOf<String, Int>()
     val typeCounts = mutableMapOf<String, Int>()
 
-    val sessionsByEventId = studyItems.groupBy { it.id.substringBefore("-") }
+    futureEvents.forEach { event ->
+        val eventDate = event.date.toLocalDateSafe()
 
-    eventById.forEach { (eventId, event) ->
-        val subject = event.subject ?: return@forEach
+        if (eventDate.isBefore(today)) return@forEach
 
-        // Count all sessions related to this event
-        val sessionsCount = sessionsByEventId[eventId]?.size ?: 0
-
-        // total = 1 event + all sessions
+        val sessionsCount = sessionsByEventId[event._id]?.size ?: 0
         val total = 1 + sessionsCount
-        subjectCounts[subject] = (subjectCounts[subject] ?: 0) + total
 
-        Log.d(
-            "TUDY_COUNT",
-            "Event '${event.title}' [$subject]: 1 event + $sessionsCount sessions = $total"
-        )
-    }
-
-
-
-    Log.d("TUDY_COUNT", "FINAL SUBJECT COUNTS: $subjectCounts")
-
-
-    Log.d("TUDY_COUNT", "FINAL SUBJECT COUNTS: $subjectCounts")
-
-    eventById.forEach { (eventId, event) ->
-        val category = event.category ?: return@forEach
-
-        // Only count sessions if totalPages > 0
-        val sessionsCount = if ((event.totalPages ?: 0) > 0) {
-            sessionsByEventId[eventId]?.size ?: 0
-        } else {
-            0
+        val subject = event.subject
+        if (!subject.isNullOrBlank()) {
+            subjectCounts[subject] = (subjectCounts[subject] ?: 0) + total
         }
 
-        val total = 1 + sessionsCount
-
-        typeCounts[category] = (typeCounts[category] ?: 0) + total
-
-        Log.d(
-            "TUDY_COUNT",
-            "Event '${event.title}' (category=$category): 1 event + $sessionsCount sessions = $total"
-        )
+        val category = event.category
+        if (!category.isNullOrBlank()) {
+            typeCounts[category] = (typeCounts[category] ?: 0) + total
+        }
     }
-
-
-
     val updatedSubjects = subjects.map { subject ->
         subject.copy(
             tudies = subjectCounts[subject.name] ?: 0
         )
     }
 
-    val updatedTypes = types.map { type ->
-        type.copy(
-            tudies = typeCounts[type.name] ?: 0
-        )
+    val cleanedTypeCounts = mutableMapOf<String, Int>()
+    futureEvents.forEach { event ->
+        val category = event.category?.trim() ?: return@forEach
+        val sessionsCount = sessionsByEventId[event._id]?.size ?: 0
+        val total = 1 + sessionsCount
+        cleanedTypeCounts[category] = (cleanedTypeCounts[category] ?: 0) + total
     }
 
+    val updatedTypes = types.map { type ->
+        val key = type.name.trim()
+        type.copy(tudies = cleanedTypeCounts[key] ?: 0)
+    }
+
+    futureEvents.forEach { event ->
+        val category = event.category?.trim() ?: return@forEach
+        if (types.none { it.name.trim() == category }) {
+            Log.d("HomeContent", "Category '${category}' not matching any type!")
+        }
+    }
 
     val activeSubjects by remember(updatedSubjects) {
         derivedStateOf {
@@ -235,51 +150,22 @@ fun HomeContent(
         }
     }
 
-    val activeTypes by remember(updatedTypes) {
-        derivedStateOf {
-            updatedTypes.filter { it.tudies > 0 }
-                .sortedWith(compareByDescending<TypeSubject> { it.tudies }.thenBy { it.name })
-        }
-    }
-
-    val inactiveTypes by remember(updatedTypes) {
-        derivedStateOf {
-            updatedTypes.filter { it.tudies == 0 }
-                .sortedBy { it.name }
-        }
-    }
-
-    Log.d("HomeContent", "===== LOGGING updatedSubjects =====")
-    updatedSubjects.forEach { sub ->
-        Log.d("HomeContent", "Subject '${sub.name}' has tudies=${sub.tudies}")
-    }
-
-    Log.d("HomeContent", "Active subjects: ${activeSubjects.map { it.name }}")
-    Log.d("HomeContent", "Inactive subjects: ${inactiveSubjects.map { it.name }}")
-
-
     LaunchedEffect(activeSubjects) {
         if (activeSubjects.isNotEmpty()) {
             eventViewModel.loadDatesForSubjects(userId, activeSubjects.map { it.name })
         }
     }
 
-
     val activeSubjectsWithDates: Map<TypeSubject, Pair<List<LocalDate>, Int>> =
         activeSubjects.associateWith { subject ->
-            val eventDates =
-                events.filter { it.subject == subject.name || it.category == subject.name }
-                    .map { it.date.toLocalDateSafe() }
-
-            val sessionDates = studyItems.filter { it.subject == subject.name }
+            // Only parent events
+            val eventDates = futureEvents
+                .filter { it.subject == subject.name || it.category == subject.name }
                 .map { it.date.toLocalDateSafe() }
-
-            val allDates = (eventDates + sessionDates)
-                .filter { it.isAfter(LocalDate.now().minusDays(1)) } // today and future
                 .sorted()
 
-            val totalEvents = allDates.size
-            val displayedDates = allDates.take(3)
+            val displayedDates = eventDates.take(3)
+            val totalEvents = eventDates.size
 
             displayedDates to totalEvents
         }
@@ -292,11 +178,7 @@ fun HomeContent(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = "Loading...",
-                style = AppTypography.Heading4,
-                color = BaseColor80
-            )
+            CircularProgressIndicator()
         }
     } else {
         LazyColumn(
@@ -335,11 +217,19 @@ fun HomeContent(
                             .padding(horizontal = Dimens.Space100),
                     ) {
                         items(updatedTypes) { type ->
+                            val context = LocalContext.current
+                            val iconResId = remember(type.iconName) {
+                                context.resources.getIdentifier(
+                                    type.iconName,
+                                    "drawable",
+                                    context.packageName
+                                )
+                            }
                             TypeCard(
                                 navController = navController,
                                 value = type.name,
                                 numberOfTudies = type.tudies,
-                                icon = painterResource(id = type.iconRes),
+                                icon = painterResource(id = iconResId),
                                 onClick = {
                                     navController.navigate(
                                         Routes.typeSubjectPageRoute(userId, type.name, true)
@@ -435,11 +325,19 @@ fun HomeContent(
                             verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
                             activeSubjects.forEach { subject ->
+                                val context = LocalContext.current
+                                val iconResId = remember(subject.iconName) {
+                                    context.resources.getIdentifier(
+                                        subject.iconName,
+                                        "drawable",
+                                        context.packageName
+                                    )
+                                }
                                 SubjectCard(
                                     navController = navController,
                                     value = subject.name,
                                     numberOfTudies = subject.tudies,
-                                    icon = painterResource(subject.iconRes),
+                                    icon = painterResource(iconResId),
                                     onClick = {
                                         navController.navigate(
                                             Routes.typeSubjectPageRoute(userId, subject.name, false)
@@ -463,11 +361,19 @@ fun HomeContent(
                     verticalArrangement = Arrangement.spacedBy(Dimens.Space125)
                 ) {
                     inactiveSubjects.forEach { subject ->
+                        val context = LocalContext.current
+                        val iconResId = remember(subject.iconName) {
+                            context.resources.getIdentifier(
+                                subject.iconName,
+                                "drawable",
+                                context.packageName
+                            )
+                        }
                         SubjectCard(
                             navController = navController,
                             value = subject.name,
                             numberOfTudies = subject.tudies,
-                            icon = painterResource(subject.iconRes),
+                            icon = painterResource(iconResId),
                             onClick = {
                                 navController.navigate(
                                     Routes.typeSubjectPageRoute(userId, subject.name, false)

@@ -3,6 +3,8 @@ package org.tues.tudy.viewmodel
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -86,10 +88,10 @@ class EventViewModel : ViewModel() {
                 val subjectsResponse = typeSubjectRepository.getItems(userId, "subject")
                 val typeSubjects =
                     (typesResponse.body() ?: emptyList()).map { r ->
-                        TypeSubject(r._id, r.name, r.tudies, r.iconRes, r.type, r.userId)
+                        TypeSubject(r._id, r.name, r.tudies, r.iconName, r.type, r.userId)
                     } +
                             (subjectsResponse.body() ?: emptyList()).map { r ->
-                                TypeSubject(r._id, r.name, r.tudies, r.iconRes, r.type, r.userId)
+                                TypeSubject(r._id, r.name, r.tudies, r.iconName, r.type, r.userId)
                             }
 
                 _items.value = sortByTudiesThenAlphabetical(

@@ -41,36 +41,71 @@ class HomeViewModel : ViewModel() {
     private var loadedUserId: String? = null
 
     // Predefined icons
+    // Predefined icons as Strings (icon names)
     private val availableTypeIcons = listOf(
-        R.drawable.type_exam,
-        R.drawable.type_quiz,
-        R.drawable.type_homework,
+        "type_exam",
+        "type_quiz",
+        "type_homework",
     )
 
     private val availableSubjectIcons = listOf(
-        R.drawable.subject_art,
-        R.drawable.subject_biology,
-        R.drawable.subject_chemistry,
-        R.drawable.subject_computer_science,
-        R.drawable.subject_crafts,
-        R.drawable.subject_economics,
-        R.drawable.subject_english,
-        R.drawable.subject_enterpreneur,
-        R.drawable.subject_frances,
-        R.drawable.subject_geography,
-        R.drawable.subject_german,
-        R.drawable.subject_history,
-        R.drawable.subject_italian,
-        R.drawable.subject_japanese,
-        R.drawable.subject_language,
-        R.drawable.subject_literature,
-        R.drawable.subject_mathematics,
-        R.drawable.subject_music,
-        R.drawable.subject_physics,
-        R.drawable.subject_spanish,
-        R.drawable.subject_speaking,
-        R.drawable.subject_sport
+        "subject_art",
+        "subject_biology",
+        "subject_chemistry",
+        "subject_computer_science",
+        "subject_crafts",
+        "subject_economics",
+        "subject_english",
+        "subject_enterpreneur",
+        "subject_frances",
+        "subject_geography",
+        "subject_german",
+        "subject_history",
+        "subject_italian",
+        "subject_japanese",
+        "subject_language",
+        "subject_literature",
+        "subject_mathematics",
+        "subject_music",
+        "subject_physics",
+        "subject_spanish",
+        "subject_speaking",
+        "subject_sport"
     )
+
+    fun mapIconNameToDrawable(iconName: String): Int {
+        return when(iconName) {
+            "type_exam" -> R.drawable.type_exam
+            "type_quiz" -> R.drawable.type_quiz
+            "type_homework" -> R.drawable.type_homework
+
+            "subject_art" -> R.drawable.subject_art
+            "subject_biology" -> R.drawable.subject_biology
+            "subject_chemistry" -> R.drawable.subject_chemistry
+            "subject_computer_science" -> R.drawable.subject_computer_science
+            "subject_crafts" -> R.drawable.subject_crafts
+            "subject_economics" -> R.drawable.subject_economics
+            "subject_english" -> R.drawable.subject_english
+            "subject_enterpreneur" -> R.drawable.subject_enterpreneur
+            "subject_frances" -> R.drawable.subject_frances
+            "subject_geography" -> R.drawable.subject_geography
+            "subject_german" -> R.drawable.subject_german
+            "subject_history" -> R.drawable.subject_history
+            "subject_italian" -> R.drawable.subject_italian
+            "subject_japanese" -> R.drawable.subject_japanese
+            "subject_language" -> R.drawable.subject_language
+            "subject_literature" -> R.drawable.subject_literature
+            "subject_mathematics" -> R.drawable.subject_mathematics
+            "subject_music" -> R.drawable.subject_music
+            "subject_physics" -> R.drawable.subject_physics
+            "subject_spanish" -> R.drawable.subject_spanish
+            "subject_speaking" -> R.drawable.subject_speaking
+            "subject_sport" -> R.drawable.subject_sport
+
+            else -> R.drawable.type_homework // fallback only
+        }
+    }
+
 
     private val _studySessions = MutableStateFlow<List<CalendarItem>>(emptyList())
     val studySessions: StateFlow<List<CalendarItem>> = _studySessions.asStateFlow()
@@ -132,10 +167,10 @@ class HomeViewModel : ViewModel() {
 
                 val typeSubjects =
                     (typesResponse.body() ?: emptyList()).map { r ->
-                        TypeSubject(r._id, r.name, r.tudies, r.iconRes, r.type, r.userId)
+                        TypeSubject(r._id, r.name, r.tudies, r.iconName ?: "type_homework", r.type, r.userId)
                     } +
                             (subjectsResponse.body() ?: emptyList()).map { r ->
-                                TypeSubject(r._id, r.name, r.tudies, r.iconRes, r.type, r.userId)
+                                TypeSubject(r._id, r.name, r.tudies, r.iconName ?: "type_homework", r.type, r.userId)
                             }
 
                 _items.value = sortByTudiesThenAlphabetical(
@@ -228,13 +263,13 @@ class HomeViewModel : ViewModel() {
 //        }
 //    }
 
-    fun addTypeSubject(userId: String, name: String, iconRes: Int, type: String) {
+    fun addTypeSubject(userId: String, name: String, iconName: String, type: String) {
         Log.d("HomeVM", "addTypeSubject called for $name")
         val newItem = TypeSubject(
             _id = null,
             name = name,
             tudies = 0,
-            iconRes = iconRes,
+            iconName = iconName,
             type = type,
             userId = userId
         )
@@ -249,14 +284,14 @@ class HomeViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
-                val response = typeSubjectRepository.addItem(TypeSubjectRequest(name, iconRes, userId, type))
+                val response = typeSubjectRepository.addItem(TypeSubjectRequest(name, iconName, userId, type))
                 if (response.isSuccessful) {
                     val returned = response.body()!!
                     val confirmedItem = TypeSubject(
                         _id = returned._id,
                         name = returned.name,
                         tudies = returned.tudies,
-                        iconRes = returned.iconRes,
+                        iconName = returned.iconName,
                         type = returned.type,
                         userId = returned.userId
                     )

@@ -1,5 +1,6 @@
 package org.tues.tudy.ui.components
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,9 +18,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import org.tues.tudy.data.model.TypeSubject
@@ -32,6 +35,7 @@ import org.tues.tudy.ui.theme.Dimens.BorderRadius200
 import org.tues.tudy.ui.theme.PrimaryColor1
 import org.tues.tudy.ui.theme.shadow1
 
+@SuppressLint("DiscouragedApi", "LocalContextResourcesRead", "RememberInComposition")
 @Composable
 fun ExpandedTextColumn(
     options: List<TypeSubject>,
@@ -79,8 +83,16 @@ fun ExpandedTextColumn(
                     style = AppTypography.Paragraph1,
                     color = if (isSelected) BaseColor0 else BaseColor80
                 )
+                val context = LocalContext.current
+                val iconResId = remember(option.iconName) {
+                    context.resources.getIdentifier(
+                        option.iconName,
+                        "drawable",
+                        context.packageName
+                    )
+                }
                 Icon(
-                    painter = painterResource(option.iconRes),
+                    painter = painterResource(id = iconResId),
                     contentDescription = option.name,
                     modifier = Modifier.size(24.dp),
                     tint = if (isSelected) BaseColor0 else BaseColor80

@@ -1,5 +1,6 @@
 package org.tues.tudy.ui.components
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import org.tues.tudy.ui.theme.BaseColor0
@@ -27,13 +29,16 @@ import org.tues.tudy.ui.theme.Dimens.BorderRadius200
 import org.tues.tudy.ui.theme.PrimaryColor1
 import org.tues.tudy.ui.theme.shadow1
 
+@SuppressLint("RememberInComposition")
 @Composable
 fun ExpandedIconGrid(
-    icons: List<Int>,
-    selectedIcon: Int?,
-    onIconSelected: (Int) -> Unit,
+    icons: List<String>,
+    selectedIcon: String?,
+    onIconSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+
     LazyVerticalGrid(
         columns = GridCells.Fixed(4),
         modifier = modifier
@@ -46,9 +51,14 @@ fun ExpandedIconGrid(
             .clip(RoundedCornerShape(BorderRadius200))
             .heightIn(max = 300.dp)
     ) {
-        items(icons) { icon ->
+        items(icons) { iconName ->
 
-            val isSelected = icon == selectedIcon
+            val isSelected = iconName == selectedIcon
+            val iconResId = context.resources.getIdentifier(
+                iconName,
+                "drawable",
+                context.packageName
+            )
 
             Box(
                 modifier = Modifier
@@ -62,13 +72,13 @@ fun ExpandedIconGrid(
                         indication = null,
                         interactionSource = MutableInteractionSource()
                     ) {
-                        onIconSelected(icon)
+                        onIconSelected(iconName)
                     },
                 contentAlignment = Alignment.Center
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
-                        painter = painterResource(icon),
+                        painter = painterResource(iconResId),
                         contentDescription = null,
                         tint = if (isSelected) BaseColor0 else BaseColor80,
                         modifier = Modifier.size(36.dp)

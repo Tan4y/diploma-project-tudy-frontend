@@ -35,7 +35,7 @@ class TypeSubjectViewModel: ViewModel() {
                             _id = it._id,
                             name = it.name,
                             tudies = it.tudies,
-                            iconRes = it.iconRes,
+                            iconName = it.iconName,
                             type = it.type,
                             userId = it.userId
                         )

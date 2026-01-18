@@ -1,5 +1,6 @@
 package org.tues.tudy.ui.components
 
+import android.net.http.SslCertificate.restoreState
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -38,7 +39,7 @@ fun BottomBar(
     navController: NavController,
     userId: String
 ) {
-    val studySelected = selectedRoute == Routes.STUDY
+    val studySelected = selectedRoute == Routes.studyRoute(userId)
     val calendarSelected = selectedRoute == Routes.calendarRoute(userId)
     val plusSelected = selectedRoute == Routes.addTudyRoute(userId)
     val homeSelected = selectedRoute == Routes.homeRoute(userId)
@@ -106,7 +107,7 @@ fun BottomBar(
                         modifier = Modifier.clickable(
                             indication = null,
                             interactionSource = remember { MutableInteractionSource() }) {
-                            navController.navigate(Routes.STUDY)
+                            navController.navigate(Routes.studyRoute(userId))
                         }
                     )
                 }

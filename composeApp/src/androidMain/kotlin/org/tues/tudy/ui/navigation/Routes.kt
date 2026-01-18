@@ -10,7 +10,7 @@ object Routes {
     const val FORGOT_PASSWORD = "forgotPassword"
     const val RESET_PASSWORD = "resetPassword"
 
-    const val STUDY = "study"
+    const val STUDY = "study/{userId}"
     const val CALENDAR = "calendar"
     const val CALENDAR_WITH_USER = "calendar/{userId}"
     const val CALENDAR_DAY = "calendar/{userId}/day/{date}"
@@ -32,4 +32,5 @@ object Routes {
         "calendar/$userId/day/$date"
 
     fun calendarWeekRoute(userId: String) = "calendar/$userId/week"
+    fun studyRoute(userId: String) = "study/$userId"
 }
