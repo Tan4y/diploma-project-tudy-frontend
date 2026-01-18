@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import org.tues.tudy.ui.components.BottomBar
 import org.tues.tudy.ui.components.TopBar
+import org.tues.tudy.ui.components.TopBarMode
 import org.tues.tudy.ui.navigation.Routes
 import org.tues.tudy.ui.screens.home.HomeContent
 import org.tues.tudy.ui.theme.BaseColor0
@@ -24,7 +25,7 @@ fun AddTudyScreen (
     Scaffold(
         topBar = {
             TopBar(
-                primary = true,
+                mode = TopBarMode.MENU,
                 heading = "Add Tudy",
                 navController = navController
             )

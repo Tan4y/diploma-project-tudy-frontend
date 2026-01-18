@@ -11,6 +11,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import org.tues.tudy.ui.components.BottomBar
 import org.tues.tudy.ui.components.TopBar
+import org.tues.tudy.ui.components.TopBarMode
 import org.tues.tudy.ui.navigation.Routes
 import org.tues.tudy.ui.theme.BaseColor0
 import org.tues.tudy.viewmodel.EventViewModel
@@ -31,7 +32,7 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             TopBar(
-                primary = true,
+                mode = TopBarMode.MENU,
                 heading = "Home",
                 navController = navController
             )

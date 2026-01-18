@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import org.tues.tudy.ui.components.BottomBar
 import org.tues.tudy.ui.components.TopBar
+import org.tues.tudy.ui.components.TopBarMode
 import org.tues.tudy.ui.navigation.Routes
 import org.tues.tudy.ui.theme.BaseColor0
 import org.tues.tudy.viewmodel.CalendarViewModel
@@ -32,7 +33,7 @@ fun CalendarScreen(
     Scaffold(
         topBar = {
             TopBar(
-                primary = true,
+                mode = TopBarMode.MENU,
                 heading = "Calendar",
                 navController = navController
             )
