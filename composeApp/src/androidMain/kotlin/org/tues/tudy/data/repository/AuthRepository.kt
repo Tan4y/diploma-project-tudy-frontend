@@ -1,5 +1,6 @@
 package org.tues.tudy.data.repository
 
+import org.json.JSONObject
 import org.tues.tudy.App
 import org.tues.tudy.data.model.CreateAccountRequest
 import org.tues.tudy.data.model.LogInRequest
@@ -76,11 +77,20 @@ class AuthRepository {
     }
 
     suspend fun updateUsername(userId: String, newUsername: String) {
-        val response = api.updateUsername(userId, newUsername)
-        if (!response.isSuccessful) {
-            throw HttpException(response)
+        try {
+            val response = api.updateUsername(userId, newUsername) // Retrofit call
+            if (!response.isSuccessful) {
+                val errorBody = response.errorBody()?.string()
+                val message = errorBody?.let {
+                    JSONObject(it).optString("message", "Unknown error")
+                } ?: "Unknown error"
+                throw Exception(message)
+            }
+        } catch (e: Exception) {
+            throw e // rethrow so ViewModel can handle
         }
     }
+
 
     suspend fun deleteUser(userId: String) {
         val response = api.deleteUser(userId)

@@ -34,14 +34,15 @@ class MoreMenuViewModel : ViewModel() {
             }
         }
     }
-    fun updateUsername(userId: String, newUsername: String) {
+    fun updateUsername(userId: String, newUsername: String, onError: (String) -> Unit) {
 
         viewModelScope.launch {
             try {
                 authRepository.updateUsername(userId, newUsername)
-                // optionally update local state if needed
+                _username.value = newUsername
             } catch (e: Exception) {
-                Log.e("MoreMenu", "Failed to update username: ${e.message}")
+                val errorMessage = e.message ?: "Failed to update username"
+                onError(errorMessage)
             }
         }
     }

@@ -59,6 +59,11 @@ fun AccountSettings(
     var showDeleteDialog by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
 
+    var frontendError by remember { mutableStateOf<String?>(null) }
+    var backendError by remember { mutableStateOf<String?>(null) }
+
+    val usernameError = frontendError ?: backendError
+
     LaunchedEffect(usernameFromVM) {
         username = usernameFromVM ?: ""
     }
@@ -75,20 +80,19 @@ fun AccountSettings(
                     focusManager.clearFocus()
                     isEditingUsername = false
                 }
-            }) {
+            }
+    ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(Dimens.Space125)
         ) {
-            var usernameError by remember { mutableStateOf<String?>(null) }
-
+            // Frontend validation
             LaunchedEffect(username) {
                 if (isEditingUsername) {
-                    usernameError = when {
+                    frontendError = when {
                         username.isBlank() -> "Username is required"
                         !username.matches(Regex("^[a-zA-Z0-9_]+$")) ->
                             "Username can only contain letters, numbers, and underscores"
-
                         else -> null
                     }
                 }
@@ -96,7 +100,11 @@ fun AccountSettings(
 
             CustomTextField(
                 value = username,
-                onValueChange = { username = it },
+                onValueChange = {
+                    username = it
+                    frontendError = null
+                    backendError = null
+                },
                 enabled = isEditingUsername,
                 label = "Username",
                 modifier = Modifier.fillMaxWidth(),
@@ -111,16 +119,19 @@ fun AccountSettings(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null
                         ) {
-                            if (isEditingUsername && usernameError == null) { // only save if valid
-                                viewModel.updateUsername(userId, username)
-                                focusManager.clearFocus()
-                                isEditingUsername = false
-                            } else if (!isEditingUsername) {
+                            if (!isEditingUsername) {
                                 focusRequester.requestFocus()
                                 isEditingUsername = true
+                            } else if (usernameError == null) {
+                                viewModel.updateUsername(userId, username) { errorFromBackend ->
+                                    backendError = errorFromBackend
+                                }
+                                if (backendError == null) {
+                                    isEditingUsername = false
+                                }
                             }
                         },
-                        tint = if (usernameError != null) BaseColor80 else BaseColor100
+                        tint = if (usernameError != null) ErrorColor else BaseColor100
                     )
                 }
             )
@@ -132,8 +143,6 @@ fun AccountSettings(
                 modifier = Modifier.fillMaxWidth(),
             )
         }
-
-        Spacer(modifier = Modifier.weight(1f))
 
         MoreMenuField(
             text = "Change Password",
