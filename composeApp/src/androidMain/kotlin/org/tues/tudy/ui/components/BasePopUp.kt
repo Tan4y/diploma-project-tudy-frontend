@@ -27,7 +27,8 @@ fun BasePopUp(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
     title: String,
-    description: String
+    description: String,
+    buttonText: String? = ""
 ) {
     Dialog(
         onDismissRequest = onDismiss,
@@ -64,7 +65,7 @@ fun BasePopUp(
 
                     TwoMidButtons(
                         text1 = "Go Back",
-                        text2 = "Delete",
+                        text2 = buttonText ?: "Delete",
                         color1 = BaseColor80,
                         color2 = ErrorColor,
                         onClick1 = onDismiss,

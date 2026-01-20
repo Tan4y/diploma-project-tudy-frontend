@@ -23,6 +23,8 @@ object Routes {
     const val TYPE_SUBJECT = "typeSubjectPage/{userId}/{title}/{clickedIsType}"
     const val CALENDAR_WEEK = "calendar/{userId}/week"
 
+    const val MORE = "more/{userId}"
+
 
     fun homeRoute(userId: String) = "home/$userId"
     fun addTudyRoute(userId: String) = "addTudy/$userId"
@@ -33,4 +35,5 @@ object Routes {
 
     fun calendarWeekRoute(userId: String) = "calendar/$userId/week"
     fun studyRoute(userId: String) = "study/$userId"
+    fun moreRoute(userId: String) = "more/$userId"
 }

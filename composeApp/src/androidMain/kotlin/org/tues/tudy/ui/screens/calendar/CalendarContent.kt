@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -20,6 +21,7 @@ import org.tues.tudy.ui.components.SlidingMonthsWeeksDays
 import org.tues.tudy.ui.theme.AppTypography
 import org.tues.tudy.ui.theme.BaseColor80
 import org.tues.tudy.ui.theme.Dimens
+import org.tues.tudy.ui.theme.PrimaryColor1
 import org.tues.tudy.viewmodel.CalendarViewModel
 import java.time.YearMonth
 
@@ -41,11 +43,7 @@ fun CalendarContent(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = "Loading...",
-                style = AppTypography.Heading4,
-                color = BaseColor80
-            )
+            CircularProgressIndicator(color = PrimaryColor1)
         }
     } else {
         Column(

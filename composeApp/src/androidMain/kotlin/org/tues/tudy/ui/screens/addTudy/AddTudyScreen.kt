@@ -1,8 +1,14 @@
 package org.tues.tudy.ui.screens.addTudy
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -11,6 +17,7 @@ import org.tues.tudy.ui.components.TopBar
 import org.tues.tudy.ui.components.TopBarMode
 import org.tues.tudy.ui.navigation.Routes
 import org.tues.tudy.ui.screens.home.HomeContent
+import org.tues.tudy.ui.screens.moreMenu.OpenMoreMenu
 import org.tues.tudy.ui.theme.BaseColor0
 import org.tues.tudy.viewmodel.AddTudyViewModel
 import org.tues.tudy.viewmodel.HomeViewModel
@@ -22,12 +29,20 @@ fun AddTudyScreen (
     homeViewModel: HomeViewModel,
     userId: String
 ) {
+    var isMenuOpen by rememberSaveable { mutableStateOf(false) }
+
+    Box(modifier = Modifier.fillMaxSize()) {
     Scaffold(
         topBar = {
             TopBar(
                 mode = TopBarMode.MENU,
                 heading = "Add Tudy",
-                navController = navController
+                navController = navController,
+                userId = userId,
+                isMenuOpen = isMenuOpen,
+                onMenuClick = {
+                    isMenuOpen = !isMenuOpen
+                }
             )
         },
         bottomBar = {
@@ -44,5 +59,11 @@ fun AddTudyScreen (
             userId = userId
         )
     }
-
+        OpenMoreMenu(
+            navController = navController,
+            userId = userId,
+            isMenuOpen = isMenuOpen,
+            onClick = { isMenuOpen = false }
+        )
+    }
 }

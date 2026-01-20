@@ -7,12 +7,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.tues.tudy.data.model.CalendarItem
@@ -69,8 +69,7 @@ fun DayEventCard(
     Column(
         modifier = Modifier
             .offset(y = offsetMinutes.dp)
-            .height(durationMinutes.dp)
-            .heightIn(min = Dimens.Space250)
+            .height(if(durationMinutes.dp < Dimens.Space325) Dimens.Space325 else durationMinutes.dp)
             .fillMaxWidth()
             .then(if (showShadow) Modifier.shadow1() else Modifier)
             .background(backgroundColor, RoundedCornerShape(BorderRadius250))
@@ -79,6 +78,7 @@ fun DayEventCard(
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(Dimens.Space25)

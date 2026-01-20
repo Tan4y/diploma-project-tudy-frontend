@@ -18,7 +18,7 @@ class CalendarRepository(
         return try {
             val response = api.getUser(userId)
             if (response.isSuccessful) {
-                _currentUser = response.body()
+                _currentUser = response.body()?.user
                 _currentUser
             } else {
                 null
@@ -27,6 +27,7 @@ class CalendarRepository(
             null
         }
     }
+
 
     suspend fun getCalendarItems(): List<CalendarItem> {
         return try {

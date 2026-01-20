@@ -6,6 +6,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.modifier.modifierLocalConsumer
@@ -27,7 +30,7 @@ import org.tues.tudy.ui.theme.Dimens
 @Composable
 fun ForgotPasswordUsernameScreen(
     navController: NavController,
-    viewModel: ForgotPasswordViewModel = viewModel()
+    viewModel: ForgotPasswordViewModel = viewModel(),
 ) {
     val state by viewModel.state.collectAsState()
     var username by remember { mutableStateOf("") }
@@ -42,6 +45,8 @@ fun ForgotPasswordUsernameScreen(
     }
 
     val focusManager = LocalFocusManager.current
+
+    var isMenuOpen by rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -60,7 +65,11 @@ fun ForgotPasswordUsernameScreen(
                 modifier = Modifier,
                 navController = navController,
                 mode = TopBarMode.BACK,
-                heading = ""
+                heading = "",
+                isMenuOpen = isMenuOpen,
+                onMenuClick = {
+                    isMenuOpen = !isMenuOpen
+                }
             )
         }
         Column(modifier = Modifier.weight(1f)) {
