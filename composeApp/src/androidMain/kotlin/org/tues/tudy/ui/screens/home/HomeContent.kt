@@ -102,6 +102,7 @@ fun HomeContent(
 
         val subject = event.subject
         if (!subject.isNullOrBlank()) {
+            Log.d("HomeContent", "Event subject key: '$subject', total: $total")
             subjectCounts[subject] = (subjectCounts[subject] ?: 0) + total
         }
 
@@ -110,11 +111,16 @@ fun HomeContent(
             typeCounts[category] = (typeCounts[category] ?: 0) + total
         }
     }
+
     val updatedSubjects = subjects.map { subject ->
-        subject.copy(
-            tudies = subjectCounts[subject.name] ?: 0
-        )
+        val key = subject.name.trim().lowercase()
+        val count = subjectCounts.entries
+            .firstOrNull { it.key.trim().lowercase() == key }
+            ?.value ?: 0
+        Log.d("HomeContent", "Mapping subject: '${subject.name}' -> count: $count")
+        subject.copy(tudies = count)
     }
+
 
     val cleanedTypeCounts = mutableMapOf<String, Int>()
     futureEvents.forEach { event ->
@@ -156,6 +162,11 @@ fun HomeContent(
         }
     }
 
+    futureEvents.forEach { event ->
+        Log.d("HomeContent", "Event: ${event.subject}, Date: ${event.date}, sessions: ${sessionsByEventId[event._id]?.size}")
+    }
+
+
     val activeSubjectsWithDates: Map<TypeSubject, Pair<List<LocalDate>, Int>> =
         activeSubjects.associateWith { subject ->
             // Only parent events
@@ -178,7 +189,7 @@ fun HomeContent(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            CircularProgressIndicator()
+            CircularProgressIndicator(color = PrimaryColor1)
         }
     } else {
         LazyColumn(
