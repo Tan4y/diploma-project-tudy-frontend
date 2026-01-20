@@ -1,36 +1,21 @@
 package org.tues.tudy.data.repository
 
+import org.tues.tudy.App
 import org.tues.tudy.data.model.CreateAccountRequest
 import org.tues.tudy.data.model.LogInRequest
 import org.tues.tudy.data.model.LoginResponse
 import org.tues.tudy.data.model.RequestResetPasswordRequest
 import org.tues.tudy.data.model.ResetPasswordRequest
+import org.tues.tudy.data.model.UserResponse
 import org.tues.tudy.data.remote.ApiService
+import org.tues.tudy.data.remote.ApiServiceBuilder
+import org.tues.tudy.data.model.TokenManager
 import retrofit2.HttpException
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 
 class AuthRepository {
 
-    object TokenStorage {
-        private var accessToken: String? = null
-        private var refreshToken: String? = null
-
-        fun saveTokens(access: String, refresh: String) {
-            accessToken = access
-            refreshToken = refresh
-        }
-
-        fun getAccessToken(): String? = accessToken
-        fun getRefreshToken(): String? = refreshToken
-    }
-
-
-    private val api = Retrofit.Builder()
-        .baseUrl("http://10.0.2.2:5050/")
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-        .create(ApiService::class.java)
+    private val api: ApiService = ApiServiceBuilder.apiService
+    private val tokenManager = TokenManager()
 
     suspend fun createAccount(username: String, email: String, password: String) {
         val response = api.register(CreateAccountRequest(username, email, password))
@@ -40,13 +25,29 @@ class AuthRepository {
         }
     }
 
+    suspend fun getUser(userId: String): UserResponse {
+        val response = api.getUser(userId)
+        if (!response.isSuccessful) throw HttpException(response)
+        return response.body()?.user
+            ?: throw Exception("Empty user response")
+    }
+
+
+
     suspend fun login(username: String, password: String): LoginResponse {
         val response = api.login(LogInRequest(username, password))
+        if (!response.isSuccessful) throw HttpException(response)
+        val body = response.body() ?: throw Exception("Empty body")
 
-        if (!response.isSuccessful) {
-            throw HttpException(response)
-        }
-        return response.body() ?: throw Exception("Empty response body")
+        tokenManager.saveAccessToken(body.accessToken)
+        tokenManager.saveUserId(body.user.id)
+
+        return body
+    }
+
+    suspend fun logout() {
+        api.logout()
+        tokenManager.clearAll()
     }
 
     suspend fun verifyEmail(token: String) {
@@ -73,4 +74,19 @@ class AuthRepository {
             throw HttpException(response)
         }
     }
+
+    suspend fun updateUsername(userId: String, newUsername: String) {
+        val response = api.updateUsername(userId, newUsername)
+        if (!response.isSuccessful) {
+            throw HttpException(response)
+        }
+    }
+
+    suspend fun deleteUser(userId: String) {
+        val response = api.deleteUser(userId)
+        if (!response.isSuccessful) {
+            throw HttpException(response)
+        }
+    }
+
 }

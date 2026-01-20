@@ -6,6 +6,7 @@ import org.tues.tudy.data.model.CreateAccountRequest
 import org.tues.tudy.data.model.CreateEventRequest
 import org.tues.tudy.data.model.CreateEventResponse
 import org.tues.tudy.data.model.Event
+import org.tues.tudy.data.model.GetUserResponse
 import org.tues.tudy.data.model.LogInRequest
 import org.tues.tudy.data.model.LoginResponse
 import org.tues.tudy.data.model.RequestResetPasswordRequest
@@ -18,6 +19,7 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -48,6 +50,12 @@ interface ApiService {
     suspend fun resetPassword(
         @Body request: ResetPasswordRequest
     ): Response<ResponseBody>
+
+    @PATCH("api/users/update-username")
+    suspend fun updateUsername(
+        @Query("userId") userId: String,
+        @Query("newUsername") newUsername: String
+    ): Response<GetUserResponse>
 
     @GET("api/events")
     suspend fun getEvents(): Response<List<Event>>
@@ -88,5 +96,13 @@ interface ApiService {
     @GET("api/users/{userId}")
     suspend fun getUser(
         @Path("userId") userId: String
-    ): Response<UserResponse>
+    ): Response<GetUserResponse>
+
+    @DELETE("api/users/{id}")
+    suspend fun deleteUser(
+        @Path("id") userId: String
+    ): Response<ResponseBody>
+
+    @POST("api/auth/logout")
+    suspend fun logout()
 }
