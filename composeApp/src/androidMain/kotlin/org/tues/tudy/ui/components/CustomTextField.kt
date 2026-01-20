@@ -42,7 +42,7 @@ import org.tues.tudy.ui.theme.PrimaryColor1
 @Composable
 fun CustomTextField(
     value: String,
-    onValueChange: (String) -> Unit,
+    onValueChange: ((String) -> Unit)? = null,
     label: String,
     modifier: Modifier = Modifier,
     error: String? = null,
@@ -51,7 +51,8 @@ fun CustomTextField(
     trailingIcon: (@Composable (() -> Unit))? = null,
     textLength: Int = 0,
     visualTransformation: VisualTransformation = VisualTransformation.None,
-    digitsOnly: Boolean? = false
+    digitsOnly: Boolean? = false,
+    enabled: Boolean = true,
 ) {
     val isFocused = remember { mutableStateOf(false) }
 
@@ -66,13 +67,13 @@ fun CustomTextField(
         Text(
             text = label,
             style = AppTypography.Caption1,
-            color = if (stateColor == BaseColor80) Color.Transparent else stateColor,
+            color = if (!enabled) stateColor else if (stateColor == BaseColor80) Color.Transparent else stateColor,
             modifier = Modifier
                 .padding(Dimens.Space25)
                 .animateContentSize()
         )
         Box(
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxWidth()
                 .border(
                     width = 1.dp,
@@ -86,18 +87,20 @@ fun CustomTextField(
                     if (digitsOnly == true) {
                         val digitsOnlyFiltered = newValue.filter { it.isDigit() }
                         if (textLength == 0 || digitsOnlyFiltered.length <= textLength) {
-                            onValueChange(digitsOnlyFiltered)
+                            if (onValueChange != null) onValueChange(digitsOnlyFiltered)
                         }
                     } else {
                         if (textLength == 0 || newValue.length <= textLength) {
-                            onValueChange(newValue)
+                            if (onValueChange != null) onValueChange(newValue)
                         }
                     }
                 },
+                enabled = enabled,
+                readOnly = !enabled,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = if (digitsOnly == true) KeyboardType.Number else KeyboardType.Text
                 ),
-                textStyle = AppTypography.Paragraph1.copy(color = stateColor),
+                textStyle = AppTypography.Paragraph1.copy(color = if(!enabled && trailingIcon != null) BaseColor80 else stateColor),
                 placeholder = {
                     Text(
                         text = label,
@@ -123,6 +126,7 @@ fun CustomTextField(
                     unfocusedContainerColor = Color.Transparent,
                     focusedContainerColor = Color.Transparent,
                     focusedIndicatorColor = Color.Transparent,
+                    disabledContainerColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                     disabledIndicatorColor = MaterialTheme.colorScheme.surface,
                 ),
@@ -154,11 +158,10 @@ fun CustomTextField(
                     style = AppTypography.UnderlinedCaption1,
                     modifier = Modifier
                         .clip(RoundedCornerShape(BorderRadius150))
-                        .clickable() { navController.navigate(Routes.FORGOT_PASSWORD) }
+                        .clickable { navController.navigate(Routes.FORGOT_PASSWORD) }
                 )
             }
         }
-
     }
 }
 

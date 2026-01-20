@@ -7,6 +7,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -27,6 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.tues.tudy.R
+import org.tues.tudy.ui.navigation.Routes
 import org.tues.tudy.ui.theme.AppTypography
 import org.tues.tudy.ui.theme.BaseColor0
 import org.tues.tudy.ui.theme.Dimens
@@ -39,9 +41,12 @@ fun TopBar(
     navController: NavController? = null,
     mode: TopBarMode = TopBarMode.MENU,
     heading: String,
-    onClose: (() -> Unit)? = null
+    onClose: (() -> Unit)? = null,
+    userId: String? = "",
+    isMenuOpen: Boolean,
+    onMenuClick: () -> Unit,
+    onBack: (() -> Unit)? = null
 ) {
-    var isOpen by remember { mutableStateOf(false) }
 
     val leftIcon = when (mode) {
         TopBarMode.MENU -> R.drawable.menu
@@ -55,7 +60,7 @@ fun TopBar(
     }
 
     val rotation by animateFloatAsState(
-        targetValue = if (mode == TopBarMode.MENU && isOpen) 90f else 0f,
+        targetValue = if (mode == TopBarMode.MENU && isMenuOpen) 90f else 0f,
         label = "menuRotation"
     )
 
@@ -67,7 +72,7 @@ fun TopBar(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
+        Box(contentAlignment = Alignment.CenterStart) {
             leftIcon?.let {
                 Icon(
                     painter = painterResource(it),
@@ -84,19 +89,18 @@ fun TopBar(
                             indication = null,
                             interactionSource = remember { MutableInteractionSource() }) {
                             when (mode) {
-                                TopBarMode.MENU -> { /* open menu */
-                                }
-
-                                TopBarMode.BACK -> navController?.popBackStack()
+                                TopBarMode.MENU -> onMenuClick()
+                                TopBarMode.BACK -> if (onBack != null) onBack() else navController?.popBackStack()
                                 else -> {}
                             }
+
                         }
                         .padding(Dimens.Space50)
                 )
             }
         }
 
-        Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+        Box(contentAlignment = Alignment.Center) {
             Text(
                 text = heading,
                 color = PrimaryColor1,
@@ -105,7 +109,10 @@ fun TopBar(
             )
         }
 
-        Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
+        Box(contentAlignment = Alignment.CenterEnd) {
+            if (rightIcon == null) {
+                Spacer(modifier = Modifier.size(Dimens.Space200))
+            }
             rightIcon?.let {
                 Icon(
                     painter = painterResource(it),
