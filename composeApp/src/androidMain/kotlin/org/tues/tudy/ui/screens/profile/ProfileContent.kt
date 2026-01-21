@@ -85,7 +85,7 @@ fun ProfileContent(
 
             BarChart(
                 data = studyMinutesPerDayOfWeek,
-                title = "Study Time Per Day",
+                title = "Study Time Per Day (minutes)",
                 weekRange = "${formatLocalDate(weekStart)} – ${formatLocalDate(weekEnd)}"
             )
         }
