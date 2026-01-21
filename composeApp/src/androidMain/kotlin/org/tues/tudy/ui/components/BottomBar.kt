@@ -43,7 +43,7 @@ fun BottomBar(
     val calendarSelected = selectedRoute == Routes.calendarRoute(userId)
     val plusSelected = selectedRoute == Routes.addTudyRoute(userId)
     val homeSelected = selectedRoute == Routes.homeRoute(userId)
-    val profileSelected = selectedRoute == Routes.PROFILE
+    val profileSelected = selectedRoute == Routes.profileRoute(userId)
 
     val studyIcon = if (studySelected) R.drawable.study_filled else R.drawable.study_outlined
     val calendarIcon =
@@ -191,7 +191,7 @@ fun BottomBar(
                         modifier = Modifier.clickable(
                             indication = null,
                             interactionSource = remember { MutableInteractionSource() }) {
-                            navController.navigate(Routes.PROFILE)
+                            navController.navigate(Routes.profileRoute(userId))
                         }
                     )
                 }
