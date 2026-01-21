@@ -12,6 +12,9 @@ import org.tues.tudy.data.model.LoginResponse
 import org.tues.tudy.data.model.RequestResetPasswordRequest
 import org.tues.tudy.data.model.ResetPasswordRequest
 import org.tues.tudy.data.model.StudyPlanResponse
+import org.tues.tudy.data.model.StudyStatsResponse
+import org.tues.tudy.data.model.StudyTimeRequest
+import org.tues.tudy.data.model.StudyTimeResponse
 import org.tues.tudy.data.model.TypeSubjectRequest
 import org.tues.tudy.data.model.TypeSubjectResponse
 import org.tues.tudy.data.model.UserResponse
@@ -105,4 +108,12 @@ interface ApiService {
 
     @POST("api/auth/logout")
     suspend fun logout()
+
+    @POST("api/users/study-time")
+    suspend fun addRealStudyTime(
+        @Body request: StudyTimeRequest
+    ): StudyTimeResponse
+
+    @GET("api/users/stats")
+    suspend fun getStudyStats(): StudyStatsResponse
 }
