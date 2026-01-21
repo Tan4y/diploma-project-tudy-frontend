@@ -19,5 +19,6 @@ fun AppNavGraph(navController: NavHostController) {
         typeSubjectPageNavGraph(navController)
         calendarNavGraph(navController)
         studyNavGraph(navController)
+        profileNavGraph(navController)
     }
 }

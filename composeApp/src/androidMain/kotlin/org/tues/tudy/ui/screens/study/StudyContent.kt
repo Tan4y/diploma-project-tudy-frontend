@@ -44,12 +44,12 @@ import android.media.ToneGenerator
 import androidx.compose.foundation.layout.size
 import kotlinx.coroutines.delay
 import androidx.compose.foundation.Image
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.zIndex
 import org.tues.tudy.ui.components.WaveLiquidTimer
-
 @Composable
 fun StudyContent(
     navController: NavController,
@@ -65,6 +65,15 @@ fun StudyContent(
 
     val toneGen = remember {
         ToneGenerator(AudioManager.STREAM_NOTIFICATION, 80)
+    }
+
+    // Guard against accidental restarts
+    val sessionStarted = remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        if (!sessionStarted.value && state.phase == StudyPhase.IDLE) {
+            // Only log, don't auto-start
+            println("StudyContent loaded in IDLE state")
+        }
     }
 
     LaunchedEffect(currentSegmentIndex) {
@@ -175,7 +184,11 @@ fun StudyContent(
                     CustomButton(
                         value = "Start",
                         enabled = true,
-                        onClick = { viewModel.startSession() }
+                        onClick = {
+                            println("Start button clicked")
+                            sessionStarted.value = true
+                            viewModel.startSession()
+                        }
                     )
                     Image(
                         painter = painterResource(id = R.drawable.giraffe_head_with_sunglasses),
@@ -209,22 +222,22 @@ fun StudyContent(
                 ) {
 
                     Box (contentAlignment = Alignment.Center) {
-                    WaveLiquidTimer(
-                        totalSeconds = state.totalSeconds,
-                        remainingSeconds = state.remainingSeconds,
-                        phase = state.phase,
-                        //modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
+                        WaveLiquidTimer(
+                            totalSeconds = state.totalSeconds,
+                            remainingSeconds = state.remainingSeconds,
+                            phase = state.phase,
+                            //modifier = Modifier.align(Alignment.CenterHorizontally)
+                        )
                         if( state.phase == StudyPhase.STUDYING) {
-                        Image(
-                            painter = painterResource(id = R.drawable.giraffe_head_with_sunglasses),
-                            contentDescription = "Giraffe head",
-                            modifier = Modifier
-                                .size(104.dp)
-                                .align(Alignment.TopCenter)
-                                .graphicsLayer { translationY = -81.dp.toPx() }
-                                .zIndex(1f)
-                        )} else {
+                            Image(
+                                painter = painterResource(id = R.drawable.giraffe_head_with_sunglasses),
+                                contentDescription = "Giraffe head",
+                                modifier = Modifier
+                                    .size(104.dp)
+                                    .align(Alignment.TopCenter)
+                                    .graphicsLayer { translationY = -81.dp.toPx() }
+                                    .zIndex(1f)
+                            )} else {
                             Image(
                                 painter = painterResource(id = R.drawable.giraffe_resting),
                                 contentDescription = "Giraffe head",

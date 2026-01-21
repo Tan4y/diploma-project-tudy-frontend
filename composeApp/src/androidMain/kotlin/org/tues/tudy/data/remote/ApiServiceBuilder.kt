@@ -1,6 +1,7 @@
 package org.tues.tudy.data.remote
 
 import okhttp3.OkHttpClient
+import org.tues.tudy.data.model.TokenManager
 import org.tues.tudy.data.repository.AuthRepository
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -15,7 +16,14 @@ object ApiServiceBuilder {
     private val authApiService: AuthApiService =
         authRetrofit.create(AuthApiService::class.java)
     private val client = OkHttpClient.Builder()
-        .addInterceptor(AuthInterceptor(authApiService))
+        .addInterceptor{ chain ->
+            val token = TokenManager().getAccessToken()
+            val requestBuilder = chain.request().newBuilder()
+            if (!token.isNullOrEmpty()) {
+                requestBuilder.addHeader("Authorization", "Bearer $token")
+            }
+            chain.proceed(requestBuilder.build())
+        }
         .build()
     private val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)

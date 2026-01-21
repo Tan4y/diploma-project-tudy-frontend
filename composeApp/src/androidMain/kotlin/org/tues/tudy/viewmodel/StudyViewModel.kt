@@ -10,10 +10,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.tues.tudy.data.model.ProgressSegment
 import org.tues.tudy.data.model.SegmentType
+import org.tues.tudy.data.model.StudyTimeRequest
 import org.tues.tudy.data.model.StudyUiState
+import org.tues.tudy.data.remote.ApiServiceBuilder
+import org.tues.tudy.data.repository.StudyRepository
 import org.tues.tudy.ui.components.StudyPhase
 
 class StudyViewModel : ViewModel() {
+
+    private val studyRepository =
+        StudyRepository(ApiServiceBuilder.apiService)
 
     companion object {
         private const val STUDY_MINUTES = 15
@@ -31,37 +37,57 @@ class StudyViewModel : ViewModel() {
 
 
     fun startSession() {
+        println("=== START SESSION CALLED ===")
         accumulatedStudySeconds = 0
 
         _uiState.value = StudyUiState(
-            phase = StudyPhase.STUDYING,
-            totalSeconds = STUDY_MINUTES * 60,
-            remainingSeconds = STUDY_MINUTES * 60,
-            currentRound = 1,
-            maxRounds = MAX_ROUNDS
+            maxRounds = MAX_ROUNDS,
+            currentRound = 1
         )
-        startTimer()
+        startStudy()
     }
 
     fun finishStudyEarly() {
+        println("finishStudyEarly() called")
         finishStudySegment()
+
+        // Transition to rest WITHOUT saving - we'll save at the end only
         startRest()
     }
 
     fun nextPhase() {
         when (_uiState.value.phase) {
-            StudyPhase.STUDYING -> startRest() // done studying
+            StudyPhase.STUDYING -> {
+                println("nextPhase() called from STUDYING phase")
+                finishStudySegment()
+                // Don't save yet - save only at the very end
+                startRest()
+            }
             StudyPhase.RESTING -> {
+                println("nextPhase() called from RESTING phase")
                 if (_uiState.value.currentRound >= _uiState.value.maxRounds) {
+                    println("All rounds completed")
+                    // Save ONCE at the end
+                    viewModelScope.launch {
+                        try {
+                            studyRepository.saveStudyTime(accumulatedStudySeconds)
+                            println("Final study time saved: $accumulatedStudySeconds seconds")
+                        } catch (e: Exception) {
+                            println("Failed to save: ${e.message}")
+                        }
+                    }
                     _uiState.value = _uiState.value.copy(phase = StudyPhase.FINISHED)
                 } else {
+                    println("Moving to round ${_uiState.value.currentRound + 1}")
                     _uiState.value = _uiState.value.copy(
                         currentRound = _uiState.value.currentRound + 1
                     )
                     startStudy()
                 }
             }
-            else -> {}
+            else -> {
+                println("nextPhase() called in unexpected phase: ${_uiState.value.phase}")
+            }
         }
     }
 
@@ -84,10 +110,8 @@ class StudyViewModel : ViewModel() {
 
     fun continueAfterRest() {
         if (_uiState.value.currentRound >= _uiState.value.maxRounds) {
-            // All rounds done → finish
             _uiState.value = _uiState.value.copy(phase = StudyPhase.FINISHED)
         } else {
-            // Increment round and start next study
             _uiState.value = _uiState.value.copy(
                 currentRound = _uiState.value.currentRound + 1
             )
@@ -95,9 +119,8 @@ class StudyViewModel : ViewModel() {
         }
     }
 
-
-
     private fun startStudy() {
+        println("startStudy() called")
         studyStartTime = System.currentTimeMillis()
 
         _uiState.value = _uiState.value.copy(
@@ -105,53 +128,82 @@ class StudyViewModel : ViewModel() {
             totalSeconds = STUDY_MINUTES * 60,
             remainingSeconds = STUDY_MINUTES * 60
         )
+        println("Study phase set, starting timer...")
         startTimer()
     }
 
     private fun finishStudySegment() {
         val now = System.currentTimeMillis()
-        val studiedSeconds = ((now - studyStartTime) / 1000).toInt()
+        val studiedSeconds = ((now - studyStartTime) / 1000).toInt().coerceAtLeast(1)
         accumulatedStudySeconds += studiedSeconds
+
+        println("finishStudySegment() called")
+        println("studyStartTime = $studyStartTime")
+        println("now = $now")
+        println("studiedSeconds = $studiedSeconds")
+        println("accumulatedStudySeconds = $accumulatedStudySeconds")
     }
 
     private fun startRest() {
-        finishStudySegment()
+        println("startRest() called")
         cancelTimer()
         _uiState.value = _uiState.value.copy(
             phase = StudyPhase.RESTING,
             totalSeconds = REST_MINUTES * 60,
             remainingSeconds = REST_MINUTES * 60
         )
+        println("Rest phase set, starting timer...")
         startTimer()
     }
 
     private fun startTimer() {
+        println("startTimer() called")
         cancelTimer()
         timerJob = viewModelScope.launch {
+            println("Timer coroutine started, remainingSeconds = ${_uiState.value.remainingSeconds}")
             while (_uiState.value.remainingSeconds > 0) {
                 delay(1000)
                 _uiState.value = _uiState.value.copy(
                     remainingSeconds = _uiState.value.remainingSeconds - 1
                 )
             }
+            println("Timer countdown finished, calling onTimerFinished()")
             onTimerFinished()
         }
     }
 
     private fun onTimerFinished() {
+        println("onTimerFinished() called, phase = ${_uiState.value.phase}, currentRound = ${_uiState.value.currentRound}")
         when (_uiState.value.phase) {
-            StudyPhase.STUDYING -> startRest()
+            StudyPhase.STUDYING -> {
+                println("Study timer finished, transitioning to rest")
+                finishStudySegment()
+                // Don't save here - save only at the very end of the entire session
+                startRest()
+            }
 
             StudyPhase.RESTING -> {
+                println("Rest timer finished, checking if more rounds...")
                 if (_uiState.value.currentRound >= MAX_ROUNDS) {
+                    println("All ${MAX_ROUNDS} rounds completed!")
                     cancelTimer()
 
-                    //saveSessionStats(accumulatedStudySeconds)
+                    // Save ONCE at the end
+                    viewModelScope.launch {
+                        try {
+                            studyRepository.saveStudyTime(accumulatedStudySeconds)
+                            println("Final study time saved: $accumulatedStudySeconds seconds")
+                        } catch (e: Exception) {
+                            println("Failed to save final study time: ${e.message}")
+                            e.printStackTrace()
+                        }
+                    }
 
                     _uiState.value = _uiState.value.copy(
                         phase = StudyPhase.FINISHED
                     )
                 } else {
+                    println("Starting round ${_uiState.value.currentRound + 1}")
                     _uiState.value = _uiState.value.copy(
                         currentRound = _uiState.value.currentRound + 1
                     )
@@ -159,7 +211,9 @@ class StudyViewModel : ViewModel() {
                 }
             }
 
-            else -> Unit
+            else -> {
+                println("onTimerFinished() in unexpected phase: ${_uiState.value.phase}")
+            }
         }
     }
 

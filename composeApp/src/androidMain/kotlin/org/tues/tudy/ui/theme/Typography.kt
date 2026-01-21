@@ -5,6 +5,12 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.sp
 
 object AppTypography {
+    val Big = TextStyle(
+        fontFamily = PrimaryFont,
+        fontSize = 56.sp,
+        lineHeight = 48.sp,
+        fontWeight = FontWeight.Light
+    )
 
     val Heading1 = TextStyle(
         fontFamily = PrimaryFont,
