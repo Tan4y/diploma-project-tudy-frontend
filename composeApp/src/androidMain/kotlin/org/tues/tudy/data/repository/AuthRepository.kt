@@ -1,7 +1,6 @@
 package org.tues.tudy.data.repository
 
 import org.json.JSONObject
-import org.tues.tudy.App
 import org.tues.tudy.data.model.CreateAccountRequest
 import org.tues.tudy.data.model.LogInRequest
 import org.tues.tudy.data.model.LoginResponse
@@ -34,17 +33,18 @@ class AuthRepository {
     }
 
 
-
     suspend fun login(username: String, password: String): LoginResponse {
         val response = api.login(LogInRequest(username, password))
         if (!response.isSuccessful) throw HttpException(response)
         val body = response.body() ?: throw Exception("Empty body")
 
         tokenManager.saveAccessToken(body.accessToken)
+        body.refreshToken?.let { tokenManager.saveRefreshToken(it) }
         tokenManager.saveUserId(body.user.id)
 
         return body
     }
+
 
     suspend fun logout() {
         api.logout()
@@ -87,7 +87,7 @@ class AuthRepository {
                 throw Exception(message)
             }
         } catch (e: Exception) {
-            throw e // rethrow so ViewModel can handle
+            throw e
         }
     }
 

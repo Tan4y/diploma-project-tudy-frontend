@@ -90,10 +90,10 @@ interface ApiService {
         @Path("id") eventId: String
     ): Response<ResponseBody>
 
-    @GET("/api/calendar")
+    @GET("api/calendar")
     suspend fun getCalendarItems(): Response<List<CalendarItem>>
 
-    @GET("/api/study/study-plans")
+    @GET("api/study/study-plans")
     suspend fun getAllStudyPlans(): Response<List<StudyPlanResponse>>
 
     @GET("api/users/{userId}")

@@ -4,10 +4,13 @@ import android.util.Log
 import okhttp3.Interceptor
 import okhttp3.Response
 import org.tues.tudy.data.model.RefreshRequest
+import org.tues.tudy.data.model.TokenManager
 import org.tues.tudy.data.storage.TokenStorage
+import java.io.IOException
 
 class AuthInterceptor(
-    private val authApiService: AuthApiService
+    private val authApiService: AuthApiService, // има метод refreshToken
+    private val tokenManager: TokenManager
 ) : Interceptor {
 
     companion object {
@@ -16,11 +19,10 @@ class AuthInterceptor(
     }
 
     override fun intercept(chain: Interceptor.Chain): Response {
-
         var request = chain.request()
 
-        // attach access token
-        TokenStorage.getAccessToken()?.let { token ->
+        // 1️⃣ Добавяме access token към всяка заявка
+        tokenManager.getAccessToken()?.let { token ->
             request = request.newBuilder()
                 .addHeader("Authorization", "Bearer $token")
                 .build()
@@ -28,73 +30,47 @@ class AuthInterceptor(
 
         var response = chain.proceed(request)
 
-        // expired token?
+        // 2️⃣ Ако получим 401/403 – опит за рефреш
         if (response.code == 401 || response.code == 403) {
-
             response.close()
 
             synchronized(refreshLock) {
-
-                // if already refreshing, just wait
                 if (!isRefreshing) {
-
                     isRefreshing = true
-                    Log.d("AuthInterceptor", "Access token expired → refreshing… (Status: ${response.code})")
-
                     try {
-                        val refreshToken = TokenStorage.getRefreshToken()
+                        val refreshToken = tokenManager.getRefreshToken()
 
-                        if (refreshToken != null) {
-
-                            val refreshResponse =
-                                authApiService.refreshToken(
-                                    RefreshRequest(refreshToken)
-                                ).execute()
+                        if (!refreshToken.isNullOrEmpty()) {
+                            val refreshResponse = authApiService
+                                .refreshToken(RefreshRequest(refreshToken))
+                                .execute()
 
                             if (refreshResponse.isSuccessful) {
-
                                 val body = refreshResponse.body()!!
-
-                                TokenStorage.saveAccessToken(body.accessToken)
-
-                                body.refreshToken?.let {
-                                    TokenStorage.saveRefreshToken(it)
-                                }
-
-                                Log.d("AuthInterceptor", "Token refreshed successfully")
-
+                                // Записваме новите токени
+                                tokenManager.saveAccessToken(body.accessToken)
+                                body.refreshToken?.let { tokenManager.saveRefreshToken(it) }
                             } else {
-                                Log.e("AuthInterceptor", "Refresh failed (${refreshResponse.code()}) → clearing tokens")
-                                TokenStorage.clear()
-                                return response  // ← Return error response
+                                tokenManager.clearAll() // невалиден refresh token
+                                return response
                             }
                         } else {
-                            Log.e("AuthInterceptor", "No refresh token available")
-                            TokenStorage.clear()
-                            return response  // ← Return error response
+                            tokenManager.clearAll() // няма refresh token
+                            return response
                         }
-
-                    } catch (e: Exception) {
-                        Log.e("AuthInterceptor", "Token refresh exception: ${e.message}")
-                        TokenStorage.clear()
-                        return response  // ← Return error response
                     } finally {
                         isRefreshing = false
                     }
                 }
             }
 
-            // retry request with new token
-            return TokenStorage.getAccessToken()?.let { newToken ->
+            // 3️⃣ Retry със новия access token
+            tokenManager.getAccessToken()?.let { newToken ->
                 val newRequest = request.newBuilder()
                     .removeHeader("Authorization")
                     .addHeader("Authorization", "Bearer $newToken")
                     .build()
-
-                chain.proceed(newRequest)
-            } ?: run {
-                Log.e("AuthInterceptor", "No token after refresh attempt")
-                response  // ← Return error if no token
+                return chain.proceed(newRequest)
             }
         }
 
