@@ -49,7 +49,8 @@ fun TudyCard(
                 onDelete()
             },
             title = "Delete Tudy",
-            description = "Are you sure you want to delete Tudy about $title"
+            description = "Are you sure you want to delete Tudy about $title",
+            buttonText = "Delete"
         )
     }
 

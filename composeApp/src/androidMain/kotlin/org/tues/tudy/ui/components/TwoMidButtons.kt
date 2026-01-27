@@ -1,14 +1,11 @@
 package org.tues.tudy.ui.components
 
-import android.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import org.tues.tudy.ui.theme.BaseColor80
 import org.tues.tudy.ui.theme.Dimens
-import org.tues.tudy.ui.theme.ErrorColor
 
 @Composable
 fun TwoMidButtons (
