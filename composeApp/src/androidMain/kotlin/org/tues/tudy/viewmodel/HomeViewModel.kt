@@ -190,79 +190,6 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-
-
-//    fun loadData(userId: String) {
-//        Log.d("HomeVM", "loadData CALLED with userId='$userId' (length=${userId.length})")
-//
-//        if (userId.isBlank()) {
-//            Log.e("HomeVM", "ERROR: userId is blank or empty!")
-//            _errorMessage.value = "Invalid user ID"
-//            return
-//        }
-//
-//        viewModelScope.launch {
-//            try {
-//                _isLoading.value = true
-//
-//                Log.d("HomeVM", "Calling repository.getItems with userId='$userId'")
-//                val typesResponse = repository.getItems(userId, "type")
-//                Log.d("HomeVM", "typesResponse = ${typesResponse.code()} body=${typesResponse.body()}")
-//
-//                val subjectsResponse = repository.getItems(userId, "subject")
-//                Log.d("HomeVM", "subjectsResponse = ${subjectsResponse.code()} body=${subjectsResponse.body()}")
-//
-//                val userServerItems: List<TypeSubject> = listOf(
-//                    (typesResponse.body() ?: emptyList()).map { response ->
-//                        TypeSubject(
-//                            _id = response._id,
-//                            name = response.name,
-//                            tudies = response.tudies,
-//                            iconRes = response.iconRes,
-//                            type = response.type,
-//                            userId = response.userId
-//                        )
-//                    },
-//                    (subjectsResponse.body() ?: emptyList()).map { response ->
-//                        TypeSubject(
-//                            _id = response._id,
-//                            name = response.name,
-//                            tudies = response.tudies,
-//                            iconRes = response.iconRes,
-//                            type = response.type,
-//                            userId = response.userId
-//                        )
-//                    }
-//                ).flatten()
-//
-//                val localPending = _items.value.filter { it._id == null }
-//
-//                val mergedPending = localPending.filter { pending ->
-//                    userServerItems.none { it.name == pending.name && it.type == pending.type }
-//                }
-//
-//                val merged = sortByTudiesThenAlphabetical(
-//                    userServerItems + mergedPending,
-//                    getName = { it.name },
-//                    getTudies = { it.tudies }
-//                )
-//
-//                Log.d("HomeVM", "Setting items to: ${merged.map { "${it.name}(${it.type})" }}")
-//                _items.value = merged
-//
-//                _items.value.forEach {
-//                    Log.d("HomeVM", "Loaded item: ${it.name}, type: ${it.type}, id: ${it._id}")
-//                }
-//
-//            } catch (e: Exception) {
-//                Log.e("HomeVM", "loadData ERROR", e)
-//                _errorMessage.value = "Network error: ${e.localizedMessage}"
-//            } finally {
-//                _isLoading.value = false
-//            }
-//        }
-//    }
-
     fun addTypeSubject(userId: String, name: String, iconName: String, type: String) {
         Log.d("HomeVM", "addTypeSubject called for $name")
         val newItem = TypeSubject(
@@ -309,15 +236,4 @@ class HomeViewModel : ViewModel() {
             }
         }
     }
-
-//    fun deleteTypeSubject(userId: String, item: TypeSubject) {
-//        viewModelScope.launch {
-//            try {
-//                repository.deleteItem(item._id!!)
-//            } finally {
-//                loadData(userId)
-//            }
-//        }
-//    }
-
 }

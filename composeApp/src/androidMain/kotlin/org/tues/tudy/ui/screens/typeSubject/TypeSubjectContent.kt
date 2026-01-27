@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.tues.tudy.R
@@ -220,7 +221,8 @@ fun TypeSubjectContent(
                 viewModel.loadEventsForUser(userId)
             },
             title = "Delete Tudy",
-            description = "Are you sure you want to delete Tudy about $title"
+            description = "Are you sure you want to delete the Tudy about $title?",
+            buttonText = "Delete"
         )
     }
 
@@ -255,6 +257,7 @@ fun TypeSubjectContent(
                             text = "You do not have $title Tudies",
                             style = AppTypography.Heading4,
                             color = BaseColor80,
+                            textAlign = TextAlign.Center
                         )
 
                         Spacer(modifier = Modifier.weight(2f))
@@ -313,7 +316,7 @@ fun TypeSubjectContent(
                                 startTime = calendarItem?.startTime,
                                 endTime = calendarItem?.endTime,
                                 description = firstSession?.subject ?: firstSession?.category,
-                                onClick = { navController.navigate(Routes.STUDY) },
+                                onClick = { navController.navigate(Routes.studyRoute(userId)) },
                                 onDelete = {
                                     val parentEvent = events.find { it.title == eventTitle }
 

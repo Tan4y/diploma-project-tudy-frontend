@@ -172,7 +172,8 @@ fun AccountSettings(
                     }
                 },
                 title = "Delete Account",
-                description = "Are you sure you want to delete your account?"
+                description = "Are you sure you want to delete your account?",
+                buttonText = "Delete"
             )
         }
 
