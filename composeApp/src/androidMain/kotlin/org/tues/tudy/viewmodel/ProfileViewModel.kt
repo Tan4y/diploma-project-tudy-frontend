@@ -14,12 +14,13 @@ import org.tues.tudy.data.repository.CalendarRepository
 import org.tues.tudy.data.repository.EventRepository
 import org.tues.tudy.data.repository.StudyRepository
 import org.tues.tudy.utils.isUpcoming
+import java.time.LocalDate
 
 class ProfileViewModel : ViewModel() {
 
     private val eventRepository = EventRepository(ApiServiceBuilder.apiService)
     private val calendarRepository = CalendarRepository(ApiServiceBuilder.apiService)
-    private val studyRepository = StudyRepository(ApiServiceBuilder.apiService) // or mock
+    private val studyRepository = StudyRepository(ApiServiceBuilder.apiService)
 
     private val _uiState = MutableStateFlow(ProfileStatsUiState())
     val uiState: StateFlow<ProfileStatsUiState> = _uiState.asStateFlow()
@@ -38,14 +39,19 @@ class ProfileViewModel : ViewModel() {
                 // STUDY STATS
                 val studyStats = studyRepository.getStudyStats()
 
+                // Convert string keys to LocalDate
+                val studyMinutesPerDayLocal: Map<LocalDate, Int> =
+                    studyStats.studyMinutesPerDay.mapKeys { (dateString, _) ->
+                        LocalDate.parse(dateString) // parses "YYYY-MM-DD"
+                    }
+
                 _uiState.value = _uiState.value.copy(
                     totalEvents = totalEvents,
                     upcomingEvents = upcomingEvents,
                     totalStudyMinutes = studyStats.totalRealStudyMinutes,
-                    studyMinutesPerDay = studyStats.studyMinutesPerDay,
+                    studyMinutesPerDay = studyMinutesPerDayLocal, // <-- now LocalDate
                     error = null
                 )
-
 
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
@@ -55,4 +61,5 @@ class ProfileViewModel : ViewModel() {
                 _uiState.value = _uiState.value.copy(isLoading = false)
             }
         }
-    }}
+    }
+}

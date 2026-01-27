@@ -1,5 +1,7 @@
 package org.tues.tudy.ui.screens.profile
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,10 +20,14 @@ import org.tues.tudy.ui.components.BarChart
 import org.tues.tudy.ui.components.StatCard
 import org.tues.tudy.ui.theme.Dimens
 import org.tues.tudy.viewmodel.ProfileViewModel
-import org.tues.tudy.utils.dateToDayShort
 import org.tues.tudy.utils.formatLocalDate
 import org.tues.tudy.utils.weekRangeFromDates
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.format.TextStyle
+import java.util.Locale
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ProfileContent(
     navController: NavController,
@@ -30,6 +36,21 @@ fun ProfileContent(
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val today = LocalDate.now()
+    val daysOfWeek = listOf(
+        DayOfWeek.MONDAY,
+        DayOfWeek.TUESDAY,
+        DayOfWeek.WEDNESDAY,
+        DayOfWeek.THURSDAY,
+        DayOfWeek.FRIDAY,
+        DayOfWeek.SATURDAY,
+        DayOfWeek.SUNDAY
+    )
+
+    val weekStart = today.with(DayOfWeek.MONDAY)
+    val weekEnd = today.with(DayOfWeek.SUNDAY)
+
+
 
     LaunchedEffect(userId) {
         viewModel.loadProfileStats(userId)
@@ -41,8 +62,8 @@ fun ProfileContent(
         contentPadding = PaddingValues(
             start = Dimens.Space100,
             end = Dimens.Space100,
-            top = Dimens.Space100,    // extra space for the top shadow
-            bottom = Dimens.Space100  // extra space for the bottom shadow
+            top = Dimens.Space100,
+            bottom = Dimens.Space100
         )
     ) {
 
@@ -73,14 +94,15 @@ fun ProfileContent(
         }
 
         item {
-            val weekStartEnd = weekRangeFromDates(uiState.studyMinutesPerDay.keys)
-            val (weekStart, weekEnd) = weekStartEnd
-
             val studyMinutesPerDayOfWeek = uiState.studyMinutesPerDay
+                .filterKeys { date ->
+                    !date.isBefore(weekStart) && !date.isAfter(weekEnd)
+                }
                 .entries
-                .groupBy { dateToDayShort(it.key) }
-                .mapValues { entry ->
-                    entry.value.sumOf { it.value }
+                .groupBy { it.key.dayOfWeek }
+                .mapValues { it.value.sumOf { entry -> entry.value } }
+                .mapKeys { (day, _) ->
+                    day.getDisplayName(TextStyle.SHORT, Locale.ENGLISH)
                 }
 
             BarChart(
@@ -89,5 +111,6 @@ fun ProfileContent(
                 weekRange = "${formatLocalDate(weekStart)} – ${formatLocalDate(weekEnd)}"
             )
         }
+
     }
 }
