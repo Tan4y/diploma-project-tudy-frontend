@@ -21,7 +21,6 @@ import org.tues.tudy.ui.theme.BaseColor0
 import org.tues.tudy.ui.theme.BaseColor100
 import org.tues.tudy.ui.theme.BaseColor80
 import org.tues.tudy.ui.theme.Dimens
-
 @Composable
 fun DateTimePicker(
     day: Int,
@@ -34,8 +33,13 @@ fun DateTimePicker(
     minute: Int,
     onHourChange: (Int) -> Unit,
     onMinuteChange: (Int) -> Unit,
+    endHour: Int,
+    endMinute: Int,
+    onEndHourChange: (Int) -> Unit,
+    onEndMinuteChange: (Int) -> Unit,
     onDatePicked: (Boolean) -> Unit = {},
-    onTimePicked: (Boolean) -> Unit = {}
+    onTimePicked: (Boolean) -> Unit = {},
+    onEndTimePicked: (Boolean) -> Unit = {}
 ) {
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
@@ -46,17 +50,16 @@ fun DateTimePicker(
     var timePicked by remember { mutableStateOf(false) }
     val activeColorTime = if (timePicked) BaseColor100 else BaseColor80
 
+    var endTimePicked by remember { mutableStateOf(false) }
+    val activeColorEndTime = if (endTimePicked) BaseColor100 else BaseColor80
+
+    // ------------------ DATE PICKER ------------------
     Row(
         modifier = Modifier.padding(start = Dimens.Space75),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
     ) {
-        Text(
-            text = "Date: ",
-            style = AppTypography.Paragraph1,
-            color = BaseColor100
-        )
-
+        Text(text = "Date: ", style = AppTypography.Paragraph1, color = BaseColor100)
         Spacer(modifier = Modifier.width(Dimens.Space100))
 
         Button(
@@ -70,16 +73,11 @@ fun DateTimePicker(
                         datePicked = true
                         onDatePicked(true)
                     },
-                    year,
-                    month - 1,
-                    day
+                    year, month - 1, day
                 ).show()
             },
             contentPadding = PaddingValues(0.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = BaseColor0,
-                contentColor = BaseColor0
-            ),
+            colors = ButtonDefaults.buttonColors(containerColor = BaseColor0, contentColor = BaseColor0),
             shape = RoundedCornerShape(Dimens.BorderRadius200),
             modifier = Modifier.wrapContentWidth(),
         ) {
@@ -87,21 +85,15 @@ fun DateTimePicker(
         }
     }
 
-
     Spacer(modifier = Modifier.height(Dimens.Space150))
 
-// Time input row (HH : MM : SS)
+    // ------------------ START TIME PICKER ------------------
     Row(
         modifier = Modifier.padding(start = Dimens.Space75),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start
     ) {
-        Text(
-            text = "Start Time: ",
-            style = AppTypography.Paragraph1,
-            color = BaseColor100
-        )
-
+        Text(text = "Start Time: ", style = AppTypography.Paragraph1, color = BaseColor100)
         Spacer(modifier = Modifier.width(Dimens.Space100))
 
         Button(
@@ -114,20 +106,48 @@ fun DateTimePicker(
                         timePicked = true
                         onTimePicked(true)
                     },
-                    hour,
-                    minute,
-                    true
+                    hour, minute, true
                 ).show()
             },
             contentPadding = PaddingValues(0.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = BaseColor0,
-                contentColor = BaseColor0
-            ),
+            colors = ButtonDefaults.buttonColors(containerColor = BaseColor0, contentColor = BaseColor0),
             shape = RoundedCornerShape(Dimens.BorderRadius200),
             modifier = Modifier.wrapContentWidth(),
         ) {
-            FullSelectDateTimeField(hour,minute, null,activeColorTime, time = true)
+            FullSelectDateTimeField(hour, minute, null, activeColorTime, time = true)
+        }
+    }
+
+    Spacer(modifier = Modifier.height(Dimens.Space150))
+
+    // ------------------ END TIME PICKER ------------------
+    Row(
+        modifier = Modifier.padding(start = Dimens.Space75),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start
+    ) {
+        Text(text = "End Time: ", style = AppTypography.Paragraph1, color = BaseColor100)
+        Spacer(modifier = Modifier.width(Dimens.Space100))
+
+        Button(
+            onClick = {
+                TimePickerDialog(
+                    context,
+                    { _, selectedHour, selectedMinute ->
+                        onEndHourChange(selectedHour)
+                        onEndMinuteChange(selectedMinute)
+                        endTimePicked = true
+                        onEndTimePicked(true)
+                    },
+                    endHour, endMinute, true
+                ).show()
+            },
+            contentPadding = PaddingValues(0.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = BaseColor0, contentColor = BaseColor0),
+            shape = RoundedCornerShape(Dimens.BorderRadius200),
+            modifier = Modifier.wrapContentWidth(),
+        ) {
+            FullSelectDateTimeField(endHour, endMinute, null, activeColorEndTime, time = true)
         }
     }
 }

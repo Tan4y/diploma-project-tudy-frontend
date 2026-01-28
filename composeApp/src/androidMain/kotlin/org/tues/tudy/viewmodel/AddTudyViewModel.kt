@@ -23,13 +23,25 @@ class AddTudyViewModel: ViewModel() {
                 if (response.isSuccessful) {
                     _uiState.value = AddTudyUiState(success = true)
                 } else {
-                    _uiState.value =
-                        AddTudyUiState(error = "Server returned ${response.code()}")
+                    val errorBodyStr = response.errorBody()?.string()
+                    println("Backend error body: $errorBodyStr") // Debug log
+
+                    val message = errorBodyStr?.let { body ->
+                        try {
+                            // Try parsing JSON with "message"
+                            val json = org.json.JSONObject(body)
+                            json.optString("message", body) // fallback to raw body
+                        } catch (e: Exception) {
+                            // If not JSON, just use raw text
+                            body
+                        }
+                    } ?: "Server error ${response.code()}"
+
+                    _uiState.value = AddTudyUiState(error = message)
                 }
 
             } catch (e: Exception) {
-                _uiState.value =
-                    AddTudyUiState(error = e.message ?: "Unknown error")
+                _uiState.value = AddTudyUiState(error = e.message ?: "Unknown error")
             }
         }
     }

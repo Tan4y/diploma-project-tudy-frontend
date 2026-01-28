@@ -1,6 +1,8 @@
 package org.tues.tudy.ui.screens.addTudy
 
 import android.app.TimePickerDialog
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -56,6 +58,7 @@ import org.tues.tudy.viewmodel.EventViewModel
 import java.util.Calendar
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AddTudyContent(
     modifier: Modifier = Modifier,
@@ -149,286 +152,229 @@ fun AddTudyContent(
         }
     }
 
-    LaunchedEffect(uiState.error) {
-        if (uiState.error != null && !hasHandledSuccess) {
-            hasHandledSuccess = true
-
-            navController.navigateToSuccessError(
-                title = "Error",
-                subtitle = "Couldn't Create Tudy",
-                description = "Something went wrong while creating your study session. Please try again.",
-                buttonText = "Try Again",
-                buttonDestination = Routes.addTudyRoute(userId),
-                arrow = false,
-                success = false
-            ) {
-                popUpTo(Routes.homeRoute(userId)) { inclusive = true }
-            }
-
-            viewModel.resetState()
-        }
-    }
-
-
     LazyColumn(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(horizontal = Dimens.Space100)
-                .pointerInput(Unit) {
-                    detectTapGestures(onTap = {
-                        focusManager.clearFocus(force = true)
-                    })
-                },
-            verticalArrangement = Arrangement.Top
-        ) {
-            item {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.Start,
-                ) {
-                    DropdownField(
-                        selectedItem = typeSelected?.name,
-                        expanded = typeExpanded,
-                        onToggleExpand = { typeExpanded = !typeExpanded },
-                        onItemSelected = { selected ->
-                            when (selected) {
-                                is TypeSubject -> {
-                                    typeSelected = selected
-                                }
-
-                                is String -> {
-                                    typeSelected = types.find { it.name == selected }
-                                }
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = Dimens.Space100)
+            .pointerInput(Unit) {
+                detectTapGestures(onTap = {
+                    focusManager.clearFocus(force = true)
+                })
+            },
+        verticalArrangement = Arrangement.Top
+    ) {
+        item {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.Start,
+            ) {
+                DropdownField(
+                    selectedItem = typeSelected?.name,
+                    expanded = typeExpanded,
+                    onToggleExpand = { typeExpanded = !typeExpanded },
+                    onItemSelected = { selected ->
+                        when (selected) {
+                            is TypeSubject -> {
+                                typeSelected = selected
                             }
-                            typeExpanded = !typeExpanded
-                        },
-                        activeColor = activeTypeColor,
-                        items = safeTypes,
-                        placeholder = "Type"
-                    )
 
-                    Spacer(modifier = Modifier.height(Dimens.Space150))
-
-                    DropdownField(
-                        selectedItem = subjectSelected?.name,
-                        expanded = subjectExpanded,
-                        onToggleExpand = { subjectExpanded = !subjectExpanded },
-                        onItemSelected = { selected ->
-                            when (selected) {
-                                is TypeSubject -> {
-                                    subjectSelected = selected
-                                }
-
-                                is String -> {
-                                    subjectSelected = subjects.find { it.name == selected }
-                                }
+                            is String -> {
+                                typeSelected = types.find { it.name == selected }
                             }
-                            subjectExpanded = !subjectExpanded
-                        },
-                        activeColor = activeSubjectColor,
-                        items = safeSubjects,
-                        placeholder = "Subject"
-                    )
-
-                    Spacer(modifier = Modifier.height(Dimens.Space150))
-
-                    CustomTextField(
-                        value = title,
-                        onValueChange = {
-                            title = it
-                        },
-                        label = "Title",
-                        textLength = 25
-                    )
-
-                    Spacer(modifier = Modifier.height(Dimens.Space25))
-
-                    CustomTextField(
-                        value = description,
-                        onValueChange = {
-                            description = it
-                        },
-                        label = "Description (optional)",
-                        textLength = 200
-                    )
-
-                    CustomTextField(
-                        value = pagesText,
-                        onValueChange = {
-                            pagesText = it
-                        },
-                        label = "Pages (optional)",
-                        digitsOnly = true,
-                        error = if (pagesText.isNotEmpty() && (pagesText.toIntOrNull() !in 0..999)) {
-                            "Pages must be between 0 and 999"
-                        } else null,
-                        )
-
-                    Spacer(modifier = Modifier.height(Dimens.Space100))
-
-                    DateTimePicker(
-                        day = day,
-                        month = month,
-                        year = year,
-                        onDayChange = { day = it },
-                        onMonthChange = { month = it },
-                        onYearChange = { year = it },
-                        hour = hour,
-                        minute = minute,
-                        onHourChange = { hour = it },
-                        onMinuteChange = { minute = it },
-                        onDatePicked = { datePicked = it },
-                        onTimePicked = { timePicked = it }
-                    )
-
-                    // ------------------ END TIME PICKER ------------------
-                    Spacer(modifier = Modifier.height(Dimens.Space150))
-
-                    Row(
-                        modifier = Modifier.padding(start = Dimens.Space75),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Start
-                    ) {
-                        Text(
-                            text = "End Time: ",
-                            style = AppTypography.Paragraph1,
-                            color = BaseColor100
-                        )
-
-                        Spacer(modifier = Modifier.width(Dimens.Space100))
-
-                        val context = LocalContext.current
-                        Button(
-                            onClick = {
-                                TimePickerDialog(
-                                    context,
-                                    { _, selectedHour, selectedMinute ->
-                                        endHour = selectedHour
-                                        endMinute = selectedMinute
-                                        endTimePicked = true
-                                    },
-                                    endHour,
-                                    endMinute,
-                                    true
-                                ).show()
-                            },
-                            contentPadding = PaddingValues(0.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = BaseColor0,
-                                contentColor = BaseColor0
-                            ),
-                            shape = RoundedCornerShape(Dimens.BorderRadius200),
-                            modifier = Modifier.wrapContentWidth(),
-                        ) {
-                            FullSelectDateTimeField(endHour, endMinute, null, activeColorEndTime, time = true)
                         }
-                    }
+                        typeExpanded = !typeExpanded
+                    },
+                    activeColor = activeTypeColor,
+                    items = safeTypes,
+                    placeholder = "Type"
+                )
 
-                    val startTimeMillis = Calendar.getInstance().apply {
-                        set(year, month - 1, day, hour, minute)
-                    }.timeInMillis
+                Spacer(modifier = Modifier.height(Dimens.Space150))
 
-                    val endTimeMillis = Calendar.getInstance().apply {
-                        set(year, month - 1, day, endHour, endMinute)
-                    }.timeInMillis
+                DropdownField(
+                    selectedItem = subjectSelected?.name,
+                    expanded = subjectExpanded,
+                    onToggleExpand = { subjectExpanded = !subjectExpanded },
+                    onItemSelected = { selected ->
+                        when (selected) {
+                            is TypeSubject -> {
+                                subjectSelected = selected
+                            }
 
-                    val isStartBeforeEnd = startTimeMillis < endTimeMillis
-
-                    val allEvents = eventViewModel.studySessions.collectAsState().value
-                    val hasOverlap = allEvents.any { event ->
-                        val eventDate = event.date.toLocalDateSafe()
-                        // Only compare sessions on the same date as the picker
-                        if (eventDate.year != year || eventDate.monthValue != month || eventDate.dayOfMonth != day) {
-                            false
-                        } else {
-                            val eventStartParts = event.startTime?.split(":")?.map { it.toInt() } ?: return@any false
-                            val eventEndParts = event.endTime?.split(":")?.map { it.toInt() } ?: return@any false
-
-                            val eventStartMillis = toMillis(
-                                eventDate.year,
-                                eventDate.monthValue,
-                                eventDate.dayOfMonth,
-                                eventStartParts[0],
-                                eventStartParts[1]
-                            )
-
-                            val eventEndMillis = toMillis(
-                                eventDate.year,
-                                eventDate.monthValue,
-                                eventDate.dayOfMonth,
-                                eventEndParts[0],
-                                eventEndParts[1]
-                            )
-
-                            // Compare with the picker-selected start and end times
-                            startTimeMillis < eventEndMillis && endTimeMillis > eventStartMillis
+                            is String -> {
+                                subjectSelected = subjects.find { it.name == selected }
+                            }
                         }
-                    }
+                        subjectExpanded = !subjectExpanded
+                    },
+                    activeColor = activeSubjectColor,
+                    items = safeSubjects,
+                    placeholder = "Subject"
+                )
 
-                    val isInvalidTime = startTimeMillis >= endTimeMillis
+                Spacer(modifier = Modifier.height(Dimens.Space150))
 
-                    val errorMessage: String? = when {
-                        isInvalidTime && timePicked && endTimePicked -> "Start time must be before end time"
-                        hasOverlap && timePicked && endTimePicked -> "This session overlaps with an existing session"
-                        else -> null
-                    }
+                CustomTextField(
+                    value = title,
+                    onValueChange = {
+                        title = it
+                    },
+                    label = "Title",
+                    textLength = 25
+                )
 
-                    val isButtonEnabled =
-                        typeSelected != null &&
-                                subjectSelected != null &&
-                                title.isNotEmpty() &&
-                                datePicked &&
-                                timePicked &&
-                                endTimePicked &&
-                                isStartBeforeEnd &&
-                                !hasOverlap
+                Spacer(modifier = Modifier.height(Dimens.Space25))
+
+                CustomTextField(
+                    value = description,
+                    onValueChange = {
+                        description = it
+                    },
+                    label = "Description (optional)",
+                    textLength = 200
+                )
+
+                CustomTextField(
+                    value = pagesText,
+                    onValueChange = {
+                        pagesText = it
+                    },
+                    label = "Pages (optional)",
+                    digitsOnly = true,
+                    error = if (pagesText.isNotEmpty() && (pagesText.toIntOrNull() !in 0..999)) {
+                        "Pages must be between 0 and 999"
+                    } else null,
+                )
+
+                Spacer(modifier = Modifier.height(Dimens.Space100))
+
+                DateTimePicker(
+                    day = day, month = month, year = year,
+                    onDayChange = { day = it },
+                    onMonthChange = { month = it },
+                    onYearChange = { year = it },
+                    hour = hour, minute = minute,
+                    onHourChange = { hour = it; viewModel.resetState() },
+                    onMinuteChange = { minute = it; viewModel.resetState() },
+                    endHour = endHour, endMinute = endMinute,
+                    onEndHourChange = { endHour = it; viewModel.resetState() },
+                    onEndMinuteChange = { endMinute = it; viewModel.resetState() },
+                    onDatePicked = { datePicked = it },
+                    onTimePicked = { timePicked = it },
+                    onEndTimePicked = { endTimePicked = it }
+                )
 
 
-                    Spacer(modifier = Modifier.height(Dimens.Space200))
+                val startTimeMillis = Calendar.getInstance().apply {
+                    set(year, month - 1, day, hour, minute)
+                }.timeInMillis
 
-                    if (errorMessage != null) {
-                        Text(
-                            text = errorMessage,
-                            color = ErrorColor,
-                            style = AppTypography.Paragraph1,
-                            modifier = Modifier.padding(bottom = Dimens.Space100)
+                val endTimeMillis = Calendar.getInstance().apply {
+                    set(year, month - 1, day, endHour, endMinute)
+                }.timeInMillis
+
+                val isStartBeforeEnd = startTimeMillis < endTimeMillis
+
+                val allEvents = eventViewModel.studySessions.collectAsState().value
+                val hasOverlap = allEvents.any { event ->
+                    val eventDate = event.date.toLocalDateSafe()
+                    // Only compare sessions on the same date as the picker
+                    if (eventDate.year != year || eventDate.monthValue != month || eventDate.dayOfMonth != day) {
+                        false
+                    } else {
+                        val eventStartParts =
+                            event.startTime?.split(":")?.map { it.toInt() } ?: return@any false
+                        val eventEndParts =
+                            event.endTime?.split(":")?.map { it.toInt() } ?: return@any false
+
+                        val eventStartMillis = toMillis(
+                            eventDate.year,
+                            eventDate.monthValue,
+                            eventDate.dayOfMonth,
+                            eventStartParts[0],
+                            eventStartParts[1]
                         )
+
+                        val eventEndMillis = toMillis(
+                            eventDate.year,
+                            eventDate.monthValue,
+                            eventDate.dayOfMonth,
+                            eventEndParts[0],
+                            eventEndParts[1]
+                        )
+
+                        // Compare with the picker-selected start and end times
+                        startTimeMillis < eventEndMillis && endTimeMillis > eventStartMillis
                     }
-
-
-                    Spacer(modifier = Modifier.height(Dimens.Space50))
-
-                    CustomButton(
-                        value = "Add Tudy",
-                        enabled = isButtonEnabled,
-                        onClick = {
-                            val dateIso = BuildIsoDate(year, month, day)
-                            val startTimeIso = BuildIsoDate(year, month, day, hour, minute)
-                            val endTimeIso = BuildIsoDate(year, month, day, endHour, endMinute)
-
-                            val pagesInt = pagesText.toIntOrNull() ?: 0
-
-                            val request = CreateEventRequest(
-                                title = title,
-                                description = description.takeIf { it.isNotEmpty() },
-                                type = "study",
-                                category = typeSelected?.name,
-                                subject = subjectSelected?.name,
-                                date = dateIso,
-                                startTime = startTimeIso,
-                                endTime = endTimeIso,
-                                pages = pagesInt
-                            )
-
-                            viewModel.createTudy(
-                                request,
-                                userId = userId
-                            )
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(Dimens.Space125))
                 }
+
+                val isInvalidTime = startTimeMillis >= endTimeMillis
+
+//                    val errorMessage: String? = when {
+//                        isInvalidTime && timePicked && endTimePicked -> "Start time must be before end time"
+//                        hasOverlap && timePicked && endTimePicked -> "This session overlaps with an existing session"
+//                        else -> null
+//                    }
+
+                val errorMessage = when {
+                    isInvalidTime && timePicked && endTimePicked -> "Start time must be before end time"
+                    !uiState.error.isNullOrEmpty() -> uiState.error
+                    else -> null
+                }
+
+                val isButtonEnabled =
+                    typeSelected != null &&
+                            subjectSelected != null &&
+                            title.isNotEmpty() &&
+                            datePicked &&
+                            timePicked &&
+                            endTimePicked &&
+                            isStartBeforeEnd &&
+                            errorMessage == null
+
+
+                Spacer(modifier = Modifier.height(Dimens.Space200))
+
+                if (!errorMessage.isNullOrEmpty()) {
+                    Text(
+                        text = errorMessage,
+                        color = ErrorColor,
+                        style = AppTypography.Caption1,
+                        modifier = Modifier.padding(bottom = Dimens.Space50, start = Dimens.Space75)
+                    )
+                }
+
+                CustomButton(
+                    value = "Add Tudy",
+                    enabled = isButtonEnabled,
+                    onClick = {
+                        val dateIso = BuildIsoDate(year, month, day)
+                        val startTimeIso = BuildIsoDate(year, month, day, hour, minute)
+                        val endTimeIso = BuildIsoDate(year, month, day, endHour, endMinute)
+
+                        val pagesInt = pagesText.toIntOrNull() ?: 0
+
+                        val request = CreateEventRequest(
+                            title = title,
+                            description = description.takeIf { it.isNotEmpty() },
+                            type = "study",
+                            category = typeSelected?.name,
+                            subject = subjectSelected?.name,
+                            date = dateIso,
+                            startTime = startTimeIso,
+                            endTime = endTimeIso,
+                            pages = pagesInt
+                        )
+
+                        viewModel.createTudy(
+                            request,
+                            userId = userId
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(Dimens.Space125))
             }
         }
     }
+}
