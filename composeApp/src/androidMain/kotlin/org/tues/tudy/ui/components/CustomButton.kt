@@ -72,7 +72,10 @@ fun CustomButton(
 //            )
             .background(backgroundColor, RoundedCornerShape(borderRadius))
             .clip(RoundedCornerShape(BorderRadius200))
-            .clickable(enabled = enabled) { onClick() }
+            .clickable(
+                enabled = enabled,
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }) { onClick() }
             .padding(
                 vertical = verticalPadding,
                 horizontal = Dimens.Space50

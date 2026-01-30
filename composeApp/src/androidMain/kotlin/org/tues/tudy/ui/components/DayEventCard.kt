@@ -1,6 +1,9 @@
 package org.tues.tudy.ui.components
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,31 +12,44 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import org.tues.tudy.data.model.CalendarItem
+import org.tues.tudy.ui.navigation.Routes
 import org.tues.tudy.ui.theme.AppTypography
 import org.tues.tudy.ui.theme.BaseColor0
 import org.tues.tudy.ui.theme.BaseColor100
 import org.tues.tudy.ui.theme.BaseColor20
 import org.tues.tudy.ui.theme.BaseColor80
 import org.tues.tudy.ui.theme.Dimens
+import org.tues.tudy.ui.theme.Dimens.BorderRadius200
 import org.tues.tudy.ui.theme.Dimens.BorderRadius250
 import org.tues.tudy.ui.theme.PrimaryColor1
 import org.tues.tudy.ui.theme.shadow1
 import org.tues.tudy.utils.formatTime
 import org.tues.tudy.utils.toLocalDateSafe
 import org.tues.tudy.utils.toMinutes
+import java.time.LocalDate
+import java.time.LocalTime
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DayEventCard(
+    navController: NavController,
     item: CalendarItem,
     startHour: Int,
-    endHour: Int
+    endHour: Int,
+    userId: String,
+    minuteHeightDp: Dp,
+    onDelete: (CalendarItem) -> Unit
 ) {
     val startMinutes = item.startTime?.toMinutes() ?: return
     val endMinutes = item.endTime?.toMinutes() ?: return
@@ -48,8 +64,8 @@ fun DayEventCard(
     val offsetMinutes = clampedStart - startHour * 60
     val durationMinutes = (clampedEnd - clampedStart).coerceAtLeast(15)
 
-    val today = java.time.LocalDate.now()
-    val nowMinutes = java.time.LocalTime.now().hour * 60 + java.time.LocalTime.now().minute
+    val today = LocalDate.now()
+    val nowMinutes = LocalTime.now().hour * 60 + LocalTime.now().minute
     val isToday = today == item.date.toLocalDateSafe()
 
     val backgroundColor = when {
@@ -63,14 +79,28 @@ fun DayEventCard(
         item.date.toLocalDateSafe() < today -> BaseColor80
         else -> BaseColor100
     }
+    val spacing = if (item.date.toLocalDateSafe() < today) Dimens.Space375 else Dimens.Space575
 
     val showShadow = (isToday && nowMinutes < endMinutes) || item.date.toLocalDateSafe() > today
 
+    val shadowGap = if (showShadow) Dimens.Space25 else Dimens.Space0
+
     Column(
         modifier = Modifier
-            .offset(y = offsetMinutes.dp)
-            .height(if(durationMinutes.dp < Dimens.Space325) Dimens.Space325 else durationMinutes.dp)
+            .offset(y = minuteHeightDp * offsetMinutes)
+            .height(
+                maxOf(
+                    minuteHeightDp * durationMinutes,
+                    spacing
+                ) - shadowGap
+            )
             .fillMaxWidth()
+            .padding(bottom = shadowGap)
+//            .border(
+//                width = 1.dp,
+//                color = BaseColor80,
+//                shape = RoundedCornerShape(BorderRadius250)
+//            )
             .then(if (showShadow) Modifier.shadow1() else Modifier)
             .background(backgroundColor, RoundedCornerShape(BorderRadius250))
             .padding(Dimens.Space100)
@@ -83,30 +113,74 @@ fun DayEventCard(
             Column(
                 verticalArrangement = Arrangement.spacedBy(Dimens.Space25)
             ) {
-                Text(
-                    "${item.category ?: ""} | ${item.subject ?: ""}",
-                    style = AppTypography.Heading6,
-                    color = textColor
-                )
+                if (item.subject != "Unknown") {
+                    Text(
+                        "${item.category ?: ""} | ${item.subject ?: ""}",
+                        style = AppTypography.Heading6,
+                        color = textColor
+                    )
+                }
                 Text(
                     text = "• " + item.title,
                     style = AppTypography.Heading6,
                     color = textColor
                 )
             }
-            Text(
-                text = "${formatTime(item.startTime)} – ${formatTime(item.endTime)}",
-                style = AppTypography.Caption1,
-                color = textColor
-            )
+            Column(
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.End
+            ) {
+                Text(
+                    text = "${formatTime(item.startTime)} – ${formatTime(item.endTime)}",
+                    style = AppTypography.Caption1,
+                    color = BaseColor100
+                )
+                if (item.pagesTo != 0 && item.pagesTo != null) {
+                    Spacer(modifier = Modifier.height(Dimens.Space50))
+                    Text(
+                        text = "pages: ${item.pagesFrom} – ${item.pagesTo}",
+                        style = AppTypography.Caption1,
+                        color = if (isToday && nowMinutes in startMinutes until endMinutes) BaseColor0 else BaseColor80
+                    )
+                }
+            }
         }
         if (item.description?.isNotEmpty() == true) {
             Spacer(modifier = Modifier.height(Dimens.Space75))
             Text(
                 text = item.description,
-                style = AppTypography.Paragraph1,
+                style = AppTypography.Caption1,
                 color = textColor
             )
+        }
+
+        if (item.date.toLocalDateSafe() >= today) {
+            Spacer(modifier = Modifier.weight(1f))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+            ) {
+                if (item.pagesTo == 0 || item.pagesTo == null || item.type == "personal") {
+                    CustomButton(
+                        value = "Delete",
+                        enabled = true,
+                        onClick = { onDelete(item) },
+                        size = ButtonSize.SMALL,
+                        color = BaseColor80,
+                    )
+                }
+                if (item.type == "study") {
+                    Spacer(modifier = Modifier.width(Dimens.Space50))
+                    CustomButton(
+                        value = "Study",
+                        enabled = true,
+                        onClick = { navController.navigate(Routes.studyRoute(userId)) },
+                        size = ButtonSize.SMALL,
+                        color = PrimaryColor1,
+                    )
+                }
+            }
         }
     }
 }

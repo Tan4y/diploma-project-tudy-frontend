@@ -36,6 +36,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import org.tues.tudy.data.model.CreateEventRequest
 import org.tues.tudy.data.model.TypeSubject
+import org.tues.tudy.ui.components.ButtonSize
 import org.tues.tudy.ui.components.CustomButton
 import org.tues.tudy.ui.components.CustomTextField
 import org.tues.tudy.ui.components.DateTimePicker
@@ -57,6 +58,7 @@ import org.tues.tudy.utils.toLocalDateSafe
 import org.tues.tudy.viewmodel.EventViewModel
 import java.util.Calendar
 
+const val MIN_EVENT_DURATION_MS = 15 * 60 * 1000L
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -73,6 +75,9 @@ fun AddTudyContent(
     }
 
     val eventViewModel: EventViewModel = viewModel()
+
+    var eventType by remember { mutableStateOf("study") }
+
     var typeExpanded by remember { mutableStateOf(false) }
     var typeSelected by remember { mutableStateOf<TypeSubject?>(null) }
 
@@ -92,9 +97,7 @@ fun AddTudyContent(
     val safeSubjects = subjects.ifEmpty { emptyList() }
 
     var title by remember { mutableStateOf("") }
-
     var description by remember { mutableStateOf("") }
-
     var pagesText: String by remember { mutableStateOf("") }
 
     var datePicked by remember { mutableStateOf(false) }
@@ -131,14 +134,12 @@ fun AddTudyContent(
         if (uiState.success == true && !hasHandledSuccess) {
             hasHandledSuccess = true
 
-            // Load data BEFORE navigating
             homeViewModel.loadData(userId)
 
-            // Then navigate
             navController.navigateToSuccessError(
                 title = "Success",
-                subtitle = "Tudy Created!",
-                description = "Your study session has been successfully added.",
+                subtitle = "Event Created!",
+                description = "Your event has been successfully added.",
                 buttonText = "Go Home",
                 buttonDestination = Routes.homeRoute(userId),
                 arrow = false,
@@ -147,7 +148,6 @@ fun AddTudyContent(
                 popUpTo(Routes.homeRoute(userId)) { inclusive = true }
             }
 
-            // Reset state after navigation
             viewModel.resetState()
         }
     }
@@ -168,51 +168,106 @@ fun AddTudyContent(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.Start,
             ) {
-                DropdownField(
-                    selectedItem = typeSelected?.name,
-                    expanded = typeExpanded,
-                    onToggleExpand = { typeExpanded = !typeExpanded },
-                    onItemSelected = { selected ->
-                        when (selected) {
-                            is TypeSubject -> {
-                                typeSelected = selected
-                            }
 
-                            is String -> {
-                                typeSelected = types.find { it.name == selected }
-                            }
-                        }
-                        typeExpanded = !typeExpanded
-                    },
-                    activeColor = activeTypeColor,
-                    items = safeTypes,
-                    placeholder = "Type"
+                Spacer(modifier = Modifier.height(Dimens.Space100))
+                // ===== NEW: Event Type Toggle =====
+                Text(
+                    text = "Event Type",
+                    style = AppTypography.Heading6,
+                    color = BaseColor100,
+                    modifier = Modifier.padding(start = Dimens.Space75)
                 )
+
+                Spacer(modifier = Modifier.height(Dimens.Space50))
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.Space75)
+                ) {
+                    CustomButton(
+                        value = "Study",
+                        enabled = true,
+                        onClick = { eventType = "study" },
+                        modifier = Modifier.weight(1f),
+                        color = if (eventType == "study") PrimaryColor1 else BaseColor80,
+                        size = ButtonSize.MEDIUM
+                    )
+
+                    CustomButton(
+                        value = "Personal",
+                        enabled = true,
+                        onClick = { eventType = "personal" },
+                        modifier = Modifier.weight(1f),
+                        color = if (eventType == "personal") PrimaryColor1 else BaseColor80,
+                        size = ButtonSize.MEDIUM
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(Dimens.Space150))
 
-                DropdownField(
-                    selectedItem = subjectSelected?.name,
-                    expanded = subjectExpanded,
-                    onToggleExpand = { subjectExpanded = !subjectExpanded },
-                    onItemSelected = { selected ->
-                        when (selected) {
-                            is TypeSubject -> {
-                                subjectSelected = selected
-                            }
+                // ===== Show study-specific fields only if "study" is selected =====
+                if (eventType == "study") {
+                    DropdownField(
+                        selectedItem = typeSelected?.name,
+                        expanded = typeExpanded,
+                        onToggleExpand = { typeExpanded = !typeExpanded },
+                        onItemSelected = { selected ->
+                            when (selected) {
+                                is TypeSubject -> {
+                                    typeSelected = selected
+                                }
 
-                            is String -> {
-                                subjectSelected = subjects.find { it.name == selected }
+                                is String -> {
+                                    typeSelected = types.find { it.name == selected }
+                                }
                             }
-                        }
-                        subjectExpanded = !subjectExpanded
-                    },
-                    activeColor = activeSubjectColor,
-                    items = safeSubjects,
-                    placeholder = "Subject"
-                )
+                            typeExpanded = !typeExpanded
+                        },
+                        activeColor = activeTypeColor,
+                        items = safeTypes,
+                        placeholder = "Type"
+                    )
 
-                Spacer(modifier = Modifier.height(Dimens.Space150))
+                    Spacer(modifier = Modifier.height(Dimens.Space150))
+
+                    DropdownField(
+                        selectedItem = subjectSelected?.name,
+                        expanded = subjectExpanded,
+                        onToggleExpand = { subjectExpanded = !subjectExpanded },
+                        onItemSelected = { selected ->
+                            when (selected) {
+                                is TypeSubject -> {
+                                    subjectSelected = selected
+                                }
+
+                                is String -> {
+                                    subjectSelected = subjects.find { it.name == selected }
+                                }
+                            }
+                            subjectExpanded = !subjectExpanded
+                        },
+                        activeColor = activeSubjectColor,
+                        items = safeSubjects,
+                        placeholder = "Subject"
+                    )
+
+                    Spacer(modifier = Modifier.height(Dimens.Space150))
+
+                    CustomTextField(
+                        value = pagesText,
+                        onValueChange = {
+                            pagesText = it
+                        },
+                        label = "Pages (optional)",
+                        digitsOnly = true,
+                        error = if (pagesText.isNotEmpty() && (pagesText.toIntOrNull() !in 0..999)) {
+                            "Pages must be between 0 and 999"
+                        } else null,
+                    )
+
+                    Spacer(modifier = Modifier.height(Dimens.Space100))
+                }
 
                 CustomTextField(
                     value = title,
@@ -234,36 +289,7 @@ fun AddTudyContent(
                     textLength = 200
                 )
 
-                CustomTextField(
-                    value = pagesText,
-                    onValueChange = {
-                        pagesText = it
-                    },
-                    label = "Pages (optional)",
-                    digitsOnly = true,
-                    error = if (pagesText.isNotEmpty() && (pagesText.toIntOrNull() !in 0..999)) {
-                        "Pages must be between 0 and 999"
-                    } else null,
-                )
-
                 Spacer(modifier = Modifier.height(Dimens.Space100))
-
-                DateTimePicker(
-                    day = day, month = month, year = year,
-                    onDayChange = { day = it },
-                    onMonthChange = { month = it },
-                    onYearChange = { year = it },
-                    hour = hour, minute = minute,
-                    onHourChange = { hour = it; viewModel.resetState() },
-                    onMinuteChange = { minute = it; viewModel.resetState() },
-                    endHour = endHour, endMinute = endMinute,
-                    onEndHourChange = { endHour = it; viewModel.resetState() },
-                    onEndMinuteChange = { endMinute = it; viewModel.resetState() },
-                    onDatePicked = { datePicked = it },
-                    onTimePicked = { timePicked = it },
-                    onEndTimePicked = { endTimePicked = it }
-                )
-
 
                 val startTimeMillis = Calendar.getInstance().apply {
                     set(year, month - 1, day, hour, minute)
@@ -273,12 +299,58 @@ fun AddTudyContent(
                     set(year, month - 1, day, endHour, endMinute)
                 }.timeInMillis
 
+                fun addMinutes(hour: Int, minute: Int, minutesToAdd: Int): Pair<Int, Int> {
+                    val calendar = Calendar.getInstance().apply {
+                        set(Calendar.HOUR_OF_DAY, hour)
+                        set(Calendar.MINUTE, minute)
+                        add(Calendar.MINUTE, minutesToAdd)
+                    }
+                    return calendar.get(Calendar.HOUR_OF_DAY) to calendar.get(Calendar.MINUTE)
+                }
+
+                DateTimePicker(
+                    day = day, month = month, year = year,
+                    onDayChange = { day = it },
+                    onMonthChange = { month = it },
+                    onYearChange = { year = it },
+                    hour = hour, minute = minute,
+                    onHourChange = { newHour ->
+                        hour = newHour
+                        viewModel.resetState()
+
+                        if (!endTimePicked) {
+                            val (newEndHour, newEndMinute) =
+                                addMinutes(newHour, minute, 15)
+                            endHour = newEndHour
+                            endMinute = newEndMinute
+                        }
+                    },
+                    onMinuteChange = { newMinute ->
+                        minute = newMinute
+                        viewModel.resetState()
+
+                        if (!endTimePicked) {
+                            val (newEndHour, newEndMinute) =
+                                addMinutes(hour, newMinute, 15)
+                            endHour = newEndHour
+                            endMinute = newEndMinute
+                        }
+                    },
+                    endHour = endHour, endMinute = endMinute,
+                    onEndHourChange = { endHour = it; viewModel.resetState() },
+                    onEndMinuteChange = { endMinute = it; viewModel.resetState() },
+                    onDatePicked = { datePicked = it },
+                    onTimePicked = { timePicked = it },
+                    onEndTimePicked = { endTimePicked = it }
+                )
+
                 val isStartBeforeEnd = startTimeMillis < endTimeMillis
+                val isDurationTooShort = endTimeMillis - startTimeMillis < MIN_EVENT_DURATION_MS
+
 
                 val allEvents = eventViewModel.studySessions.collectAsState().value
                 val hasOverlap = allEvents.any { event ->
                     val eventDate = event.date.toLocalDateSafe()
-                    // Only compare sessions on the same date as the picker
                     if (eventDate.year != year || eventDate.monthValue != month || eventDate.dayOfMonth != day) {
                         false
                     } else {
@@ -303,35 +375,36 @@ fun AddTudyContent(
                             eventEndParts[1]
                         )
 
-                        // Compare with the picker-selected start and end times
                         startTimeMillis < eventEndMillis && endTimeMillis > eventStartMillis
                     }
                 }
 
                 val isInvalidTime = startTimeMillis >= endTimeMillis
 
-//                    val errorMessage: String? = when {
-//                        isInvalidTime && timePicked && endTimePicked -> "Start time must be before end time"
-//                        hasOverlap && timePicked && endTimePicked -> "This session overlaps with an existing session"
-//                        else -> null
-//                    }
-
                 val errorMessage = when {
                     isInvalidTime && timePicked && endTimePicked -> "Start time must be before end time"
+                    isDurationTooShort && timePicked && endTimePicked -> "Event duration must be at least 15 minutes"
                     !uiState.error.isNullOrEmpty() -> uiState.error
                     else -> null
                 }
 
-                val isButtonEnabled =
-                    typeSelected != null &&
-                            subjectSelected != null &&
-                            title.isNotEmpty() &&
-                            datePicked &&
-                            timePicked &&
-                            endTimePicked &&
-                            isStartBeforeEnd &&
-                            errorMessage == null
+                val isButtonEnabled = when {
+                    title.isEmpty() -> false
+                    !datePicked -> false
+                    !timePicked -> false
+                    !endTimePicked -> false
+                    !isStartBeforeEnd -> false
+                    isDurationTooShort -> false
+                    errorMessage != null -> false
 
+                    // Study-specific validations
+                    eventType == "study" -> {
+                        typeSelected != null && subjectSelected != null
+                    }
+
+                    // Personal events need nothing special
+                    else -> true
+                }
 
                 Spacer(modifier = Modifier.height(Dimens.Space200))
 
@@ -345,21 +418,22 @@ fun AddTudyContent(
                 }
 
                 CustomButton(
-                    value = "Add Tudy",
+                    value = "Add Event",
                     enabled = isButtonEnabled,
                     onClick = {
                         val dateIso = BuildIsoDate(year, month, day)
                         val startTimeIso = BuildIsoDate(year, month, day, hour, minute)
                         val endTimeIso = BuildIsoDate(year, month, day, endHour, endMinute)
 
-                        val pagesInt = pagesText.toIntOrNull() ?: 0
+                        val pagesInt =
+                            if (eventType == "study") pagesText.toIntOrNull() ?: 0 else null
 
                         val request = CreateEventRequest(
                             title = title,
                             description = description.takeIf { it.isNotEmpty() },
-                            type = "study",
-                            category = typeSelected?.name,
-                            subject = subjectSelected?.name,
+                            type = eventType,  // ← NOW USES SELECTED TYPE!
+                            category = if (eventType == "study") typeSelected?.name else null,
+                            subject = if (eventType == "study") subjectSelected?.name else null,
                             date = dateIso,
                             startTime = startTimeIso,
                             endTime = endTimeIso,
