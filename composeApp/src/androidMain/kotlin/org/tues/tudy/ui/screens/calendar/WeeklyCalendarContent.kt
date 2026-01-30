@@ -25,7 +25,6 @@ fun WeeklyCalendarContent(
             .fillMaxSize()
             .padding(vertical = Dimens.Space150),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(Dimens.Space75)
     ) {
         items(weekDays) { day ->
             CalendarWeekCell(

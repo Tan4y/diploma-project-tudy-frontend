@@ -156,23 +156,6 @@ class CalendarViewModel(
         }
     }
 
-
-
-
-//    fun loadMonth(userId: String) {
-//        viewModelScope.launch {
-//            val month = _currentMonth.value
-//            val eventsByDate = repository.getEventsForMonth(
-//                userId = userId,
-//                year = month.year,
-//                month = month.monthValue
-//            )
-//
-//            _days.value = buildMonthGrid(month, eventsByDate)
-//        }
-//    }
-
-
     fun loadMonth(month: YearMonth = _selectedMonth.value) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -246,24 +229,6 @@ class CalendarViewModel(
         loadMonth(month)
     }
 
-
-
-//    fun nextMonth(userId: String) {
-//        _currentMonth.value = _currentMonth.value.plusMonths(1)
-//        loadMonth(userId)
-//    }
-//
-//    fun previousMonth(userId: String) {
-//        _currentMonth.value = _currentMonth.value.minusMonths(1)
-//        loadMonth(userId)
-//    }
-//
-//    fun setMonth(userId: String, month: YearMonth) {
-//        _currentMonth.value = month
-//        loadMonth(userId)
-//    }
-
-
     private fun buildMonthGrid(
         month: YearMonth,
         itemsByDate: Map<LocalDate, List<CalendarItem>>
@@ -295,27 +260,17 @@ class CalendarViewModel(
         return days
     }
 
-
-//    private fun buildMonthGrid(
-//        month: YearMonth,
-//        events: Map<LocalDate, List<Any>>
-//    ): List<CalendarDay> {
-//
-//        val firstOfMonth = month.atDay(1)
-//        val lastOfMonth = month.atEndOfMonth()
-//
-//        val startOffset =
-//            (firstOfMonth.dayOfWeek.value % 7) // Monday = 1 → 0
-//
-//        val startDate = firstOfMonth.minusDays(startOffset.toLong())
-//
-//        return (0 until 42).map { index ->
-//            val date = startDate.plusDays(index.toLong())
-//            CalendarDay(
-//                date = date,
-//                isCurrentMonth = date.month == month.month,
-//                eventsCount = events[date]?.size ?: 0
-//            )
-//        }
-//    }
+    fun deleteEvent(
+        eventId: String,
+        userId: String
+    ) {
+        viewModelScope.launch {
+            try {
+                eventRepository.deleteEvent(eventId)
+                loadMonth()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
 }
