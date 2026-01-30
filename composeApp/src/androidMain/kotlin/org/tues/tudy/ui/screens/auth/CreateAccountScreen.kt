@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -50,22 +51,14 @@ fun CreateAccountScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    var usernameError by remember { mutableStateOf("") }
-    var emailError by remember { mutableStateOf("") }
-    var passwordError by remember { mutableStateOf("") }
+    var localUsernameError by remember { mutableStateOf<Int?>(null) }
+    var localEmailError by remember { mutableStateOf<Int?>(null) }
+    var localPasswordError by remember { mutableStateOf<Int?>(null) }
 
-    val context = LocalContext.current
+    val usernameErrorRes = localUsernameError ?: state.usernameError
+    val emailErrorRes = localEmailError ?: state.emailError
+    val passwordErrorRes = localPasswordError ?: state.passwordError
 
-    LaunchedEffect(state.error) {
-        state.error?.let { errorResId ->
-            val errorMsg = context.getString(errorResId)
-            when {
-                errorMsg.contains("Email", ignoreCase = true) -> emailError = errorMsg
-                errorMsg.contains("Username", ignoreCase = true) -> usernameError = errorMsg
-                else -> passwordError = errorMsg
-            }
-        }
-    }
 
     val focusManager = LocalFocusManager.current
 
@@ -95,10 +88,11 @@ fun CreateAccountScreen(
                 value = username,
                 onValueChange = {
                     username = it
-                    usernameError = ""
+                    localUsernameError = null
+                    viewModel.clearUsernameError()
                 },
                 label = "Username",
-                error = usernameError
+                error = usernameErrorRes?.let { stringResource(it) } ?: ""
             )
 
             Spacer(modifier = Modifier.height(Dimens.Space125))
@@ -107,10 +101,11 @@ fun CreateAccountScreen(
                 value = email,
                 onValueChange = {
                     email = it
-                    emailError = ""
+                    localEmailError = null
+                    viewModel.clearEmailError()
                 },
                 label = "Email",
-                error = emailError
+                error = emailErrorRes?.let { stringResource(it) } ?: ""
             )
 
             Spacer(modifier = Modifier.height(Dimens.Space125))
@@ -119,9 +114,13 @@ fun CreateAccountScreen(
 
             CustomTextField(
                 value = password,
-                onValueChange = { password = it; passwordError = "" },
+                onValueChange = {
+                    password = it
+                    localPasswordError = null
+                    viewModel.clearPasswordError()
+                },
                 label = "Password",
-                error = passwordError,
+                error = passwordErrorRes?.let { stringResource(it) } ?: "",
                 trailingIcon = {
                     Icon(
                         painter = painterResource(
@@ -154,9 +153,9 @@ fun CreateAccountScreen(
                 username.isNotEmpty() &&
                         email.isNotEmpty() &&
                         password.isNotEmpty() &&
-                        usernameError.isEmpty() &&
-                        emailError.isEmpty() &&
-                        passwordError.isEmpty() &&
+                        usernameErrorRes == null &&
+                        emailErrorRes == null &&
+                        passwordErrorRes == null &&
                         !state.loading
 
             CustomButton(
@@ -164,25 +163,25 @@ fun CreateAccountScreen(
                 enabled = isButtonEnabled,
                 onClick = {
                     if (username.isEmpty()) {
-                        usernameError = R.string.username_is_required.toString()
+                        localUsernameError = R.string.username_is_required
                     } else if (!username.matches(Regex("^[a-zA-Z0-9_]+$"))) {
-                        usernameError =
-                            R.string.username_can_only_contain.toString()
+                        localUsernameError =
+                            R.string.username_can_only_contain
                     }
 
                     if (email.isEmpty()) {
-                        emailError = R.string.email_is_required.toString()
+                        localEmailError = R.string.email_is_required
                     } else if (!email.matches(Regex("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+\$"))) {
-                        emailError = R.string.invalid_email.toString()
+                        localEmailError = R.string.invalid_email
                     }
 
                     if (password.isEmpty()) {
-                        passwordError = R.string.password_is_required.toString()
+                        localPasswordError = R.string.password_is_required
                     } else if (password.length < 8) {
-                        passwordError = R.string.password_length.toString()
+                        localPasswordError = R.string.password_length
                     }
 
-                    if (usernameError.isEmpty() && emailError.isEmpty() && passwordError.isEmpty()) {
+                    if (localUsernameError == null && localEmailError == null && localPasswordError == null) {
                         viewModel.createAccount(username, email, password)
                     }
                 }
