@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -48,17 +49,19 @@ fun LogInScreen(
     viewModel: LoginViewModel = viewModel(),
     previewState: LoginState? = null
 ) {
-    val state by viewModel.state.collectAsState()
+    val state = previewState ?: viewModel.state.collectAsState().value
 
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    var usernameError by remember { mutableStateOf("") }
-    var passwordError by remember { mutableStateOf("") }
+    var usernameError by remember { mutableStateOf<Int?>(null) }
+    var passwordError by remember { mutableStateOf<Int?>(null) }
 
-    LaunchedEffect(state.success, state.error) {
-        when {
-            state.success -> {
+    val usernameErrorRes = usernameError ?: state.usernameError
+    val passwordErrorRes = passwordError ?: state.passwordError
+
+    LaunchedEffect(state.success) {
+        if (state.success ){
                 val currentUserId = state.userId ?: ""
                 Log.d("LogInScreen", "Login success with userId: '$currentUserId'")
 
@@ -79,20 +82,7 @@ fun LogInScreen(
                     popUpTo(Routes.LOGIN) { inclusive = true }
                 }
             }
-
-            state.error != null -> {
-                navController.navigateToSuccessError(
-                    title = "Log In",
-                    subtitle = "Log in unsuccessful",
-                    description = "There was an error while trying to log in.",
-                    buttonText = "Try Again",
-                    buttonDestination = Routes.LOGIN,
-                    arrow = false,
-                    success = false
-                )
-            }
         }
-    }
 
 
     val focusManager = LocalFocusManager.current
@@ -120,10 +110,11 @@ fun LogInScreen(
                 value = username,
                 onValueChange = {
                     username = it
-                    usernameError = ""
+                    usernameError = null
+                    viewModel.clearAuthErrors()
                 },
                 label = "Username",
-                error = usernameError
+                error = usernameErrorRes?.let { stringResource(it) } ?: ""
             )
 
             Spacer(modifier = Modifier.height(Dimens.Space125))
@@ -134,10 +125,12 @@ fun LogInScreen(
                 value = password,
                 onValueChange = {
                     password = it
-                    passwordError = ""
+                    passwordError = null
+                    usernameError = null
+                    viewModel.clearAuthErrors()
                 },
                 label = "Password",
-                error = passwordError,
+                error = passwordErrorRes?.let { stringResource(it) } ?: "",
                 forgotPassword = true,
                 navController = navController,
                 trailingIcon = {
@@ -165,8 +158,8 @@ fun LogInScreen(
             val isButtonEnabled =
                 username.isNotEmpty() &&
                         password.isNotEmpty() &&
-                        usernameError.isEmpty() &&
-                        passwordError.isEmpty() &&
+                        usernameError == null &&
+                        passwordError == null &&
                         !state.loading
 
             CustomButton(
@@ -176,18 +169,18 @@ fun LogInScreen(
                     var valid = true
 
                     if (username.isEmpty()) {
-                        usernameError = R.string.username_is_required.toString()
+                        usernameError = R.string.username_is_required
                         valid = false
                     } else if (!username.matches(Regex("^[a-zA-Z0-9_]+$"))) {
-                        usernameError = R.string.username_can_only_contain.toString()
+                        usernameError = R.string.username_can_only_contain
                         valid = false
                     }
 
                     if (password.isEmpty()) {
-                        passwordError = R.string.password_is_required.toString()
+                        passwordError = R.string.password_is_required
                         valid = false
                     } else if (password.length < 8) {
-                        passwordError = R.string.password_length.toString()
+                        passwordError = R.string.password_length
                         valid = false
                     }
 
