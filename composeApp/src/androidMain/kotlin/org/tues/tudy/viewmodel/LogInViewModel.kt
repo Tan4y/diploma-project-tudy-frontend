@@ -20,9 +20,19 @@ class LoginViewModel : ViewModel() {
     private val _state = MutableStateFlow(LoginState())
     val state: StateFlow<LoginState> = _state
 
+    fun clearAuthErrors() {
+        _state.value = _state.value.copy(
+            usernameError = null,
+            passwordError = null
+        )
+    }
+
     fun login(username: String, password: String) {
         if (username.isBlank() || password.isBlank()) {
-            _state.value = LoginState(error = R.string.all_fields_are_required)
+            _state.value = LoginState(
+                usernameError = if (username.isBlank()) R.string.username_is_required else null,
+                passwordError = if (password.isBlank()) R.string.password_is_required else null
+            )
             return
         }
 
@@ -36,16 +46,14 @@ class LoginViewModel : ViewModel() {
                 if (response.accessToken.isNullOrEmpty() || response.user?.id.isNullOrEmpty()) {
                     _state.value = LoginState(
                         loading = false,
-                        error = R.string.log_in_failed
+                        usernameError = R.string.invalid_username_or_password,
+                        passwordError = R.string.invalid_username_or_password
                     )
                     return@launch
                 }
 
                 TokenStorage.saveAccessToken(response.accessToken)
-
-                response.refreshToken?.let {
-                    TokenStorage.saveRefreshToken(it)
-                }
+                response.refreshToken?.let { TokenStorage.saveRefreshToken(it) }
 
                 _state.value = LoginState(
                     loading = false,
@@ -57,35 +65,40 @@ class LoginViewModel : ViewModel() {
                 val errorBody = e.response()?.errorBody()?.string()
                 Log.e("LoginVM", "HTTP Error: ${e.code()}, Body: $errorBody")
 
-                // Parse JSON error message
-                val errorMessage = try {
-                    errorBody?.let {
-                        val json = JSONObject(it)
-                        json.optString("message", it)
-                    } ?: R.string.log_in_failed
-                } catch (jsonError: Exception) {
-                    errorBody ?: R.string.log_in_failed
+                val newState = when {
+                    errorBody?.contains("username", ignoreCase = true) == true ||
+                            errorBody?.contains("password", ignoreCase = true) == true ||
+                            e.code() == 401 -> {
+                        // Show under both fields
+                        LoginState(
+                            loading = false,
+                            usernameError = R.string.invalid_username_or_password,
+                            passwordError = R.string.invalid_username_or_password
+                        )
+                    }
+
+                    errorBody?.contains("not verified", ignoreCase = true) == true -> {
+                        LoginState(
+                            loading = false,
+                            passwordError = R.string.verify_your_email_first
+                        )
+                    }
+
+                    else -> {
+                        LoginState(
+                            loading = false,
+                            passwordError = R.string.log_in_failed
+                        )
+                    }
                 }
 
-                // Customize error messages
-                val finalMessage = when {
-                    errorBody?.contains("credentials", ignoreCase = true) == true ->
-                        R.string.invalid_username_or_password
-                    errorBody?.contains("not verified", ignoreCase = true) == true ->
-                        R.string.verify_your_email_first
-                    else -> errorMessage
-                }
-
-                _state.value = LoginState(
-                    loading = false,
-                    error = finalMessage as? Int ?: R.string.log_in_failed
-                )
-
+                _state.value = newState
             } catch (e: Exception) {
                 Log.e("LoginVM", "Unexpected error: ${e.message}")
-                _state.value = LoginState(
+                _state.value = _state.value.copy(
                     loading = false,
-                    error = R.string.unexpected_error
+                    usernameError = null,
+                    passwordError = null
                 )
             }
         }
@@ -95,6 +108,7 @@ class LoginViewModel : ViewModel() {
 data class LoginState(
     val loading: Boolean = false,
     val success: Boolean = false,
-    val error: Int? = null,
+    val usernameError: Int? = null,
+    val passwordError: Int? = null,
     val userId: String? = null
 )
