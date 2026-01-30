@@ -13,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import org.tues.tudy.ui.theme.AppTypography
-import org.tues.tudy.ui.theme.BaseColor100
 import org.tues.tudy.ui.theme.Dimens
 
 @Composable

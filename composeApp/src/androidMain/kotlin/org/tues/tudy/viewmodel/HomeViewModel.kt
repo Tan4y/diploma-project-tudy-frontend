@@ -9,14 +9,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.tues.tudy.R
 import org.tues.tudy.data.model.CalendarItem
-import org.tues.tudy.data.model.StudyPlanResponse
 import org.tues.tudy.data.model.TypeSubject
 import org.tues.tudy.data.model.TypeSubjectRequest
 import org.tues.tudy.data.remote.ApiServiceBuilder
 import org.tues.tudy.data.repository.CalendarRepository
 import org.tues.tudy.data.repository.TypeSubjectRepository
 import org.tues.tudy.utils.sortByTudiesThenAlphabetical
-
 
 class HomeViewModel : ViewModel() {
 
@@ -32,16 +30,12 @@ class HomeViewModel : ViewModel() {
     val items: StateFlow<List<TypeSubject>> = _items.asStateFlow()
 
     private val _errorMessage = MutableStateFlow<String?>(null)
-    val errorMessage = _errorMessage.asStateFlow()
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
-    // Track loaded userId instead of just a boolean
     private var loadedUserId: String? = null
 
-    // Predefined icons
-    // Predefined icons as Strings (icon names)
     private val availableTypeIcons = listOf(
         "type_exam",
         "type_quiz",
@@ -153,15 +147,12 @@ class HomeViewModel : ViewModel() {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                // ✅ Single source of truth
                 val calendarItems = calendarRepository.getCalendarItems()
 
-                // ✅ Study sessions are already CalendarItem
                 _studySessions.value = calendarItems
                     .filter { it.type == "study" }
                     .sortedBy { it.startDateTime }
 
-                // ✅ Load TypeSubjects (unchanged)
                 val typesResponse = typeSubjectRepository.getItems(userId, "type")
                 val subjectsResponse = typeSubjectRepository.getItems(userId, "subject")
 

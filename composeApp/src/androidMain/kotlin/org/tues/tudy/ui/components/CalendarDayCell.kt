@@ -42,9 +42,6 @@ fun CalendarDayCell(
 ) {
     val isToday = day.date == LocalDate.now()
 
-    val studyCount = day.items.count { it.isStudySession }
-    val eventCount = day.items.count { !it.isStudySession }
-
     val backgroundColor = when {
         isToday -> PrimaryColor1
         day.isCurrentMonth -> BaseColor0

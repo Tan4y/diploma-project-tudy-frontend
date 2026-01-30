@@ -102,10 +102,6 @@ fun CalendarWeekCell(
                     color = BaseColor0
                 )
             } else if (eventsSize > 0) {
-                val half = (eventsSize + 1) / 2
-                val firstColumn = events.take(half)
-                val secondColumn = events.drop(half)
-
                 Column(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(Dimens.Space50),

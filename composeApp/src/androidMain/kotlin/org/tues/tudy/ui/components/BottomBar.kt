@@ -1,6 +1,5 @@
 package org.tues.tudy.ui.components
 
-import android.net.http.SslCertificate.restoreState
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -34,7 +33,6 @@ import org.tues.tudy.ui.theme.PrimaryColor1
 
 @Composable
 fun BottomBar(
-    modifier: Modifier = Modifier,
     selectedRoute: String,
     navController: NavController,
     userId: String
@@ -57,8 +55,6 @@ fun BottomBar(
     val calendarColor by animateColorAsState(targetValue = if (calendarSelected) PrimaryColor1 else BaseColor80)
     val homeColor by animateColorAsState(targetValue = if (homeSelected) PrimaryColor1 else BaseColor80)
     val profileColor by animateColorAsState(targetValue = if (profileSelected) PrimaryColor1 else BaseColor80)
-    val plusColor by animateColorAsState(targetValue = if (plusSelected) BaseColor0 else PrimaryColor1)
-
 
     Box(
         modifier = Modifier

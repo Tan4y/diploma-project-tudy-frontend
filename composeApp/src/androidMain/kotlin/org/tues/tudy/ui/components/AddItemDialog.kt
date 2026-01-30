@@ -1,42 +1,22 @@
 package org.tues.tudy.ui.components
 
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import org.tues.tudy.ui.theme.AppTypography
 import org.tues.tudy.ui.theme.BaseColor0
 import org.tues.tudy.ui.theme.BaseColor80
 import org.tues.tudy.ui.theme.BaseColor100
 import org.tues.tudy.ui.theme.PrimaryColor1
-import org.tues.tudy.R
 import org.tues.tudy.ui.theme.Dimens
-import org.tues.tudy.ui.theme.Dimens.BorderRadius200
 
 @Composable
 fun AddItemDialog(
@@ -52,7 +32,6 @@ fun AddItemDialog(
     val activeColor =
         if (expanded) PrimaryColor1 else if (selectedIcon != null) BaseColor100 else BaseColor80
 
-    val focusManager = LocalFocusManager.current
     var errorMessage by remember { mutableStateOf("") }
 
     Dialog(

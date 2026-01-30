@@ -72,13 +72,12 @@ fun DailyCalendarContent(
             },
             onConfirm = {
                 viewModel.deleteEvent(
-                    eventId = eventToDelete!!.id,
-                    userId = userId
+                    eventId = eventToDelete!!.id
                 )
                 showConfirm = false
                 eventToDelete = null
             },
-            title = "Delete event",
+            title = "Delete Event",
             description = "Are you sure you want to delete this event?",
             buttonText = "Delete"
         )

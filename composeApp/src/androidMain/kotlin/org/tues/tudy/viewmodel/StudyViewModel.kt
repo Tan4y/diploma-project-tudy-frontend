@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.tues.tudy.data.model.ProgressSegment
 import org.tues.tudy.data.model.SegmentType
-import org.tues.tudy.data.model.StudyTimeRequest
 import org.tues.tudy.data.model.StudyUiState
 import org.tues.tudy.data.remote.ApiServiceBuilder
 import org.tues.tudy.data.repository.StudyRepository
@@ -51,7 +50,6 @@ class StudyViewModel : ViewModel() {
         println("finishStudyEarly() called")
         finishStudySegment()
 
-        // Transition to rest WITHOUT saving - we'll save at the end only
         startRest()
     }
 
@@ -60,7 +58,6 @@ class StudyViewModel : ViewModel() {
             StudyPhase.STUDYING -> {
                 println("nextPhase() called from STUDYING phase")
                 finishStudySegment()
-                // Don't save yet - save only at the very end
                 startRest()
             }
             StudyPhase.RESTING -> {
@@ -178,7 +175,6 @@ class StudyViewModel : ViewModel() {
             StudyPhase.STUDYING -> {
                 println("Study timer finished, transitioning to rest")
                 finishStudySegment()
-                // Don't save here - save only at the very end of the entire session
                 startRest()
             }
 

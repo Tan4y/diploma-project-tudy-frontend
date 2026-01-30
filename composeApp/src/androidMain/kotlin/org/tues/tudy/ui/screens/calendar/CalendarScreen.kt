@@ -44,7 +44,6 @@ fun CalendarScreen(
                     mode = TopBarMode.MENU,
                     heading = "Calendar",
                     navController = navController,
-                    userId = userId,
                     isMenuOpen = isMenuOpen,
                     onMenuClick = {
                         isMenuOpen = !isMenuOpen
@@ -64,7 +63,6 @@ fun CalendarScreen(
                 navController = navController,
                 days = days,
                 selectedMonth = selectedMonth,
-                events = emptyList(),
                 modifier = Modifier
                     .padding(innerPadding)
                     .fillMaxSize(),

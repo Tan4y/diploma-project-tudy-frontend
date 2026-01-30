@@ -22,7 +22,6 @@ fun SingleSelectDateTimeField(
     val displayText = date.toIntOrNull()?.let { "%02d".format(it) } ?: date
     Box(
         modifier = Modifier
-            //.fillMaxWidth()
             .border(
                 width = 1.dp,
                 color = color,

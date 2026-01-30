@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
-import org.tues.tudy.data.model.Event
 import org.tues.tudy.ui.theme.AppTypography
 import org.tues.tudy.ui.theme.BaseColor0
 import org.tues.tudy.ui.theme.BaseColor100
@@ -39,24 +38,12 @@ fun SlidingMonthsWeeksDays(
     selectedMonth: YearMonth,
     selectedWeekStart: LocalDate? = null,
     selectedDay: LocalDate? = null,
-    events: List<Event>,
     showWeeks: Boolean = false,
     showDays: Boolean = false,
     onMonthClick: (YearMonth) -> Unit,
     onWeekClick: (LocalDate) -> Unit,
     onDayClick: (LocalDate) -> Unit
 ) {
-    val months = listOf(
-        selectedMonth.minusMonths(1),
-        selectedMonth,
-        selectedMonth.plusMonths(1),
-        selectedMonth.plusMonths(2)
-    )
-
-    val weekAnchor = (selectedWeekStart
-        ?: selectedMonth.atDay(1))
-        .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-
     val dayAnchor = selectedDay ?: LocalDate.now()
 
     val items = when {
@@ -88,13 +75,6 @@ fun SlidingMonthsWeeksDays(
         )
     }
 
-
-
-
-    val today = LocalDate.now()
-    val currentMonth = YearMonth.from(today)
-
-
     Row(
         modifier = Modifier
             .shadow1()
@@ -106,11 +86,6 @@ fun SlidingMonthsWeeksDays(
         verticalAlignment = Alignment.Bottom
     ) {
         items.forEach { item ->
-//            val monthName = yearMonth.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())
-//            var textColor = if (yearMonth == currentMonth) BaseColor100 else BaseColor80
-//            val textSize =
-//                if (selectedMonth == yearMonth) AppTypography.Heading4 else AppTypography.Heading6
-
             val text: String
             val isSelected: Boolean
             val textColor: Color
@@ -130,7 +105,7 @@ fun SlidingMonthsWeeksDays(
                     text = "${weekStart.dayOfMonth} - ${weekEnd.dayOfMonth}"
                     isSelected = selectedWeekStart == weekStart
                     textColor =
-                        if (weekStart <= LocalDate.now() && LocalDate.now() <= weekEnd)
+                        if (LocalDate.now() in weekStart..weekEnd)
                             BaseColor100 else BaseColor80
                 }
 
@@ -201,68 +176,3 @@ fun SlidingMonthsWeeksDays(
         }
     }
 }
-
-
-//@Composable
-//fun SlidingMonths(
-//    selectedMonth: YearMonth,
-//    events: List<Event>,
-//    onMonthClick: (YearMonth) -> Unit
-//) {
-//    val months = listOf(
-//        selectedMonth.minusMonths(1),
-//        selectedMonth,
-//        selectedMonth.plusMonths(1),
-//        selectedMonth.plusMonths(2)
-//    )
-//
-//    val today = LocalDate.now()
-//    val currentMonth = YearMonth.from(today)
-//
-//    Row(
-//        modifier = Modifier
-//            .shadow1()
-//            .fillMaxWidth()
-//            .clip(RoundedCornerShape(BorderRadius250))
-//            .background(BaseColor0)
-//            .padding(horizontal = Dimens.Space150, vertical = Dimens.Space75),
-//        horizontalArrangement = Arrangement.spacedBy(Dimens.Space50),
-//        verticalAlignment = Alignment.Bottom
-//    ) {
-//        months.forEach { yearMonth ->
-//            val monthName = yearMonth.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())
-//            val textColor = if (yearMonth == currentMonth) BaseColor100 else BaseColor80
-//            val textSize =
-//                if (selectedMonth == yearMonth) AppTypography.Heading4 else AppTypography.Heading6
-//
-//            Row(
-//                horizontalArrangement = Arrangement.Center,
-//                verticalAlignment = Alignment.Bottom,
-//                modifier = Modifier
-//                    .weight(1f)
-//                    .clickable(
-//                        indication = null,
-//                        interactionSource = remember { MutableInteractionSource() }) {
-//                        onMonthClick(yearMonth)
-//                    },
-//            ) {
-//                Text(
-//                    text = monthName,
-//                    style = textSize,
-//                    color = textColor,
-//                    textAlign = TextAlign.Center
-//                )
-//
-//                if (yearMonth == selectedMonth) {
-//                    Spacer(modifier = Modifier.width(Dimens.Space25))
-//
-//                    Text(
-//                        text = yearMonth.year.toString(),
-//                        style = AppTypography.Caption1,
-//                        color = textColor,
-//                    )
-//                }
-//            }
-//        }
-//    }
-//}

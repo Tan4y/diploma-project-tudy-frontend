@@ -83,19 +83,6 @@ fun TypeSubjectContent(
 
     val studyItems by eventViewModel.studySessions.collectAsState()
 
-    val studySessionToEventId by remember(events, studyItems) {
-        derivedStateOf {
-            studyItems.associate { session ->
-                // Find the parent event by matching title
-                val parentEvent = events.find { event ->
-                    event.title == session.title
-                }
-                session.id to parentEvent?._id
-            }
-        }
-    }
-
-
     val allItems: List<CalendarItem> by derivedStateOf {
         val eventsItems = events
             .filter { it.date?.isUpcoming() == true }
@@ -347,8 +334,6 @@ fun TypeSubjectContent(
                             if (sessions.isNotEmpty()) {
                                 Spacer(modifier = Modifier.height(Dimens.Space75))
                                 Sessions(sessions)
-                            } else {
-                                //Spacer(modifier = Modifier.height(Dimens.Space150))
                             }
                         }
                     }

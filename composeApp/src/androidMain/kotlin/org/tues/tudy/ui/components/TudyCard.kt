@@ -24,7 +24,6 @@ import org.tues.tudy.ui.theme.BaseColor100
 import org.tues.tudy.ui.theme.BaseColor80
 import org.tues.tudy.ui.theme.Dimens
 import org.tues.tudy.ui.theme.Dimens.BorderRadius250
-import org.tues.tudy.ui.theme.ErrorColor
 import org.tues.tudy.ui.theme.shadow1
 import org.tues.tudy.utils.formatDate
 import org.tues.tudy.utils.formatTime

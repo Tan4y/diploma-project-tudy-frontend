@@ -34,8 +34,6 @@ fun MoreMenuContent(
         TopBar(
             heading = if (selectedSection == "menu") "More" else selectedSection,
             navController = navController,
-            userId = userId,
-            modifier = modifier,
             mode = if (selectedSection == "menu") TopBarMode.MENU else TopBarMode.BACK,
             isMenuOpen = visible,
             onMenuClick = { onClick() },
@@ -70,8 +68,7 @@ fun MoreMenuContent(
                     AccountSettings(
                         navController = navController,
                         viewModel = viewModel,
-                        userId = userId,
-                        modifier = modifier
+                        userId = userId
                     )
                 }
 

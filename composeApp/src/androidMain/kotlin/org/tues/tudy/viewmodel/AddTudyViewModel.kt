@@ -13,7 +13,7 @@ class AddTudyViewModel: ViewModel() {
     private val _uiState = MutableStateFlow(AddTudyUiState())
     val uiState = _uiState.asStateFlow()
 
-    fun createTudy(request: CreateEventRequest, userId: String) {
+    fun createTudy(request: CreateEventRequest) {
         viewModelScope.launch {
             _uiState.value = AddTudyUiState(isLoading = true)
 
@@ -31,7 +31,7 @@ class AddTudyViewModel: ViewModel() {
                             // Try parsing JSON with "message"
                             val json = org.json.JSONObject(body)
                             json.optString("message", body) // fallback to raw body
-                        } catch (e: Exception) {
+                        } catch (_: Exception) {
                             // If not JSON, just use raw text
                             body
                         }

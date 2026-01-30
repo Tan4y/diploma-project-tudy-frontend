@@ -1,8 +1,6 @@
 package org.tues.tudy.ui.screens.home
 
-import android.R.attr.type
 import android.annotation.SuppressLint
-import android.net.Uri
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -21,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import org.tues.tudy.data.model.CalendarItem
 import org.tues.tudy.data.model.TypeSubject
@@ -32,19 +29,16 @@ import org.tues.tudy.ui.components.TypeCard
 import org.tues.tudy.ui.navigation.Routes
 import org.tues.tudy.ui.theme.AppTypography
 import org.tues.tudy.ui.theme.BaseColor0
-import org.tues.tudy.ui.theme.BaseColor80
 import org.tues.tudy.ui.theme.Dimens
 import org.tues.tudy.ui.theme.Dimens.BorderRadius250
 import org.tues.tudy.ui.theme.PrimaryColor1
 import org.tues.tudy.utils.formatDate
 import org.tues.tudy.viewmodel.EventViewModel
 import org.tues.tudy.viewmodel.HomeViewModel
-import org.tues.tudy.viewmodel.TypeSubjectViewModel
 import java.time.LocalDate
 import org.tues.tudy.utils.toLocalDateSafe
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.compose.currentBackStackEntryAsState
 
 
 @SuppressLint("UnrememberedMutableState", "LocalContextResourcesRead", "DiscouragedApi")
@@ -237,7 +231,6 @@ fun HomeContent(
                                 )
                             }
                             TypeCard(
-                                navController = navController,
                                 value = type.name,
                                 numberOfTudies = type.tudies,
                                 icon = painterResource(id = iconResId),

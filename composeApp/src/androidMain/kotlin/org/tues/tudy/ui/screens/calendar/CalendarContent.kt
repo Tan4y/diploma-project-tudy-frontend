@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -14,12 +13,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import org.tues.tudy.data.model.CalendarDay
-import org.tues.tudy.data.model.Event
 import org.tues.tudy.ui.components.CalendarMode
 import org.tues.tudy.ui.components.CalendarModes
 import org.tues.tudy.ui.components.SlidingMonthsWeeksDays
-import org.tues.tudy.ui.theme.AppTypography
-import org.tues.tudy.ui.theme.BaseColor80
 import org.tues.tudy.ui.theme.Dimens
 import org.tues.tudy.ui.theme.PrimaryColor1
 import org.tues.tudy.viewmodel.CalendarViewModel
@@ -30,7 +26,6 @@ fun CalendarContent(
     navController: NavController,
     days: List<CalendarDay>,
     selectedMonth: YearMonth,
-    events: List<Event>,
     modifier: Modifier = Modifier,
     viewModel: CalendarViewModel,
     userId: String
@@ -66,7 +61,6 @@ fun CalendarContent(
                 selectedMonth = selectedMonth,
                 selectedWeekStart = selectedWeekStart,
                 selectedDay = selectedDay,
-                events = events,
                 showWeeks = calendarMode == CalendarMode.WEEK,
                 showDays = calendarMode == CalendarMode.DAY,
                 onMonthClick = { viewModel.changeMonth(it) },
@@ -108,9 +102,7 @@ fun CalendarContent(
             }
 
             CalendarModes(
-                navController = navController,
                 selectedMode = calendarMode,
-                userId = userId,
                 onModeSelected = { mode ->
                     viewModel.setCalendarMode(mode)
                 }

@@ -3,7 +3,6 @@ package org.tues.tudy.ui.components
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,9 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.tues.tudy.data.model.CalendarItem
 import org.tues.tudy.ui.navigation.Routes
@@ -30,7 +27,6 @@ import org.tues.tudy.ui.theme.BaseColor100
 import org.tues.tudy.ui.theme.BaseColor20
 import org.tues.tudy.ui.theme.BaseColor80
 import org.tues.tudy.ui.theme.Dimens
-import org.tues.tudy.ui.theme.Dimens.BorderRadius200
 import org.tues.tudy.ui.theme.Dimens.BorderRadius250
 import org.tues.tudy.ui.theme.PrimaryColor1
 import org.tues.tudy.ui.theme.shadow1
@@ -68,22 +64,29 @@ fun DayEventCard(
     val nowMinutes = LocalTime.now().hour * 60 + LocalTime.now().minute
     val isToday = today == item.date.toLocalDateSafe()
 
+    val isPastToday = isToday && nowMinutes >= endMinutes
+
     val backgroundColor = when {
         isToday && nowMinutes in startMinutes until endMinutes -> PrimaryColor1
-        item.date.toLocalDateSafe() < today -> BaseColor20
+        item.date.toLocalDateSafe() < today || isPastToday -> BaseColor20
         else -> BaseColor0
     }
 
     val textColor = when {
         isToday && nowMinutes in startMinutes until endMinutes -> BaseColor0
-        item.date.toLocalDateSafe() < today -> BaseColor80
+        item.date.toLocalDateSafe() < today || isPastToday -> BaseColor80
         else -> BaseColor100
     }
+
     val spacing = if (item.date.toLocalDateSafe() < today) Dimens.Space375 else Dimens.Space575
 
     val showShadow = (isToday && nowMinutes < endMinutes) || item.date.toLocalDateSafe() > today
 
     val shadowGap = if (showShadow) Dimens.Space25 else Dimens.Space0
+
+    val studyButtonColor = if ( isToday && nowMinutes in startMinutes until endMinutes) BaseColor0 else PrimaryColor1
+
+    val deleteButtonColor = if ( isToday && nowMinutes in startMinutes until endMinutes) BaseColor0 else BaseColor80
 
     Column(
         modifier = Modifier
@@ -96,11 +99,6 @@ fun DayEventCard(
             )
             .fillMaxWidth()
             .padding(bottom = shadowGap)
-//            .border(
-//                width = 1.dp,
-//                color = BaseColor80,
-//                shape = RoundedCornerShape(BorderRadius250)
-//            )
             .then(if (showShadow) Modifier.shadow1() else Modifier)
             .background(backgroundColor, RoundedCornerShape(BorderRadius250))
             .padding(Dimens.Space100)
@@ -133,7 +131,7 @@ fun DayEventCard(
                 Text(
                     text = "${formatTime(item.startTime)} – ${formatTime(item.endTime)}",
                     style = AppTypography.Caption1,
-                    color = BaseColor100
+                    color = textColor
                 )
                 if (item.pagesTo != 0 && item.pagesTo != null) {
                     Spacer(modifier = Modifier.height(Dimens.Space50))
@@ -167,7 +165,7 @@ fun DayEventCard(
                         enabled = true,
                         onClick = { onDelete(item) },
                         size = ButtonSize.SMALL,
-                        color = BaseColor80,
+                        color = deleteButtonColor,
                     )
                 }
                 if (item.type == "study") {
@@ -177,7 +175,7 @@ fun DayEventCard(
                         enabled = true,
                         onClick = { navController.navigate(Routes.studyRoute(userId)) },
                         size = ButtonSize.SMALL,
-                        color = PrimaryColor1,
+                        color = studyButtonColor,
                     )
                 }
             }

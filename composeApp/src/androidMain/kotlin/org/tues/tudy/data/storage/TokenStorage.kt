@@ -10,9 +10,6 @@ object TokenStorage {
     @Volatile
     private var refreshToken: String? = null
 
-    fun getAccessToken() = accessToken
-    fun getRefreshToken() = refreshToken
-
     fun saveAccessToken(token: String) {
         accessToken = token
         Log.d("TokenStorage", "Access token saved: $accessToken")

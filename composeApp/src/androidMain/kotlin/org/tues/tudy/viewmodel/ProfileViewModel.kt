@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.tues.tudy.data.model.ProfileStatsUiState
 import org.tues.tudy.data.remote.ApiServiceBuilder
-import org.tues.tudy.data.repository.CalendarRepository
 import org.tues.tudy.data.repository.EventRepository
 import org.tues.tudy.data.repository.StudyRepository
 import org.tues.tudy.utils.isUpcoming
@@ -19,7 +18,6 @@ import java.time.LocalDate
 class ProfileViewModel : ViewModel() {
 
     private val eventRepository = EventRepository(ApiServiceBuilder.apiService)
-    private val calendarRepository = CalendarRepository(ApiServiceBuilder.apiService)
     private val studyRepository = StudyRepository(ApiServiceBuilder.apiService)
 
     private val _uiState = MutableStateFlow(ProfileStatsUiState())

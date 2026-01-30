@@ -8,17 +8,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import kotlinx.coroutines.launch
 import org.tues.tudy.ui.components.CustomButton
 import org.tues.tudy.ui.components.CustomTextField
 import org.tues.tudy.ui.components.LogoPlusTitle
 import org.tues.tudy.ui.components.ProgressBar
 import org.tues.tudy.ui.navigation.Routes
 import org.tues.tudy.viewmodel.ResetPasswordViewModel
-import org.tues.tudy.R
-import org.tues.tudy.ui.common.SuccessErrorScreen
 import org.tues.tudy.ui.navigation.navigateToSuccessError
 
 @Composable

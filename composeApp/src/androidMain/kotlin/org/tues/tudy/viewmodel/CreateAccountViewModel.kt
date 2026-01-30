@@ -64,7 +64,7 @@ class CreateAccountViewModel : ViewModel() {
                 }
 
                 _emailSent.value = false
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 _state.value = CreateAccountState(
                     passwordError = R.string.unexpected_error
                 )

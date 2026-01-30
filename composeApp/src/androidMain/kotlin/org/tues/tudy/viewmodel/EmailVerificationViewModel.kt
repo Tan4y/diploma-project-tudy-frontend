@@ -49,7 +49,6 @@ class EmailVerificationViewModel : ViewModel() {
                 )
 
             } catch (e: Exception) {
-                Log.e("EmailVerificationVM", "Unexpected error: ${e.message}")
                 _state.value = EmailVerificationState(
                     loading = false,
                     error = R.string.unexpected_error
