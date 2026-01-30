@@ -86,12 +86,23 @@ fun <T> DropdownField(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             when {
-                isIconDropdown && selectedItem is Int -> Icon(
-                    painter = painterResource(selectedItem),
-                    contentDescription = null,
-                    tint = BaseColor100,
-                    modifier = Modifier.size(28.dp)
-                )
+                isIconDropdown && selectedItem is String -> {
+                    val context = LocalContext.current
+                    val iconResId = remember(selectedItem) {
+                        context.resources.getIdentifier(
+                            selectedItem,
+                            "drawable",
+                            context.packageName
+                        )
+                    }
+                    Icon(
+                        painter = painterResource(id = iconResId),
+                        contentDescription = selectedItem,
+                        tint = BaseColor100,
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
+
 
                 isTypeSubjectDropdown && selectedTypeSubject != null -> Row(
                     verticalAlignment = Alignment.CenterVertically,
