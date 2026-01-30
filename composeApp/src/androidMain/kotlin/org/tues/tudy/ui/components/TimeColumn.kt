@@ -18,7 +18,7 @@ fun TimeColumn(
     endHour: Int,
     hourHeightDp: Dp
 ) {
-    Column {
+    Column (modifier = Modifier.padding(vertical = Dimens.Space50)) {
         for (hour in startHour..endHour) {
             Text(
                 text = "%02d:00".format(hour),

@@ -1,5 +1,7 @@
 package org.tues.tudy.ui.components
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -27,9 +29,11 @@ import org.tues.tudy.ui.theme.Dimens
 import org.tues.tudy.ui.theme.Dimens.BorderRadius250
 import org.tues.tudy.ui.theme.PrimaryColor1
 import org.tues.tudy.ui.theme.PrimaryColor2
+import org.tues.tudy.ui.theme.SecondaryColor1
 import org.tues.tudy.ui.theme.shadow1
 import java.time.LocalDate
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CalendarDayCell(
     modifier: Modifier = Modifier,
@@ -61,6 +65,7 @@ fun CalendarDayCell(
         isToday -> BaseColor0
         day.date < LocalDate.now() -> BaseColor60
         day.items.any { it.isStudySession } -> PrimaryColor2
+        day.items.any {it.type == "personal"} -> SecondaryColor1
         day.items.isNotEmpty() -> PrimaryColor1
         else -> Color.Transparent
     }

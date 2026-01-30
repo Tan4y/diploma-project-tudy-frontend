@@ -1,5 +1,7 @@
 package org.tues.tudy.ui.components
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -26,9 +28,10 @@ import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CalendarWeekCell(
-    date: LocalDate, // or LocalDate
+    date: LocalDate,
     events: List<CalendarItem>,
     onClick: () -> Unit
 ) {
@@ -60,7 +63,8 @@ fun CalendarWeekCell(
             .clickable(
                 indication = null,
                 interactionSource = remember { MutableInteractionSource() }) { onClick() }
-            .background(BaseColor0),
+            .background(BaseColor0)
+            .padding(vertical = Dimens.Space75),
         horizontalArrangement = Arrangement.spacedBy(Dimens.Space100)
     ) {
         Column(
@@ -145,35 +149,6 @@ fun CalendarWeekCell(
                         )
                     }
                 }
-
-//                Column(
-//                    modifier = Modifier.weight(1f),
-//                    verticalArrangement = Arrangement.spacedBy(Dimens.Space25),
-//                ) {
-//                    secondColumn.forEach { event ->
-//                        Row(
-//                            horizontalArrangement = Arrangement.spacedBy(Dimens.Space25)
-//                        ) {
-//                            Text(
-//                                text = "•",
-//                                style = AppTypography.Paragraph1,
-//                                color = dotColor
-//                            )
-//                            Text(
-//                                text = event.title,
-//                                style = AppTypography.Paragraph1,
-//                                color = textColor
-//                            )
-//                            if (event.isStudySession) {
-//                                Text(
-//                                    text = "- session",
-//                                    style = AppTypography.Paragraph1,
-//                                    color = textColor
-//                                )
-//                            }
-//                        }
-//                    }
-//                }
             }
         }
     }
