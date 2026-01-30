@@ -8,9 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import android.util.Log
-import org.json.JSONObject
 import org.tues.tudy.R
-import org.tues.tudy.data.remote.ApiServiceBuilder
 import org.tues.tudy.data.storage.TokenStorage
 
 class LoginViewModel : ViewModel() {

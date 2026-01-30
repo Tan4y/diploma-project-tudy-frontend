@@ -226,7 +226,6 @@ fun StudyContent(
                             totalSeconds = state.totalSeconds,
                             remainingSeconds = state.remainingSeconds,
                             phase = state.phase,
-                            //modifier = Modifier.align(Alignment.CenterHorizontally)
                         )
                         if( state.phase == StudyPhase.STUDYING) {
                             Image(

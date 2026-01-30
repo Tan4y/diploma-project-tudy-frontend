@@ -79,12 +79,10 @@ fun SuccessErrorScreen(
             Spacer(modifier = Modifier.height(Dimens.Space150 + Dimens.Space125 + Dimens.Space150))
         }
 
-        // GROUP 1
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             LogoPlusTitle(title)
         }
 
-        // GROUP 2
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Image(
                 painter = painterResource(id = describeImage),
@@ -104,7 +102,6 @@ fun SuccessErrorScreen(
             )
         }
 
-        // GROUP 3
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(Dimens.Space75)

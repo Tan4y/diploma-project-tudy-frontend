@@ -8,12 +8,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.tues.tudy.data.model.CalendarDay
 import org.tues.tudy.data.model.CalendarItem
-import org.tues.tudy.data.model.User
 import org.tues.tudy.data.model.UserResponse
 import org.tues.tudy.data.remote.ApiServiceBuilder
 import org.tues.tudy.data.repository.CalendarRepository
 import org.tues.tudy.data.repository.EventRepository
-import org.tues.tudy.data.repository.TypeSubjectRepository
 import org.tues.tudy.ui.components.CalendarMode
 import org.tues.tudy.utils.toLocalDateSafe
 import java.time.DayOfWeek
@@ -149,7 +147,7 @@ class CalendarViewModel(
 
             CalendarDay(
                 date = date,
-                isCurrentMonth = true, // optional: you can check month if needed
+                isCurrentMonth = true,
                 items = itemsForDay,
                 eventsCount = itemsForDay.size
             )
@@ -160,18 +158,11 @@ class CalendarViewModel(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                // 1️⃣ Fetch all study sessions
                 val sessions = repository.getCalendarItems()
-
-                // 2️⃣ Fetch all parent events using EventRepository
                 val events = eventRepository.getEventsForUser(userId)
-
                 val allItems = mutableListOf<CalendarItem>()
-
-                // 3️⃣ Add all sessions
                 allItems.addAll(sessions)
 
-                // 4️⃣ Add events with totalPages = 0 or events with no sessions
                 events.forEach { event ->
                     val hasSession = sessions.any { it.id.startsWith(event._id) }
                     if (!hasSession || (event.totalPages ?: 0) == 0) {
@@ -192,7 +183,6 @@ class CalendarViewModel(
                     }
                 }
 
-                // 5️⃣ Map each item to the correct date
                 val itemsByDate: Map<LocalDate, List<CalendarItem>> = allItems.groupBy { item ->
                     if (item.isStudySession) {
                         val parentId = item.id.substringBefore("-")
@@ -202,7 +192,6 @@ class CalendarViewModel(
                     }
                 }
 
-                // 6️⃣ Build month grid
                 _days.value = buildMonthGrid(month, itemsByDate)
 
             } catch (e: Exception) {
@@ -261,8 +250,7 @@ class CalendarViewModel(
     }
 
     fun deleteEvent(
-        eventId: String,
-        userId: String
+        eventId: String
     ) {
         viewModelScope.launch {
             try {

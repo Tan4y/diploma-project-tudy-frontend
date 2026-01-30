@@ -6,9 +6,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import org.tues.tudy.data.remote.ApiServiceBuilder
 import org.tues.tudy.data.repository.AuthRepository
-import org.tues.tudy.data.repository.CalendarRepository
 
 class MoreMenuViewModel : ViewModel() {
     private val authRepository: AuthRepository by lazy {
@@ -27,8 +25,7 @@ class MoreMenuViewModel : ViewModel() {
                 val userResponse = authRepository.getUser(userId)
                 _username.value = userResponse.username
                 _email.value = userResponse.email
-            } catch (e: Exception) {
-                // handle error, maybe log
+            } catch (_: Exception) {
                 _username.value = "Username"
                 _email.value = "Email"
             }

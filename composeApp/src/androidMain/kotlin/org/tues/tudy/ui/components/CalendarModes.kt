@@ -9,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.navigation.NavController
 import org.tues.tudy.ui.theme.BaseColor0
 import org.tues.tudy.ui.theme.Dimens
 import org.tues.tudy.ui.theme.Dimens.BorderRadius250
@@ -17,9 +16,7 @@ import org.tues.tudy.ui.theme.shadow1
 
 @Composable
 fun CalendarModes(
-    navController: NavController,
     selectedMode: CalendarMode,
-    userId: String,
     onModeSelected: (CalendarMode) -> Unit
 ) {
     Row(

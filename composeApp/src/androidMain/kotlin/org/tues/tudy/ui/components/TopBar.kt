@@ -16,19 +16,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.tues.tudy.R
-import org.tues.tudy.ui.navigation.Routes
 import org.tues.tudy.ui.theme.AppTypography
 import org.tues.tudy.ui.theme.BaseColor0
 import org.tues.tudy.ui.theme.Dimens
@@ -37,12 +33,10 @@ import org.tues.tudy.ui.theme.PrimaryColor1
 
 @Composable
 fun TopBar(
-    modifier: Modifier = Modifier,
     navController: NavController? = null,
     mode: TopBarMode = TopBarMode.MENU,
     heading: String,
     onClose: (() -> Unit)? = null,
-    userId: String? = "",
     isMenuOpen: Boolean,
     onMenuClick: () -> Unit,
     onBack: (() -> Unit)? = null

@@ -15,13 +15,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavController
 import org.tues.tudy.ui.components.BarChart
 import org.tues.tudy.ui.components.StatCard
 import org.tues.tudy.ui.theme.Dimens
 import org.tues.tudy.viewmodel.ProfileViewModel
 import org.tues.tudy.utils.formatLocalDate
-import org.tues.tudy.utils.weekRangeFromDates
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.TextStyle
@@ -30,27 +28,15 @@ import java.util.Locale
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ProfileContent(
-    navController: NavController,
     viewModel: ProfileViewModel,
     userId: String,
     modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val today = LocalDate.now()
-    val daysOfWeek = listOf(
-        DayOfWeek.MONDAY,
-        DayOfWeek.TUESDAY,
-        DayOfWeek.WEDNESDAY,
-        DayOfWeek.THURSDAY,
-        DayOfWeek.FRIDAY,
-        DayOfWeek.SATURDAY,
-        DayOfWeek.SUNDAY
-    )
 
     val weekStart = today.with(DayOfWeek.MONDAY)
     val weekEnd = today.with(DayOfWeek.SUNDAY)
-
-
 
     LaunchedEffect(userId) {
         viewModel.loadProfileStats(userId)

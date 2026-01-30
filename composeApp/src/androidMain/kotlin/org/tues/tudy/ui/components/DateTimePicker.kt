@@ -10,7 +10,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import java.util.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -42,7 +41,6 @@ fun DateTimePicker(
     onEndTimePicked: (Boolean) -> Unit = {}
 ) {
     val context = LocalContext.current
-    val calendar = Calendar.getInstance()
 
     var datePicked by remember { mutableStateOf(false) }
     val activeColorDate = if (datePicked) BaseColor100 else BaseColor80

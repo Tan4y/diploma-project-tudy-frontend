@@ -1,6 +1,5 @@
 package org.tues.tudy.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -9,11 +8,9 @@ import kotlinx.coroutines.launch
 import org.tues.tudy.R
 import org.tues.tudy.data.repository.AuthRepository
 import retrofit2.HttpException
-import kotlin.invoke
 
 class ResetPasswordViewModel : ViewModel() {
     private val repo = AuthRepository()
-    private var resetToken: String = ""
 
     private val _state = MutableStateFlow(ResetPasswordState())
     val state: StateFlow<ResetPasswordState> = _state

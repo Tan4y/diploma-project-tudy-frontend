@@ -1,6 +1,5 @@
 package org.tues.tudy.ui.navigation
 
-import android.net.Uri
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController

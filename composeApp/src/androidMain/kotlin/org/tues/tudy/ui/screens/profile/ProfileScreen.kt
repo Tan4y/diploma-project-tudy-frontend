@@ -15,7 +15,6 @@ import org.tues.tudy.ui.components.BottomBar
 import org.tues.tudy.ui.components.TopBar
 import org.tues.tudy.ui.components.TopBarMode
 import org.tues.tudy.ui.navigation.Routes
-import org.tues.tudy.ui.screens.home.HomeContent
 import org.tues.tudy.ui.screens.moreMenu.OpenMoreMenu
 import org.tues.tudy.ui.theme.BaseColor0
 import org.tues.tudy.viewmodel.ProfileViewModel
@@ -35,7 +34,6 @@ fun ProfileScreen (
                     mode = TopBarMode.MENU,
                     heading = "Profile",
                     navController = navController,
-                    userId = userId,
                     isMenuOpen = isMenuOpen,
                     onMenuClick = {
                         isMenuOpen = !isMenuOpen
@@ -52,7 +50,6 @@ fun ProfileScreen (
             containerColor = BaseColor0
         ) { innerPadding ->
             ProfileContent(
-                navController = navController,
                 viewModel = viewModel,
                 modifier = Modifier
                     .padding(innerPadding),

@@ -15,8 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import org.tues.tudy.R
-import androidx.navigation.NavController
-import org.tues.tudy.ui.navigation.Routes
 import org.tues.tudy.ui.theme.AppTypography
 import org.tues.tudy.ui.theme.BaseColor100
 import org.tues.tudy.ui.theme.BaseColor80
@@ -25,7 +23,6 @@ import org.tues.tudy.ui.theme.Dimens
 @Composable
 fun TitlePlus(
     value: String,
-    modifier: Modifier = Modifier,
     onAddClick: () -> Unit
 ) {
     Row(

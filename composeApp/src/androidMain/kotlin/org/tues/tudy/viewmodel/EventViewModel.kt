@@ -36,16 +36,6 @@ class EventViewModel : ViewModel() {
     private val _isLoading = MutableStateFlow(false)
     val isLoading = _isLoading.asStateFlow()
 
-    val calendarItems = MutableStateFlow<List<CalendarItem>>(emptyList())
-
-//    fun loadCalendar(userId: String) {
-//        viewModelScope.launch {
-//            val repository = repository.getCalendarItems()
-//            calendarItems.value = repository
-//        }
-//    }
-
-
     private val _studySessions = MutableStateFlow<List<CalendarItem>>(emptyList())
     val studySessions: StateFlow<List<CalendarItem>> = _studySessions.asStateFlow()
 
@@ -61,29 +51,20 @@ class EventViewModel : ViewModel() {
     val items: StateFlow<List<TypeSubject>> = _items.asStateFlow()
 
     private val _errorMessage = MutableStateFlow<String?>(null)
-    val errorMessage = _errorMessage.asStateFlow()
-
-
-    private fun extractEventIdFromSessionId(sessionId: String): String {
-        return sessionId.substringBeforeLast("-")
-    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun loadEvents(userId: String) {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                // 1️⃣ Get all events from the backend
                 val eventsResponse = repository.getEventsForUser(userId)
-                _events.value = eventsResponse.sortedBy { it.date } // use actual event date
+                _events.value = eventsResponse.sortedBy { it.date }
 
-                // 2️⃣ Get all calendar sessions separately (for splitting study plan sessions)
                 val calendarItems = calendarRepository.getCalendarItems()
                 _studySessions.value = calendarItems
-                    .filter { it.type == "study" } // include all study events, even 0 pages
+                    .filter { it.type == "study" }
                     .sortedBy { it.startDateTime }
 
-                // 3️⃣ Load TypeSubjects
                 val typesResponse = typeSubjectRepository.getItems(userId, "type")
                 val subjectsResponse = typeSubjectRepository.getItems(userId, "subject")
                 val typeSubjects =
@@ -105,30 +86,6 @@ class EventViewModel : ViewModel() {
                 Log.e("EventVM", "loadEvents ERROR", e)
             } finally {
                 _isLoading.value = false
-            }
-        }
-    }
-
-
-
-    fun loadTudiesByCategory(userId: String, category: String) {
-        viewModelScope.launch {
-            try {
-                val count = repository.getTudiesCountByCategory(userId, category)
-                _tudiesCount.value = count
-            } catch (e: Exception) {
-                _tudiesCount.value = 0
-            }
-        }
-    }
-
-    fun loadTudiesBySubject(userId: String, subject: String) {
-        viewModelScope.launch {
-            try {
-                val count = repository.getTudiesCountBySubject(userId, subject)
-                _tudiesCount.value = count
-            } catch (e: Exception) {
-                _tudiesCount.value = 0
             }
         }
     }
@@ -165,6 +122,4 @@ class EventViewModel : ViewModel() {
             }
         }
     }
-
-
 }

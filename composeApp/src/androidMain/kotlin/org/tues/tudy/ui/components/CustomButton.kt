@@ -1,8 +1,6 @@
 package org.tues.tudy.ui.components
 
-import android.graphics.Color
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -15,7 +13,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.dp
 import org.tues.tudy.ui.theme.AppTypography
 import org.tues.tudy.ui.theme.BaseColor0
 import org.tues.tudy.ui.theme.BaseColor80
@@ -65,11 +62,6 @@ fun CustomButton(
         modifier = modifier
             .then(buttonWidth)
             .shadow1()
-//            .border(
-//                width = 1.dp,
-//                color = backgroundColor,
-//                shape = RoundedCornerShape(BorderRadius200)
-//            )
             .background(backgroundColor, RoundedCornerShape(borderRadius))
             .clip(RoundedCornerShape(BorderRadius200))
             .clickable(
@@ -85,7 +77,7 @@ fun CustomButton(
         Text(
             text = value,
             style = textStyle,
-            color = BaseColor0
+            color = if (enabledColor == BaseColor0) PrimaryColor1 else BaseColor0
         )
     }
 }

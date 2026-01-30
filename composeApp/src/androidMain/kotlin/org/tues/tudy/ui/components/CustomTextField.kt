@@ -38,7 +38,6 @@ import org.tues.tudy.ui.theme.Dimens.BorderRadius200
 import org.tues.tudy.ui.theme.ErrorColor
 import org.tues.tudy.ui.theme.PrimaryColor1
 
-
 @Composable
 fun CustomTextField(
     value: String,
