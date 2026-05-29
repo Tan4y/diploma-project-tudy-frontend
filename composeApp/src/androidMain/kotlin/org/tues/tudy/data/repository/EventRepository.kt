@@ -1,5 +1,6 @@
 package org.tues.tudy.data.repository
 
+import org.tues.tudy.data.model.CreateEventRequest
 import org.tues.tudy.data.model.Event
 import org.tues.tudy.data.remote.ApiService
 
@@ -34,7 +35,16 @@ class EventRepository(private val api: ApiService) {
         } else throw Exception("Failed to fetch events")
     }
 
+    suspend fun createEvent(request: CreateEventRequest) {
+        val response = api.createEvent(request)
 
+        if (!response.isSuccessful) {
+            throw Exception(
+                response.errorBody()?.string()
+                    ?: "Failed to create event"
+            )
+        }
+    }
     suspend fun deleteEvent(eventId: String) {
         val response = api.deleteEvent(eventId)
         if (!response.isSuccessful) {
