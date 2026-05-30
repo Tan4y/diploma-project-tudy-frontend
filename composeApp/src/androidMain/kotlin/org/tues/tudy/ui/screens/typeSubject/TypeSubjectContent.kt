@@ -105,6 +105,11 @@ fun TypeSubjectContent(
         combined
     }
 
+    Log.d(TAG, "ALL ITEMS COUNT: ${allItems.size}")
+    allItems.forEach {
+        Log.d(TAG, "ALL ITEM -> id=${it.id}, title=${it.title}, subject=${it.subject}, category=${it.category}")
+    }
+
     val groupedItems: List<Pair<String, List<CalendarItem>>> = if (clickedIsType) {
         allItems
             .filter { resolveCategory(it).equals(title, ignoreCase = true) }
@@ -120,6 +125,11 @@ fun TypeSubjectContent(
     val sessionsByTitle = remember(studyItems) {
         studyItems.groupBy { it.title }
     }
+    Log.d(TAG, "SESSIONS BY TITLE KEYS: ${sessionsByTitle.keys}")
+
+    sessionsByTitle.forEach { (title, sessions) ->
+        Log.d(TAG, "TITLE GROUP -> $title | sessions=${sessions.size}")
+    }
 
     val calendarItemsByTitle = remember(allItems) {
         allItems.associateBy { it.title }
@@ -131,6 +141,7 @@ fun TypeSubjectContent(
                 // Get first session of this event to check subject/category
                 val firstSession =
                     sessionsByTitle[eventTitle]?.firstOrNull() ?: return@filterKeys false
+                Log.d(TAG, "Checking event=$eventTitle firstSession=${firstSession?.title} category=${firstSession?.category} subject=${firstSession?.subject}")
 
                 if (clickedIsType) {
                     firstSession.category?.equals(title, ignoreCase = true) ?: false
@@ -140,7 +151,12 @@ fun TypeSubjectContent(
             }
             .toList()
     }
+    Log.d(TAG, "FILTER CHECK TITLE=$title clickedIsType=$clickedIsType")
+    Log.d(TAG, "FILTERED GROUPS SIZE: ${filteredGroups.size}")
 
+    filteredGroups.forEach { (title, sessions) ->
+        Log.d(TAG, "GROUP -> $title | sessions=${sessions.size}")
+    }
     val isEmpty = filteredGroups.isEmpty()
 
 
@@ -180,7 +196,15 @@ fun TypeSubjectContent(
         }
     }
 
+    Log.d(TAG, "HIERARCHICAL GROUPS SIZE: ${hierarchicalGroups.size}")
 
+    hierarchicalGroups.forEach { (dimension, eventsMap) ->
+        Log.d(TAG, "DIMENSION -> $dimension")
+
+        eventsMap.forEach { (eventTitle, sessions) ->
+            Log.d(TAG, "  EVENT -> $eventTitle | sessions=${sessions.size}")
+        }
+    }
     Log.d(TAG, "Study events (upcoming only): ${studyEvents.size}")
 
     val selectedItem = viewModel.items.collectAsState().value.find {
@@ -325,6 +349,19 @@ fun TypeSubjectContent(
                                             "DeleteEvent",
                                             "Could not find parent event with title: $eventTitle"
                                         )
+                                    }
+
+                                    Log.d("DELETE_DEBUG", "Trying to delete eventTitle=$eventTitle")
+
+                                    if (parentEvent != null) {
+                                        Log.d("DELETE_DEBUG", "FOUND EVENT -> id=${parentEvent._id}, title=${parentEvent.title}")
+                                    } else {
+                                        Log.e("DELETE_DEBUG", "NOT FOUND EVENT for title=$eventTitle")
+
+                                        Log.d("DELETE_DEBUG", "AVAILABLE EVENTS:")
+                                        events.forEach {
+                                            Log.d("DELETE_DEBUG", " -> id=${it._id}, title=${it.title}")
+                                        }
                                     }
                                 }
                             )
