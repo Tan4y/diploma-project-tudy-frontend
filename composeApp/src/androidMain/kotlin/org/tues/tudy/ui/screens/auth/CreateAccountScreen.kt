@@ -1,5 +1,4 @@
 package org.tues.tudy.ui.screens.auth
-
 import android.os.Build
 import androidx.annotation.RequiresExtension
 import org.tues.tudy.R

@@ -1,7 +1,5 @@
 package org.tues.tudy.ui.screens.addTudy
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -49,7 +47,6 @@ import java.util.Calendar
 
 const val MIN_EVENT_DURATION_MS = 15 * 60 * 1000L
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AddTudyContent(
     modifier: Modifier = Modifier,
