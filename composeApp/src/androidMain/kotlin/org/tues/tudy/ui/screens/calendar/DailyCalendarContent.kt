@@ -52,7 +52,7 @@ fun DailyCalendarContent(
 
     val baseMinuteHeight = hourHeightDp / 60f
 
-    val minEventHeight = 80.dp
+    val minEventHeight = Dimens.Space500
 
     val scaleFactor = min(
         5f,

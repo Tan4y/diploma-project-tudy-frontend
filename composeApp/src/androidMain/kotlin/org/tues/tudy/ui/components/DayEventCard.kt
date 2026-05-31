@@ -84,9 +84,11 @@ fun DayEventCard(
 
     val shadowGap = if (showShadow) Dimens.Space25 else Dimens.Space0
 
-    val studyButtonColor = if ( isToday && nowMinutes in startMinutes until endMinutes) BaseColor0 else PrimaryColor1
+    val studyButtonColor =
+        if (isToday && nowMinutes in startMinutes until endMinutes) BaseColor0 else PrimaryColor1
 
-    val deleteButtonColor = if ( isToday && nowMinutes in startMinutes until endMinutes) BaseColor0 else BaseColor80
+    val deleteButtonColor =
+        if (isToday && nowMinutes in startMinutes until endMinutes) BaseColor0 else BaseColor80
 
     Column(
         modifier = Modifier
@@ -133,13 +135,38 @@ fun DayEventCard(
                     style = AppTypography.Caption1,
                     color = textColor
                 )
+
+                Spacer(modifier = Modifier.height(Dimens.Space50))
+
                 if (item.pagesTo != 0 && item.pagesTo != null) {
-                    Spacer(modifier = Modifier.height(Dimens.Space50))
                     Text(
                         text = "pages: ${item.pagesFrom} – ${item.pagesTo}",
                         style = AppTypography.Caption1,
                         color = if (isToday && nowMinutes in startMinutes until endMinutes) BaseColor0 else BaseColor80
                     )
+                } else {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End,
+                    ) {
+                        CustomButton(
+                            value = "Delete",
+                            enabled = true,
+                            onClick = { onDelete(item) },
+                            size = ButtonSize.SMALL,
+                            color = deleteButtonColor,
+                        )
+                        if (item.date.toLocalDateSafe() >= today && item.type == "study") {
+                            Spacer(modifier = Modifier.width(Dimens.Space25))
+                            CustomButton(
+                                value = "Study",
+                                enabled = true,
+                                onClick = { navController.navigate(Routes.studyRoute(userId)) },
+                                size = ButtonSize.SMALL,
+                                color = studyButtonColor,
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -152,23 +179,14 @@ fun DayEventCard(
             )
         }
 
-        if (item.date.toLocalDateSafe() >= today) {
+        if (item.pagesTo != 0 && item.pagesTo != null) {
             Spacer(modifier = Modifier.weight(1f))
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End,
             ) {
-                if (item.pagesTo == 0 || item.pagesTo == null || item.type == "personal") {
-                    CustomButton(
-                        value = "Delete",
-                        enabled = true,
-                        onClick = { onDelete(item) },
-                        size = ButtonSize.SMALL,
-                        color = deleteButtonColor,
-                    )
-                }
-                if (item.type == "study") {
+                Spacer(modifier = Modifier.weight(1f))
+                if (item.date.toLocalDateSafe() >= today && item.type == "study") {
                     Spacer(modifier = Modifier.width(Dimens.Space50))
                     CustomButton(
                         value = "Study",
