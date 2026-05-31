@@ -1,7 +1,5 @@
 package org.tues.tudy.data.model
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -21,7 +19,6 @@ data class CalendarItem(
     val pagesTo: Int? = null
 ) {
     private val now: LocalDateTime
-        @RequiresApi(Build.VERSION_CODES.O)
         get() = LocalDateTime.now(ZoneId.systemDefault())
 
     val startDateTime: LocalDateTime
