@@ -44,12 +44,12 @@ fun MonthlyCalendarContent(
             }
         }
 
-        Spacer(modifier = Modifier.height(Dimens.Space100))
+        Spacer(modifier = Modifier.height(Dimens.Space75))
 
         Column(
             verticalArrangement = Arrangement.spacedBy(Dimens.Space50),
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.verticalScroll(rememberScrollState())
+            modifier = Modifier.verticalScroll(rememberScrollState()).padding(vertical = Dimens.Space25)
         ) {
             val weeks = days.chunked(7)
             weeks.forEach { week ->
