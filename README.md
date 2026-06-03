@@ -1,27 +1,122 @@
-This is a Kotlin Multiplatform project targeting Android.
+# Tudy – Frontend
 
-* [/composeApp](./composeApp/src) is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - [commonMain](./composeApp/src/commonMain/kotlin) is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    the [iosMain](./composeApp/src/iosMain/kotlin) folder would be the right place for such calls.
-    Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./composeApp/src/jvmMain/kotlin)
-    folder is the appropriate location.
+## Study with Tudy
 
-### Build and Run Android Application
+### Описание
 
-To build and run the development version of the Android app, use the run configuration from the run widget
-in your IDE’s toolbar or build it directly from the terminal:
-- on macOS/Linux
-  ```shell
-  ./gradlew :composeApp:assembleDebug
-  ```
-- on Windows
-  ```shell
-  .\gradlew.bat :composeApp:assembleDebug
-  ```
+Frontend частта на Tudy представлява мобилно приложение за Android, разработено с Kotlin Multiplatform в средата Android Studio.
+
+Приложението е предназначено за ученици от гимназиален етап на обучение (14–19 години) и студенти в началните курсове на висшето образование. Целта му е да подпомага организацията и разпределянето на учебните задачи чрез календар, автоматично генерирани учебни планове, фокус режим и статистики.
 
 ---
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+## Основни функционалности
+
+### Управление на потребителски акаунт
+
+Приложението предоставя възможност за:
+
+* регистрация чрез потребителско име, имейл и парола;
+* вход чрез потребителско име и парола;
+* имейл верификация;
+* възстановяване на забравена парола;
+* смяна на парола;
+* смяна на потребителско име;
+* изход от профила;
+* изтриване на акаунт.
+
+### Управление на събития
+
+Потребителят може да създава:
+
+* учебни събития;
+* лични събития.
+
+При създаване на учебно събитие се генерира автоматичен учебен план, ако са въведени брой страници по-голям от нула.
+
+### Календар
+
+Приложението предоставя:
+
+* месечен изглед;
+* седмичен изглед;
+* дневен изглед.
+
+### Категории и предмети
+
+Налични са категории и учебни предмети по подразбиране, като потребителят може:
+
+* да създава собствени;
+* да избира икона за тях;
+* да премахва съществуващи.
+
+В категориите и предметите се визуализират единствено учебни събития.
+
+### Фокус режим
+
+Фокус режимът използва:
+
+* 15 минути учене;
+* 3 минути почивка;
+* 4 последователни цикъла.
+
+### Статистики
+
+Потребителят може да проследява:
+
+* общ брой събития;
+* брой предстоящи събития;
+* общо време, прекарано във фокус режим (времето за учене);
+* време, прекарано в учене, по дни за текущата седмица.
+
+---
+
+## Архитектура
+
+Frontend приложението използва:
+
+* MVVM архитектура;
+* Repository Pattern.
+
+---
+
+## Използвани технологии
+
+* Kotlin Multiplatform
+* Jetpack Compose
+* Android Studio
+
+---
+
+## Версии
+
+| Компонент             | Версия                        |
+| --------------------- | ----------------------------- |
+| Android Studio        | Otter 2 Feature Drop 2025.2.2 |
+| Kotlin                | 2.2.21                        |
+| Compose Multiplatform | 1.9.3                         |
+| Android Min SDK       | 24                            |
+| Android Target SDK    | 36                            |
+
+---
+
+## Стартиране на проекта
+
+1. Отворете проекта в Android Studio.
+2. Изчакайте синхронизацията на зависимостите.
+3. Стартирайте Android емулатор или физическо устройство.
+4. Стартирайте приложението чрез Run.
+
+---
+
+### Автор
+
+Таня Колева
+
+### Дипломен ръководител
+
+Станислав Милев
+
+### Дипломен рецензент
+
+Станислав Русев
